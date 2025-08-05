@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nhs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nhs-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - nhs-network
+
+  server:
+    build: ./server
+    container_name: nhs-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      BASE_URL: http://localhost:4000
+      PORT: 4000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres_password
+      JWT_SECRET: your-super-secret-jwt-key
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+      SMTP_FROM: no-reply@nhs.local
+    ports:
+      - "4000:4000"
+      - "9229:9229"  # Debug port
+    volumes:
+      - ./server/uploads:/app/uploads
+      - ./server/src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nhs-network
+
+volumes:
+  postgres_data:
+
+networks:
+  nhs-network:

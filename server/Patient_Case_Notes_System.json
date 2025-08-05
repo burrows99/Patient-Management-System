@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "9cabfa8e-8edb-4c36-b7ee-019ce0d459ee",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18109367"
+	},
+	"item": [
+		{
+			"name": "Doctor",
+			"item": [
+				{
+					"name": "Doctor Verification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/doctor/verify?token={{token}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"doctor",
+								"verify"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Doctor registration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{doctorEmail}}\",\n    \"password\": \"{{doctorPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/doctor/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"doctor",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Doctor Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{doctorEmail}}\",\n    \"password\": \"{{doctorPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/doctor/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"doctor",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite patient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQzZGZiZmM5LWJjZTUtNDMzMC1iYTU3LTkyYjYyZTE0MTJiMSIsInJvbGUiOiJkb2N0b3IiLCJpYXQiOjE3NTQ0MDkxNzgsImV4cCI6MTc1NDQxMjc3OH0.hcc6zzp-LBiU7gB98371RKiVJMmwuV1KBFXSo5BYFkY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"email\": \"{{patientEmail}}\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/doctor/invite-patient",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"doctor",
+								"invite-patient"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Patient",
+			"item": [
+				{
+					"name": "Register Patient",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"inviteToken\": \"b840a77d600db3f56ec25cb6fca58676ed07c379\",\n    \"password\": \"Choraakash1@\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/patient/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"patient",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patient Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{patientEmail}}\",\n    \"password\": \"{{patientPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/patient/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"patient",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "Create note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6MywiZW1haWwiOiJyYXVuYWtidXJyb3dzQGdtYWlsLmNvbSIsImlhdCI6MTc1NDM4MzYwMSwiZXhwIjoxNzU0NDEyNDAxfQ.gzv02JpU_4TYy09Ds1kS8BxTYt0WvHJ1e-VDCfpYSYM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Patient reported feeling better today.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/patients/1/notes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"patients",
+								"1",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "doctorEmail",
+			"value": "raunakburrows@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "doctorPassword",
+			"value": "Choraakash1@",
+			"type": "string"
+		},
+		{
+			"key": "patientEmail",
+			"value": "raunakburrows1999@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "patientPassword",
+			"value": "Choraakash1@",
+			"type": "string"
+		}
+	]
+}
