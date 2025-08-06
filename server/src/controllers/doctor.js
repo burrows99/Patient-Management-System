@@ -3,9 +3,9 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { sendEmail } from '../utils/email.js';
 import { addUser, findUserByEmail, findUserByVerificationToken, updateUser } from '../db/users.js';
-import { addInvite } from '../db/patientInvites.js';
 import { JWT_SECRET } from '../middlewares/auth.js';
 import jwt from 'jsonwebtoken';
+import { getFullUrl } from '../utils/environment.js';
 
 export async function registerDoctor(req, res) {
   try {
@@ -26,7 +26,7 @@ export async function registerDoctor(req, res) {
 
     const addedUser = await addUser({ email, passwordHash, role: 'doctor', isVerified: false, verificationToken, status: 'pending_verification' });
     
-    const verificationLink = `${process.env.BASE_URL}/api/doctor/verify?token=${verificationToken}`;
+    const verificationLink = getFullUrl(`/api/doctor/verify?token=${verificationToken}`);
 
     const sentEmail = await sendEmail(email, 'Verify your doctor account', `Click to verify your email: ${verificationLink}`);
 

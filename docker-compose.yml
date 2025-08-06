@@ -1,4 +1,23 @@
 services:
+  client:
+    build:
+      context: ./client
+      args:
+        - REACT_APP_API_URL=http://server:4000
+        - REACT_APP_DOCKER=true
+    container_name: nhs-client
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://server:4000
+      - REACT_APP_DOCKER=true
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - nhs-network
+
   postgres:
     image: postgres:15-alpine
     container_name: nhs-postgres
@@ -30,22 +49,28 @@ services:
       - nhs-network
 
   server:
-    build: ./server
+    build: 
+      context: ./server
+      args:
+        - NODE_ENV=development
     container_name: nhs-server
     restart: unless-stopped
     environment:
-      NODE_ENV: development
-      BASE_URL: http://localhost:4000
-      PORT: 4000
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: postgres
-      DB_USER: postgres
-      DB_PASSWORD: postgres_password
-      JWT_SECRET: your-super-secret-jwt-key
-      SMTP_HOST: mailhog
-      SMTP_PORT: 1025
-      SMTP_FROM: no-reply@nhs.local
+      - NODE_ENV=development
+      - BASE_URL=http://server:4000
+      - PUBLIC_URL=http://localhost:4000
+      - FRONTEND_URL=http://localhost:3000
+      - DOCKER=true
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres_password
+      - JWT_SECRET=your-super-secret-jwt-key
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_FROM=no-reply@nhs.local
+      - PORT=4000
     ports:
       - "4000:4000"
       - "9229:9229"  # Debug port

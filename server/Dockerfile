@@ -14,6 +14,10 @@ COPY . .
 # Set environment variables
 ENV NODE_ENV=development
 ENV PORT=4000
+ENV BASE_URL=http://localhost:4000
+ENV PUBLIC_URL=http://localhost:4000
+ENV FRONTEND_URL=http://localhost:3000
+ENV DOCKER=true
 ENV DB_HOST=postgres
 ENV DB_PORT=5432
 ENV DB_NAME=postgres

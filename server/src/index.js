@@ -1,5 +1,6 @@
 // server.js
 import express from 'express';
+import cors from 'cors';
 import doctorRoutes from './routers/doctor.js';
 import patientRoutes from './routers/patient.js';
 import path from 'path';
@@ -12,6 +13,33 @@ const __dirname = path.dirname(__filename);
 const publicPath = path.join(__dirname, '..', 'public');
 
 const app = express();
+
+// Configure CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:4000',
+  'http://localhost:80',
+  'http://localhost',
+  'http://client:80',
+  'http://client:3000'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-request-id']
+}));
+
 app.use(express.json());
 app.use(express.static(publicPath));
 
