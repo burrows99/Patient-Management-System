@@ -165,3 +165,46 @@ export async function loginPatient(req, res) {
     });
   }
 }
+
+/**
+ * Get patient profile
+ * @route GET /api/patient/profile
+ * @access Private (Patient only)
+ */
+export async function getPatientProfile(req, res) {
+  try {
+    // The authenticated user is attached to the request by the auth middleware
+    const patient = req.user;
+    
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+
+    // Return the patient's profile information
+    res.json({
+      id: patient.id,
+      email: patient.email,
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+      dateOfBirth: patient.dateOfBirth,
+      phoneNumber: patient.phoneNumber,
+      address: patient.address,
+      city: patient.city,
+      state: patient.state,
+      zipCode: patient.zipCode,
+      country: patient.country,
+      emergencyContact: patient.emergencyContact,
+      emergencyPhone: patient.emergencyPhone,
+      bloodType: patient.bloodType,
+      allergies: patient.allergies,
+      medications: patient.medications,
+      conditions: patient.conditions,
+      notes: patient.notes,
+      createdAt: patient.createdAt,
+      updatedAt: patient.updatedAt
+    });
+  } catch (error) {
+    console.error('Error fetching patient profile:', error);
+    res.status(500).json({ error: 'Failed to fetch patient profile' });
+  }
+}

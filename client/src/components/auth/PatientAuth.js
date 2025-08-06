@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
 import { auth } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const PatientAuth = () => {
   const [formData, setFormData] = useState({
@@ -44,6 +45,7 @@ const PatientAuth = () => {
     setSuccess(null);
   };
 
+  const { login } = useAuth();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -65,8 +67,16 @@ const PatientAuth = () => {
       
       const response = await auth.loginPatient(loginData);
       console.log('Login successful:', response);
-      setSuccess('Login successful!');
-      navigate('/patient/dashboard');
+      
+      // Update auth state using the login function from AuthContext
+      const loginResult = await login(loginData.email, loginData.password, 'patient');
+      
+      if (loginResult.success) {
+        setSuccess('Login successful!');
+        navigate('/patient/dashboard');
+      } else {
+        throw new Error(loginResult.error || 'Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message || 'Invalid email or password. Please try again.');

@@ -1,10 +1,18 @@
 // /routes/patientRoutes.js
 import express from 'express';
-import { loginPatient } from '../controllers/patient.js';
+import { 
+  loginPatient,
+  getPatientProfile 
+} from '../controllers/patient.js';
+import { authenticateJWT } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Only login endpoint for patients
+// Public routes
 router.post('/login', loginPatient);
+
+// Protected routes (require authentication)
+router.use(authenticateJWT);
+router.get('/profile', getPatientProfile);
 
 export default router;
