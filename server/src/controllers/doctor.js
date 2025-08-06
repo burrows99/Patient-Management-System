@@ -2,33 +2,78 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { sendEmail } from '../utils/email.js';
-import { addUser, findUserByEmail, findUserByVerificationToken, updateUser } from '../db/users.js';
+import { 
+  addUser, 
+  findUserByEmail, 
+  findUserByVerificationToken, 
+  updateUser,
+  findUsersByDoctorId,
+  findUserById 
+} from '../db/users.js';
 import { JWT_SECRET } from '../middlewares/auth.js';
 import jwt from 'jsonwebtoken';
-import { getFullUrl } from '../utils/environment.js';
+import { getFrontendUrl } from '../utils/environment.js';
+import { USER_ROLES, USER_STATUS } from '../constants/user.js';
 
 export async function registerDoctor(req, res) {
   try {
     const { email, password } = req.body;
+
+    // Basic validation
     if (!email || !password) {
-      console.warn(`registerDoctor: Missing email or password`);
       return res.status(400).json({ error: 'Email and password are required' });
     }
+
+    if (password.length < 8) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 8 characters long' 
+      });
+    }
+
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
-    console.info(`registerDoctor: Attempt to register existing email: ${email}`);
-    return res.status(400).json({ error: 'Email already registered' });
+      console.info(`registerDoctor: Attempt to register existing email: ${email}`);
+      return res.status(400).json({ error: 'Email already registered' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
-    const addedUser = await addUser({ email, passwordHash, role: 'doctor', isVerified: false, verificationToken, status: 'pending_verification' });
+    const addedUser = await addUser({
+      email,
+      passwordHash,
+      role: USER_ROLES.DOCTOR,
+      status: USER_STATUS.PENDING_VERIFICATION,
+      verificationToken
+    });
     
-    const verificationLink = getFullUrl(`/api/doctor/verify?token=${verificationToken}`);
+    const verificationLink = `${getFrontendUrl()}/doctor/verify?token=${verificationToken}`;
 
-    const sentEmail = await sendEmail(email, 'Verify your doctor account', `Click to verify your email: ${verificationLink}`);
+    const sentEmail = await sendEmail(
+      email, 
+      'Verify your doctor account', 
+      `Please click the link below to verify your email address:
+
+${verificationLink}
+
+This link will expire in 24 hours.
+
+If you did not create an account, please ignore this email.`,
+      `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Email Verification</h2>
+          <p>Thank you for registering as a doctor. Please click the button below to verify your email address:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" style="background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Verify Email</a>
+          </div>
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all;">${verificationLink}</p>
+          <p>This link will expire in 24 hours.</p>
+          <p>If you did not create an account, please ignore this email.</p>
+        </div>
+      `
+    );
 
     if (!sentEmail?.accepted?.includes(email)) {
       console.error(`registerDoctor: Email sending failed for ${email}`);
@@ -60,7 +105,7 @@ export async function verifyDoctorEmail(req, res) {
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
 
-    if (user.role !== 'doctor') {
+    if (user.role !== USER_ROLES.DOCTOR) {
       console.warn(`verifyDoctorEmail: User with token ${token} is not a doctor`);
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
@@ -75,7 +120,7 @@ export async function verifyDoctorEmail(req, res) {
     const updateData = {
       id: user.id,
       isVerified: true,
-      status: 'active',
+      status: USER_STATUS.ACTIVE,
       verificationToken: null
     };
     
@@ -104,7 +149,7 @@ export async function loginDoctor(req, res) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
     const user = await findUserByEmail(email);
-    if (!user || user?.role !== 'doctor') {
+    if (!user || user?.role !== USER_ROLES.DOCTOR) {
       console.warn(`loginDoctor: Invalid credentials for email ${email}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -123,6 +168,63 @@ export async function loginDoctor(req, res) {
   } catch (error) {
     console.error(`loginDoctor: Error logging in doctor: ${error.message}`);
     res.status(500).json({ error: 'Failed to login doctor' });
+  }
+}
+
+/**
+ * Get all patients for the current doctor
+ */
+export async function getPatients(req, res) {
+  try {
+    const doctorId = req.user.id;
+    const patients = await findUsersByDoctorId(doctorId);
+    
+    // Format the response to include status
+    const formattedPatients = patients.map(patient => ({
+      id: patient.id,
+      email: patient.email,
+      name: patient.name,
+      status: patient.isVerified ? 'accepted' : 'pending',
+      invitedAt: patient.createdAt,
+      acceptedAt: patient.isVerified ? patient.updatedAt : null
+    }));
+
+    res.json(formattedPatients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ error: 'Failed to fetch patients' });
+  }
+}
+
+/**
+ * Get patient details by ID
+ */
+export async function getPatientById(req, res) {
+  try {
+    const { patientId } = req.params;
+    const doctorId = req.user.id;
+    
+    // Find the patient and verify they belong to the doctor
+    const patient = await findUserById(patientId);
+    
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+    
+    // Verify the patient was invited by the doctor
+    if (patient.invitedBy !== doctorId) {
+      return res.status(403).json({ error: 'Not authorized to view this patient' });
+    }
+    
+    // Return patient details (exclude sensitive data)
+    const { passwordHash, verificationToken, ...patientData } = patient;
+    res.json({
+      ...patientData,
+      status: patient.isVerified ? 'accepted' : 'pending'
+    });
+  } catch (error) {
+    console.error('Error fetching patient:', error);
+    res.status(500).json({ error: 'Failed to fetch patient details' });
   }
 }
 
@@ -147,8 +249,8 @@ export async function invitePatient(req, res) {
     const invitedUser = await addUser({
       email,
       passwordHash: null, // No password set yet for invited users
-      role: 'patient',
-      status: 'invited',
+      role: USER_ROLES.PATIENT,
+      status: USER_STATUS.INVITED,
       isVerified: false,
       verificationToken: null,
       inviteToken: inviteToken,
@@ -161,13 +263,13 @@ export async function invitePatient(req, res) {
       return res.status(500).json({ error: 'Failed to create patient invite' });
     }
 
-    const inviteLink = `${process.env.BASE_URL}/patient/register?token=${inviteToken}`;
+    const inviteLink = `${getFrontendUrl()}/login/patient?inviteToken=${inviteToken}&email=${encodeURIComponent(email)}`;
     const sentEmail = await sendEmail(
       email,
-      'You are invited to register as a patient',
+      'You are invited to login as a patient',
       `You've been invited to join the NHS Patient Portal by your doctor.
       
-Please complete your registration by clicking the link below:
+Please complete your login by clicking the link below:
 ${inviteLink}
 
 This link will expire in 24 hours.

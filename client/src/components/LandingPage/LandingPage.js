@@ -37,7 +37,7 @@ const LandingPage = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate('/doctor/auth')}
+            onClick={() => navigate('/login/doctor')}
             sx={{ minWidth: 200 }}
           >
             I'm a Doctor
@@ -46,7 +46,7 @@ const LandingPage = () => {
           <Button
             variant="outlined"
             size="large"
-            onClick={() => navigate('/patient/auth')}
+            onClick={() => navigate('/login/patient')}
             sx={{ minWidth: 200 }}
           >
             I'm a Patient

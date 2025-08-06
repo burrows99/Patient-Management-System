@@ -1,5 +1,6 @@
 // /db/users.js
 import User from '../models/User.js';
+import { USER_ROLES } from '../constants/user.js';
 
 export async function findUserByEmail(email) {
   return await User.findOne({ where: { email } });
@@ -55,4 +56,19 @@ export async function updateUser(userData) {
 
 export async function getAllUsers() {
   return await User.findAll();
+}
+
+/**
+ * Find all patients associated with a specific doctor
+ * @param {number} doctorId - The ID of the doctor
+ * @returns {Promise<Array>} Array of patient users
+ */
+export async function findUsersByDoctorId(doctorId) {
+  return await User.findAll({
+    where: { 
+      invitedBy: doctorId,  // Using invitedBy instead of doctorId
+      role: USER_ROLES.PATIENT // Only return patients
+    },
+    order: [['createdAt', 'DESC']]
+  });
 }

@@ -1,12 +1,20 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { AuthProvider } from './contexts/AuthContext';
 import LandingPage from './components/LandingPage/LandingPage';
 import DoctorAuth from './components/auth/DoctorAuth';
 import PatientAuth from './components/auth/PatientAuth';
 import CheckEmail from './components/auth/CheckEmail';
-import Dashboard from './components/Dashboard/Dashboard';
+import DoctorDashboard from './components/Dashboard/DoctorDashboard';
+import PatientDashboard from './components/Dashboard/PatientDashboard';
+import VerifyDoctor from './components/auth/VerifyDoctor';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import PublicRoute from './components/common/PublicRoute';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const theme = createTheme({
   palette: {
@@ -25,50 +33,97 @@ const theme = createTheme({
   },
 });
 
-// Protected Route Component
-const ProtectedRoute = ({ children, requiredUserType }) => {
-  const location = useLocation();
-  const token = localStorage.getItem('token');
-  const userType = localStorage.getItem('userType');
+// Simple loading spinner component
+const LoadingSpinner = () => (
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+    <CircularProgress />
+  </Box>
+);
 
-  if (!token || userType !== requiredUserType) {
-    // Redirect to login if not authenticated or wrong user type
-    return <Navigate to="/" state={{ from: location }} replace />;
+function AppContent() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
-  return children;
-};
+  return (
+    <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={
+            <PublicRoute>
+              <LandingPage />
+            </PublicRoute>
+          } />
+          
+          <Route path="/login/doctor" element={
+            <PublicRoute>
+              <DoctorAuth isLogin={true} />
+            </PublicRoute>
+          } />
+          
+          <Route path="/register/doctor" element={
+            <PublicRoute>
+              <DoctorAuth isLogin={false} />
+            </PublicRoute>
+          } />
+          
+          <Route path="/login/patient" element={
+            <PublicRoute>
+              <PatientAuth isLogin={true} />
+            </PublicRoute>
+          } />
+          
+          <Route path="/register/patient" element={
+            <PublicRoute>
+              <PatientAuth isLogin={false} />
+            </PublicRoute>
+          } />
+          
+          <Route path="/doctor/verify" element={
+            <PublicRoute>
+              <VerifyDoctor />
+            </PublicRoute>
+          } />
+          
+          <Route path="/check-email" element={
+            <PublicRoute>
+              <CheckEmail />
+            </PublicRoute>
+          } />
+          
+          {/* Protected Routes */}
+          <Route path="/doctor/dashboard" element={
+            <ProtectedRoute requiredRole="doctor">
+              <DoctorDashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/patient/dashboard" element={
+            <ProtectedRoute requiredRole="patient">
+              <PatientDashboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Fallback routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute requiredRole="any">
+              <Navigate to="/" replace />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/doctor/auth" element={<DoctorAuth />} />
-        <Route path="/patient/auth" element={<PatientAuth />} />
-        <Route path="/check-email" element={<CheckEmail />} />
-        
-        {/* Protected Routes */}
-        <Route
-          path="/doctor/dashboard"
-          element={
-            <ProtectedRoute requiredUserType="doctor">
-              <Dashboard userType="doctor" />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/patient/dashboard"
-          element={
-            <ProtectedRoute requiredUserType="patient">
-              <Dashboard userType="patient" />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

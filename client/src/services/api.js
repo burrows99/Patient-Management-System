@@ -151,6 +151,46 @@ api.interceptors.response.use(
   }
 );
 
+// Doctor API
+export const doctorApi = {
+  // Invite a new patient
+  invitePatient: async (email) => {
+    try {
+      const response = await api.post('/api/doctor/invite-patient', { email });
+      return response.data;
+    } catch (error) {
+      const serverMessage = error.response?.data?.error;
+      const errorMessage = serverMessage || handleApiError(error);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Get list of patients (both invited and accepted)
+  getPatients: async () => {
+    try {
+      // This endpoint should be implemented on the server to return all patients
+      // including their status (invited/accepted)
+      const response = await api.get('/api/doctor/patients');
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Get patient details by ID
+  getPatientById: async (patientId) => {
+    try {
+      const response = await api.get(`/api/doctor/patients/${patientId}`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      throw new Error(errorMessage);
+    }
+  }
+};
+
+// Export all API functions
 export const auth = {
   // Doctor Authentication
   registerDoctor: async (doctorData) => {
@@ -158,7 +198,17 @@ export const auth = {
       const response = await api.post('/api/doctor/register', doctorData);
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.';
+      throw new Error(errorMessage);
+    }
+  },
+
+  verifyDoctorEmail: async (token) => {
+    try {
+      const response = await api.get(`/api/doctor/verify?token=${token}`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Verification failed. The link may be invalid or expired.';
       throw new Error(errorMessage);
     }
   },
@@ -174,16 +224,6 @@ export const auth = {
   },
 
   // Patient Authentication
-  registerPatient: async (patientData) => {
-    try {
-      const response = await api.post('/api/patient/register', patientData);
-      return response.data;
-    } catch (error) {
-      const errorMessage = handleApiError(error);
-      throw new Error(errorMessage);
-    }
-  },
-
   loginPatient: async (credentials) => {
     try {
       const response = await api.post('/api/patient/login', credentials);

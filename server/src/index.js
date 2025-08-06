@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import doctorRoutes from './routers/doctor.js';
 import patientRoutes from './routers/patient.js';
+import authRoutes from './routers/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sequelize from './config/db.js';
@@ -46,6 +47,7 @@ app.use(express.static(publicPath));
 // API Routes
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/patient', patientRoutes);
+app.use('/api/auth', authRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
