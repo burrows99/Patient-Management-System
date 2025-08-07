@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { doctorApi } from '../../services/api';
+import TextEditor from '../common/TextEditor';
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Not specified';
@@ -101,6 +102,8 @@ const PatientDashboard = ({ patientId }) => {
           Patient Dashboard
         </Typography>
       </Box>
+
+      <TextEditor/>
 
       {profile ? (
         <Grid container spacing={3}>

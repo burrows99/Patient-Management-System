@@ -73,7 +73,7 @@ async function startServer() {
     await sequelize.query('CREATE SCHEMA IF NOT EXISTS nhs;');
     
     // Sync all models with the database
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized with nhs schema');
     
     // Start the server
