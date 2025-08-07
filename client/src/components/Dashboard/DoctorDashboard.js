@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import api, { doctorApi } from '../../services/api';
+import DefaultLayout from '../../layouts/DefaultLayout';
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Not specified';
@@ -59,7 +60,6 @@ const SectionCard = ({ title, children }) => (
 );
 
 const DoctorDashboard = () => {
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -119,15 +119,6 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
-  };
-
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -154,13 +145,6 @@ const DoctorDashboard = () => {
                   {doctor.specialization || 'General Practitioner'}
                 </Typography>
               </Box>
-              <Button 
-                variant="contained" 
-                color="error"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
             </Box>
 
             <Grid container spacing={3}>
@@ -236,7 +220,13 @@ const DoctorDashboard = () => {
                                   <Button 
                                     variant="outlined" 
                                     size="small"
-                                    onClick={() => handleViewPatient(patient._id)}
+                                    onClick={() => {
+                                      console.log({
+                                        patientId: patient.id,
+                                        patient: patient
+                                      });
+                                      handleViewPatient(patient.id);
+                                    }}
                                   >
                                     View Profile
                                   </Button>

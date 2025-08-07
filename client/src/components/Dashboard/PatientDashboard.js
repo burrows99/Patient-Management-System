@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { doctorApi } from '../../services/api';
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Not specified';
@@ -48,19 +49,24 @@ const SectionCard = ({ title, children }) => (
   </Card>
 );
 
-const PatientDashboard = () => {
-  const { logout } = useAuth();
+const PatientDashboard = ({ patientId }) => {
+  const { currentUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/api/auth/me');
-        setProfile(response.data);
+        let response;
+        if (patientId && currentUser?.role === 'doctor') {
+          response = await doctorApi.getPatientById(patientId);
+        } else {
+          response = await api.get('/api/auth/me');
+        }
+        setProfile(response.data || response);
       } catch (err) {
         console.error('Failed to fetch user data:', err);
         setError('Failed to load user data. Please try again.');
@@ -68,18 +74,9 @@ const PatientDashboard = () => {
         setLoading(false);
       }
     };
+    fetchProfile();
+  }, [patientId, currentUser]);
 
-    fetchCurrentUser();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
-  };
 
   if (loading) {
     return (
@@ -103,13 +100,6 @@ const PatientDashboard = () => {
         <Typography variant="h4" component="h1">
           Patient Dashboard
         </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
       </Box>
 
       {profile ? (

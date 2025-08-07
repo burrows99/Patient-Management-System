@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
 import { auth } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import DefaultLayout from '../../layouts/DefaultLayout';
 
 const PatientAuth = () => {
   const [formData, setFormData] = useState({
@@ -86,92 +87,93 @@ const PatientAuth = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        p: 2,
-        backgroundColor: '#f5f5f5'
-      }}
-    >
-      <Paper
-        elevation={3}
+    <DefaultLayout>
+      <Box
         sx={{
-          p: 4,
-          width: '100%',
-          maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          p: 2,
+          backgroundColor: '#f5f5f5'
         }}
       >
-        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-          Patient Login
-        </Typography>
-
-        {error && (
-          <Alert severity="error" onClose={handleCloseAlert} sx={{ width: '100%', mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        {success && (
-          <Alert severity="success" onClose={handleCloseAlert} sx={{ width: '100%', mb: 2 }}>
-            {success}
-          </Alert>
-        )}
-
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email Address"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-          
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
-          >
-            {loading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              'Sign In'
-            )}
-          </Button>
-        </form>
-
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Typography variant="body2">
-            Need an account? Please contact your doctor for an invitation.
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            maxWidth: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Patient Login
           </Typography>
-        </Box>
-      </Paper>
-    </Box>
+
+          {error && (
+            <Alert severity="error" onClose={handleCloseAlert} sx={{ width: '100%', mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert severity="success" onClose={handleCloseAlert} sx={{ width: '100%', mb: 2 }}>
+              {success}
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email Address"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+          </form>
+
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2">
+              Need an account? Please contact your doctor for an invitation.
+            </Typography>
+          </Box>
+        </Paper>
+      </Box>
+    </DefaultLayout>
   );
 };
 

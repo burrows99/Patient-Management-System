@@ -1,20 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Container, Typography, Box } from '@mui/material';
+import { Button, Typography, Box } from '@mui/material';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import { DefaultLayout } from '../../layouts';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="md">
+    <DefaultLayout>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
+          minHeight: '60vh',
           textAlign: 'center',
           gap: 3,
           padding: 3,
@@ -53,7 +54,7 @@ const LandingPage = () => {
           </Button>
         </Box>
       </Box>
-    </Container>
+    </DefaultLayout>
   );
 };
 

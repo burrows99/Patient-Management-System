@@ -4,17 +4,17 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './contexts/AuthContext';
-import LandingPage from './components/LandingPage/LandingPage';
+import LandingPage from './components/pages/LandingPage';
 import DoctorAuth from './components/auth/DoctorAuth';
 import PatientAuth from './components/auth/PatientAuth';
 import CheckEmail from './components/auth/CheckEmail';
-import DoctorDashboard from './components/Dashboard/DoctorDashboard';
-import PatientDashboard from './components/Dashboard/PatientDashboard';
+import DoctorDashboardPage from './components/pages/DoctorDashboardPage';
 import VerifyDoctor from './components/auth/VerifyDoctor';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicRoute from './components/common/PublicRoute';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import PatientDashboardPage from './components/pages/PatientDashboardPage';
 
 const theme = createTheme({
   palette: {
@@ -95,13 +95,19 @@ function AppContent() {
           {/* Protected Routes */}
           <Route path="/doctor/dashboard" element={
             <ProtectedRoute requiredRole="doctor">
-              <DoctorDashboard />
+              <DoctorDashboardPage />
             </ProtectedRoute>
           } />
           
           <Route path="/patient/dashboard" element={
             <ProtectedRoute requiredRole="patient">
-              <PatientDashboard />
+              <PatientDashboardPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/doctor/patients/:patientId" element={
+            <ProtectedRoute requiredRole="doctor">
+              <PatientDashboardPage />
             </ProtectedRoute>
           } />
           
