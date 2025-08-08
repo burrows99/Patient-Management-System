@@ -78,6 +78,13 @@ const PatientDashboard = ({ patientId }) => {
             <Typography variant="h5" gutterBottom>
               {isDoctor ? 'Patient Prescriptions' : 'My Prescriptions'}
             </Typography>
+            {console.log({
+              patientId: patientId || profile.id,
+              userId: currentUser?.id,
+              doctorId: currentUser?.id,
+              showCreateButton: isDoctor,
+              userRole: userRole.toLowerCase()
+            })}
             {profile?.id ? (
               <SimplePrescriptionList 
                 patientId={patientId || profile.id}

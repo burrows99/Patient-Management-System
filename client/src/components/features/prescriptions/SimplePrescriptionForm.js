@@ -36,12 +36,14 @@ const SimplePrescriptionForm = ({
     setError('');
     setLoading(true);
 
-    console.log('Submitting form with:', {
+    const formData = {
       patientId,
       doctorId,
-      hasContent: !!content.trim(),
-      isEditing: isEditing
-    });
+      content: content.trim(),
+      isEditing
+    };
+
+    console.log('Submitting form with:', formData);
 
     try {
       if (!content.trim()) {
@@ -63,8 +65,12 @@ const SimplePrescriptionForm = ({
       const prescriptionData = {
         patientId,
         doctorId,
-        content: content.trim()
+        content: content.trim(),
+        status: 'ACTIVE',
+        date: new Date().toISOString()
       };
+
+      console.log('Sending prescription data:', prescriptionData);
 
       let response;
       if (isEditing && prescription) {
@@ -74,14 +80,19 @@ const SimplePrescriptionForm = ({
       }
 
       if (response.success) {
+        console.log('Prescription saved successfully:', response.data);
         onSubmit && onSubmit(response.data);
         onClose();
       } else {
-        setError(response.message || 'Failed to save prescription');
+        const errorMsg = response.message || 'Failed to save prescription';
+        console.error('Server error:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
       console.error('Error saving prescription:', err);
-      setError(err.response?.data?.message || 'Failed to save prescription');
+      const errorMessage = err.response?.data?.message || 'Failed to save prescription. Please try again.';
+      console.error('Error details:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -81,6 +81,37 @@ const SimplePrescriptionList = ({
     setShowForm(true);
   };
 
+  const handlePrescriptionSubmit = async (formData) => {
+    try {
+      if (editingPrescription) {
+        const response = await prescriptions.update(editingPrescription.id, formData);
+        if (response.success) {
+          setPrescriptionList(prev => 
+            prev.map(p => p.id === editingPrescription.id ? response.data : p)
+          );
+        } else {
+          setError(response.message || 'Failed to update prescription');
+        }
+      } else {
+        // Ensure we have both patientId and doctorId before creating
+        if (!formData.patientId || !formData.doctorId) {
+          setError('Missing required information. Please try again.');
+          return;
+        }
+        const response = await prescriptions.create(formData);
+        if (response.success) {
+          setPrescriptionList(prev => [response.data, ...prev]);
+        } else {
+          setError(response.message || 'Failed to create prescription');
+        }
+      }
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error saving prescription:', err);
+      setError('Failed to save prescription. Please try again.');
+    }
+  };
+
   const handleEditPrescription = (prescription) => {
     setEditingPrescription(prescription);
     setShowForm(true);
@@ -102,25 +133,6 @@ const SimplePrescriptionList = ({
       }
     }
     setAnchorEl(null);
-  };
-
-  const handleFormSubmit = (newPrescription) => {
-    console.log('Form submitted with:', { newPrescription, patientId, doctorId });
-    
-    if (!patientId || !doctorId) {
-      setError('Missing patient or doctor information');
-      return;
-    }
-
-    if (editingPrescription) {
-      setPrescriptionList(prev => 
-        prev.map(p => p.id === editingPrescription.id ? newPrescription : p)
-      );
-    } else {
-      setPrescriptionList(prev => [newPrescription, ...prev]);
-    }
-    setShowForm(false);
-    setEditingPrescription(null);
   };
 
   const handleMenuClick = (event, prescription) => {
@@ -329,15 +341,17 @@ const SimplePrescriptionList = ({
       )}
 
       {/* Simple Prescription Form Modal */}
-      <SimplePrescriptionForm
-        open={showForm}
-        onClose={() => setShowForm(false)}
-        prescription={editingPrescription}
-        patientId={patientId}
-        doctorId={doctorId}
-        onSubmit={handleFormSubmit}
-        isEditing={!!editingPrescription}
-      />
+      {showForm && (
+        <SimplePrescriptionForm
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          prescription={editingPrescription}
+          patientId={patientId}
+          doctorId={doctorId || userId} // Fallback to userId if doctorId is not provided
+          isEditing={!!editingPrescription}
+          onSubmit={handlePrescriptionSubmit}
+        />
+      )}
     </Box>
   );
 };
