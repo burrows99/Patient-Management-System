@@ -1,10 +1,18 @@
 // /utils/email.js
 import nodemailer from 'nodemailer';
 
+// Use environment variables with fallbacks for local development
 const transporter = nodemailer.createTransport({
-  host: 'mailhog',
-  port: 1025,
-  secure: false,
+  host: process.env.SMTP_HOST || 'mailhog',
+  port: process.env.SMTP_PORT || 1025,
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: process.env.SMTP_USER ? {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD
+  } : undefined,
+  tls: {
+    rejectUnauthorized: process.env.NODE_ENV === 'production' // Only validate certs in production
+  }
 });
 
 /**

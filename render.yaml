@@ -40,19 +40,11 @@ services:
     autoDeploy: true
     envVars:
       - key: NODE_ENV
-        value: development
+        value: production
       - key: REACT_APP_API_URL
         value: "https://nhs-server-98t2.onrender.com/"    # ← fill with the live server URL after nhs-server deploys
       - key: REACT_APP_DOCKER
         value: "true"
-
-  # MailHog service (for dev/testing)
-  - type: background
-    name: mailhog
-    env: docker
-    dockerfilePath: ./mailhog/Dockerfile  # you’ll need to add this
-    plan: free
-    autoDeploy: true
 
 databases:
   # Managed Postgres (replaces your postgres container)

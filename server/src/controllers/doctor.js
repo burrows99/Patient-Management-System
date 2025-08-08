@@ -49,41 +49,52 @@ export async function registerDoctor(req, res) {
     });
     
     const verificationLink = `${getFrontendUrl()}/doctor/verify?token=${verificationToken}`;
-
-    const sentEmail = await sendEmail(
-      email, 
-      'Verify your doctor account', 
-      `Please click the link below to verify your email address:
+    
+    // Try to send verification email, but don't fail registration if it fails
+    try {
+      const sentEmail = await sendEmail(
+        email, 
+        'Verify your doctor account', 
+        `Please click the link below to verify your email address:
 
 ${verificationLink}
 
 This link will expire in 24 hours.
 
 If you did not create an account, please ignore this email.`,
-      `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Email Verification</h2>
-          <p>Thank you for registering as a doctor. Please click the button below to verify your email address:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" style="background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Verify Email</a>
+        `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Email Verification</h2>
+            <p>Thank you for registering as a doctor. Please click the button below to verify your email address:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" style="background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Verify Email</a>
+            </div>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all;">${verificationLink}</p>
+            <p>This link will expire in 24 hours.</p>
+            <p>If you did not create an account, please ignore this email.</p>
           </div>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="word-break: break-all;">${verificationLink}</p>
-          <p>This link will expire in 24 hours.</p>
-          <p>If you did not create an account, please ignore this email.</p>
-        </div>
-      `
-    );
+        `
+      );
 
-    if (!sentEmail?.accepted?.includes(email)) {
-      console.error(`registerDoctor: Email sending failed for ${email}`);
-      return res.status(500).json({ error: 'Failed to send verification email' });
+      if (!sentEmail?.accepted?.includes(email)) {
+        console.warn(`registerDoctor: Email sending failed for ${email}, but registration completed`);
+        // Continue with registration even if email fails
+      } else {
+        console.log(`registerDoctor: Verification email sent to ${email}`);
+      }
+    } catch (emailError) {
+      console.warn('Email sending failed, but continuing with registration:', emailError.message);
     }
 
     console.log(`registerDoctor: Successfully registered doctor with email ${email}, id ${addedUser.id}`);
     res.status(201).json({ 
-      message: 'Registration successful. Check your email for verification link.',
+      message: 'Registration successful. ' + 
+        (process.env.NODE_ENV === 'development' 
+          ? `Verification link: ${verificationLink}` 
+          : 'Please check your email for verification link.'),
       verificationLink,
+      userId: addedUser.id
     });
   } catch (error) {
     console.error(`registerDoctor: Error registering doctor: ${error.message}`);
