@@ -26,7 +26,8 @@ const allowedOrigins = [
   'http://localhost:80',
   'http://localhost',
   'http://client:80',
-  'http://client:3000'
+  'http://client:3000',
+  'https://nhs-client.onrender.com',
 ];
 
 app.use(cors({
