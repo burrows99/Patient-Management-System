@@ -61,7 +61,7 @@ app.use('/api/prescriptions', prescriptionRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
+  res.status(200).json({ message: 'Server is running!' });
 });
 
 // Initialize database and start server
