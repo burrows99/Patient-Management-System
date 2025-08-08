@@ -1,0 +1,62 @@
+# render.yaml
+services:
+  # Backend service
+  - type: web
+    name: nhs-server
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    # buildContext is always the repo root on Render—Dockerfile paths below adjust for that
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: DATABASE_URL
+        # Render-managed Postgres connection injected automatically
+        fromDatabase:
+          name: nhs-postgres
+          property: connectionString
+      - key: DATABASE_URL
+        value: "postgresql://nhs_admin:asqXtPdr3DiJ6yUuSlHCUMDfZehRVxou@dpg-d2b09ridbo4c73abi510-a/patientdb_cqec" 
+      - key: DOCKER
+        value: "true"
+      - key: JWT_SECRET
+        value: your-super-secret-jwt-key
+      - key: SMTP_HOST
+        value: mailhog
+      - key: SMTP_PORT
+        value: "1025"
+      - key: SMTP_FROM
+        value: no-reply@nhs.local
+      - key: PORT
+        value: "4000"
+
+  # Frontend service
+  - type: web
+    name: nhs-client
+    env: docker
+    dockerfilePath: ./client/Dockerfile
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: REACT_APP_API_URL
+        value: "https://nhs-server-98t2.onrender.com/"    # ← fill with the live server URL after nhs-server deploys
+      - key: REACT_APP_DOCKER
+        value: "true"
+
+  # MailHog service (for dev/testing)
+  - type: background
+    name: mailhog
+    env: docker
+    dockerfilePath: ./mailhog/Dockerfile  # you’ll need to add this
+    plan: free
+    autoDeploy: true
+
+databases:
+  # Managed Postgres (replaces your postgres container)
+  - name: nhs-postgres
+    plan: free
+    databaseName: postgres
+    user: postgres
