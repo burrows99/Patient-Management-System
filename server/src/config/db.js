@@ -31,4 +31,8 @@ const sequelize = new Sequelize(
   }
 );
 
+sequelize.authenticate()
+  .then(() => console.log('✅ DB connected via DATABASE_URL'))
+  .catch(err => console.error('❌ DB connection error:', err));
+
 export default sequelize;
