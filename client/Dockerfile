@@ -17,6 +17,8 @@ COPY --from=build /app/build /usr/share/nginx/html
 # Correct nginx.conf path from client folder
 COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
+ENV REACT_APP_API_URL=https://nhs-server-98t2.onrender.com
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
