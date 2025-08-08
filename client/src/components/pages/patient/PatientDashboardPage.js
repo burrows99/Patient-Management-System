@@ -1,5 +1,5 @@
-import PatientDashboard from "../Dashboard/PatientDashboard";
-import DefaultLayout from '../../layouts/DefaultLayout';
+import PatientDashboard from "../../dashboard/patient/PatientDashboard";
+import DefaultLayout from '../../../layouts/DefaultLayout';
 import { useParams } from 'react-router-dom';
 
 const PatientDashboardPage = () => {

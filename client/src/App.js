@@ -4,17 +4,18 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './contexts/AuthContext';
-import LandingPage from './components/pages/LandingPage';
+import LandingPage from './components/pages/common/LandingPage';
 import DoctorAuth from './components/auth/DoctorAuth';
 import PatientAuth from './components/auth/PatientAuth';
-import CheckEmail from './components/auth/CheckEmail';
-import DoctorDashboardPage from './components/pages/DoctorDashboardPage';
 import VerifyDoctor from './components/auth/VerifyDoctor';
+import DoctorDashboardPage from './components/pages/doctor/DoctorDashboardPage';
+import CheckEmail from './components/auth/CheckEmail';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicRoute from './components/common/PublicRoute';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import PatientDashboardPage from './components/pages/PatientDashboardPage';
+import PatientDashboardPage from './components/pages/patient/PatientDashboardPage';
+
 
 const theme = createTheme({
   palette: {
@@ -110,6 +111,8 @@ function AppContent() {
               <PatientDashboardPage />
             </ProtectedRoute>
           } />
+          
+
           
           {/* Fallback routes */}
           <Route path="/dashboard" element={

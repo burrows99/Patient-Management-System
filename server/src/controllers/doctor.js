@@ -179,14 +179,14 @@ export async function getPatients(req, res) {
     const doctorId = req.user.id;
     const patients = await findUsersByDoctorId(doctorId);
     
-    // Format the response to include status
+    // Format the response to include status - access dataValues from Sequelize instances
     const formattedPatients = patients.map(patient => ({
-      id: patient.id,
-      email: patient.email,
-      name: patient.name,
-      status: patient.isVerified ? 'accepted' : 'pending',
-      invitedAt: patient.createdAt,
-      acceptedAt: patient.isVerified ? patient.updatedAt : null
+      id: patient.dataValues.id,
+      email: patient.dataValues.email,
+      name: patient.dataValues.name || patient.dataValues.email, // fallback to email if name doesn't exist
+      status: patient.dataValues.isVerified ? 'accepted' : 'pending',
+      invitedAt: patient.dataValues.createdAt,
+      acceptedAt: patient.dataValues.isVerified ? patient.dataValues.updatedAt : null
     }));
 
     res.json(formattedPatients);
@@ -216,12 +216,19 @@ export async function getPatientById(req, res) {
       return res.status(403).json({ error: 'Not authorized to view this patient' });
     }
     
-    // Return patient details (exclude sensitive data)
-    const { passwordHash, verificationToken, ...patientData } = patient;
-    res.json({
-      ...patientData,
-      status: patient.isVerified ? 'accepted' : 'pending'
-    });
+    // Return patient details (exclude sensitive data) - convert Sequelize instance to plain object
+    const patientData = {
+      id: patient.dataValues.id,
+      email: patient.dataValues.email,
+      role: patient.dataValues.role,
+      status: patient.dataValues.isVerified ? 'accepted' : 'pending',
+      isVerified: patient.dataValues.isVerified,
+      createdAt: patient.dataValues.createdAt,
+      updatedAt: patient.dataValues.updatedAt,
+      invitedBy: patient.dataValues.invitedBy
+    };
+    
+    res.json(patientData);
   } catch (error) {
     console.error('Error fetching patient:', error);
     res.status(500).json({ error: 'Failed to fetch patient details' });

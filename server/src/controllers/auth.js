@@ -19,43 +19,19 @@ export const getCurrentUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Base user data
+    // Convert Sequelize instance to plain object by accessing dataValues directly
     const userData = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      status: user.status,
-      isVerified: user.isVerified,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phoneNumber: user.phoneNumber,
-      dateOfBirth: user.dateOfBirth,
-      address: user.address,
-      city: user.city,
-      state: user.state,
-      zipCode: user.zipCode,
-      country: user.country,
-      emergencyContact: user.emergencyContact,
-      emergencyPhone: user.emergencyPhone,
-      bloodType: user.bloodType,
-      allergies: user.allergies,
-      medications: user.medications,
-      conditions: user.conditions,
-      notes: user.notes,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
+      id: user.dataValues.id,
+      email: user.dataValues.email,
+      role: user.dataValues.role,
+      status: user.dataValues.status,
+      isVerified: user.dataValues.isVerified,
+      createdAt: user.dataValues.createdAt,
+      updatedAt: user.dataValues.updatedAt
     };
 
-    // Add role-specific fields
-    if (user.role === 'patient') {
-      // Add any patient-specific fields here
-      userData.patientDetails = user.patientDetails || {};
-    } else if (user.role === 'doctor') {
-      // Add any doctor-specific fields here
-      userData.doctorDetails = user.doctorDetails || {};
-      userData.specialization = user.specialization;
-      userData.licenseNumber = user.licenseNumber;
-    }
+    // Role-specific fields can be added in future updates
+    // Currently, all user data is in the base userData object
 
     res.json(userData);
   } catch (error) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Typography, Box } from '@mui/material';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
-import { DefaultLayout } from '../../layouts';
+import { DefaultLayout } from '../../../layouts';
 
 const LandingPage = () => {
   const navigate = useNavigate();

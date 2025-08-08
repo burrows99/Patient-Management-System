@@ -8,6 +8,9 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
+  $getRoot,
+  $createParagraphNode,
+  $createTextNode,
   FORMAT_TEXT_COMMAND,
 } from "lexical";
 import tesseract from "tesseract.js";
@@ -68,19 +71,48 @@ function InsertTextPlugin({ text }) {
   return null;
 }
 
-export default function TextEditor() {
+export default function TextEditor({ initialContent = "", onChange = () => {} }) {
   const [ocrText, setOcrText] = useState("");
+  const [key, setKey] = useState(0); // Force re-render when content changes
+
+  // Force re-render when initialContent changes
+  useEffect(() => {
+    setKey(prev => prev + 1);
+  }, [initialContent]);
+
+  const handleEditorChange = (editorState) => {
+    const textContent = editorState.read(() => {
+      const root = $getRoot();
+      return root.getTextContent();
+    });
+    onChange(textContent);
+  };
+
+  // Create initial editor state with content
+  const createInitialEditorState = () => {
+    if (!initialContent || !initialContent.trim()) {
+      return null;
+    }
+    
+    return () => {
+      const root = $getRoot();
+      const paragraph = $createParagraphNode();
+      const textNode = $createTextNode(initialContent);
+      paragraph.append(textNode);
+      root.append(paragraph);
+    };
+  };
 
   const initialConfig = {
     namespace: "OCRRichTextEditor",
     theme: editorTheme,
     onError: (err) => console.error(err),
-    editorState: null,
+    editorState: createInitialEditorState(),
   };
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "20px", width: "100%", maxWidth: "700px" }}>
-      <LexicalComposer initialConfig={initialConfig}>
+    <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "20px", width: "100%", maxWidth: "700px" }}>
+      <LexicalComposer key={key} initialConfig={initialConfig}>
         <Toolbar />
         <OCRUpload onTextExtracted={setOcrText} />
         <RichTextPlugin
@@ -95,6 +127,7 @@ export default function TextEditor() {
           }
           placeholder={<div style={{ color: "#aaa" }}>Start typing here…</div>}
         />
+        <OnChangePlugin onChange={handleEditorChange} />
         <HistoryPlugin />
         <InsertTextPlugin text={ocrText} />
       </LexicalComposer>

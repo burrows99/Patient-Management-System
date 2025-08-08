@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { handleApiError } from '../utils/errorHandler';
+import { handleApiError, getErrorMessage } from '../utils/errorHandler';
 
 import { getApiUrl } from '../utils/environment';
 
@@ -160,7 +160,8 @@ export const doctorApi = {
       return response.data;
     } catch (error) {
       const serverMessage = error.response?.data?.error;
-      const errorMessage = serverMessage || handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = serverMessage || getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   },
@@ -173,7 +174,8 @@ export const doctorApi = {
       const response = await api.get('/api/doctor/patients');
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   },
@@ -184,7 +186,8 @@ export const doctorApi = {
       const response = await api.get(`/api/doctor/patients/${patientId}`);
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   }
@@ -218,7 +221,8 @@ export const auth = {
       const response = await api.post('/api/doctor/login', credentials);
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   },
@@ -229,7 +233,8 @@ export const auth = {
       const response = await api.post('/api/patient/login', credentials);
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   },
@@ -240,10 +245,125 @@ export const auth = {
       const response = await api.get('/api/auth/me');
       return response.data;
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
       throw new Error(errorMessage);
     }
   },
+};
+
+// Prescription API functions
+export const prescriptions = {
+  // Create a new prescription
+  createPrescription: async (prescriptionData) => {
+    try {
+      const response = await api.post('/api/prescriptions', prescriptionData);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Get prescriptions by doctor ID
+  getPrescriptionsByDoctor: async (doctorId, params = {}) => {
+    try {
+      const queryParams = new URLSearchParams(params).toString();
+      const url = `/api/prescriptions/doctor/${doctorId}${queryParams ? '?' + queryParams : ''}`;
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Get prescriptions by patient ID
+  getPrescriptionsByPatient: async (patientId, params = {}) => {
+    try {
+      const queryParams = new URLSearchParams(params).toString();
+      const url = `/api/prescriptions/patient/${patientId}${queryParams ? '?' + queryParams : ''}`;
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Get a single prescription by ID
+  getPrescriptionById: async (prescriptionId) => {
+    try {
+      const response = await api.get(`/api/prescriptions/${prescriptionId}`);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Update a prescription
+  updatePrescription: async (prescriptionId, updateData) => {
+    try {
+      const response = await api.put(`/api/prescriptions/${prescriptionId}`, updateData);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Delete a prescription
+  deletePrescription: async (prescriptionId) => {
+    try {
+      const response = await api.delete(`/api/prescriptions/${prescriptionId}`);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  },
+
+  // Shorter method names for compatibility
+  create: async (prescriptionData) => {
+    return prescriptions.createPrescription(prescriptionData);
+  },
+  
+  update: async (prescriptionId, updateData) => {
+    return prescriptions.updatePrescription(prescriptionId, updateData);
+  },
+  
+  delete: async (prescriptionId) => {
+    return prescriptions.deletePrescription(prescriptionId);
+  },
+  
+  getByDoctor: async (doctorId, params = {}) => {
+    return prescriptions.getPrescriptionsByDoctor(doctorId, params);
+  },
+  
+  getByPatient: async (patientId, params = {}) => {
+    return prescriptions.getPrescriptionsByPatient(patientId, params);
+  },
+
+  // Get all prescriptions (admin/overview)
+  getAllPrescriptions: async (params = {}) => {
+    try {
+      const queryParams = new URLSearchParams(params).toString();
+      const url = `/api/prescriptions${queryParams ? '?' + queryParams : ''}`;
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      const errorInfo = handleApiError(error);
+      const errorMessage = getErrorMessage(errorInfo);
+      throw new Error(errorMessage);
+    }
+  }
 };
 
 export default api;

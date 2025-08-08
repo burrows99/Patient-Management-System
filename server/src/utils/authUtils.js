@@ -101,8 +101,8 @@ export const generateAuthToken = (user, expiresIn = '1h') => {
  * @returns {Object} Sanitized user data
  */
 export const prepareUserResponse = (user) => ({
-  id: user.id,
-  email: user.email,
-  role: user.role,
-  isVerified: user.isVerified
+  id: user.dataValues.id,
+  email: user.dataValues.email,
+  role: user.dataValues.role,
+  isVerified: user.dataValues.isVerified
 });

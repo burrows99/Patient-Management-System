@@ -4,10 +4,13 @@ import cors from 'cors';
 import doctorRoutes from './routers/doctor.js';
 import patientRoutes from './routers/patient.js';
 import authRoutes from './routers/auth.js';
+import prescriptionRoutes from './routers/prescription.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sequelize from './config/db.js';
 import './models/User.js'; // Import models to register them with Sequelize
+import './models/Prescription.js'; // Import Prescription model
+import './models/associations.js'; // Import model associations
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +21,7 @@ const app = express();
 // Configure CORS
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:4000',
   'http://localhost:80',
   'http://localhost',
@@ -48,6 +52,7 @@ app.use(express.static(publicPath));
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
