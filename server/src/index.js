@@ -47,6 +47,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.static(publicPath));
+app.use((err, req, res, next) => {
+  console.error('🔴 API Error:', err);
+  res.status(500).json({ error: err.message || 'Internal server error' });
+});
+
 
 // API Routes
 app.use('/api/doctor', doctorRoutes);
