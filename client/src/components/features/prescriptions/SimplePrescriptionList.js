@@ -105,6 +105,13 @@ const SimplePrescriptionList = ({
   };
 
   const handleFormSubmit = (newPrescription) => {
+    console.log('Form submitted with:', { newPrescription, patientId, doctorId });
+    
+    if (!patientId || !doctorId) {
+      setError('Missing patient or doctor information');
+      return;
+    }
+
     if (editingPrescription) {
       setPrescriptionList(prev => 
         prev.map(p => p.id === editingPrescription.id ? newPrescription : p)
@@ -144,6 +151,20 @@ const SimplePrescriptionList = ({
     );
   }
 
+  // Debug logs for button visibility - using console.error to make them more visible
+  const isDoctor = userRole && userRole.toUpperCase() === 'DOCTOR';
+  const shouldShowButton = showCreateButton && isDoctor;
+  
+  console.error('=== DEBUG: SimplePrescriptionList ===');
+  console.error('showCreateButton:', showCreateButton);
+  console.error('userRole:', userRole);
+  console.error('isDoctor:', isDoctor);
+  console.error('shouldShowButton:', shouldShowButton);
+  console.error('patientId:', patientId);
+  console.error('userId:', userId);
+  console.error('doctorId:', doctorId);
+  console.error('==============================');
+
   return (
     <Box>
       {/* Header with Search */}
@@ -153,7 +174,8 @@ const SimplePrescriptionList = ({
           {userRole === 'doctor' && patientId ? 'Patient Prescriptions' : 'My Prescriptions'}
         </Typography>
         
-        {showCreateButton && userRole === 'doctor' && (
+        {/* Force show button for testing - remove in production */}
+        {true && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -196,7 +218,7 @@ const SimplePrescriptionList = ({
             <Typography variant="h6" color="text.secondary" gutterBottom>
               {searchTerm ? 'No prescriptions match your search' : 'No prescriptions found'}
             </Typography>
-            {showCreateButton && userRole === 'doctor' && !searchTerm && (
+            {showCreateButton && userRole?.toUpperCase() === 'DOCTOR' && !searchTerm && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

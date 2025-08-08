@@ -30,6 +30,22 @@ const PatientDashboard = ({ patientId }) => {
   const userRole = currentUser?.role || "PATIENT";
   const isDoctor = userRole === 'DOCTOR';
   const showCreateButton = isDoctor;
+  
+  // Debug logs - using console.error to make them more visible
+  console.error('=== DEBUG: PatientDashboard ===');
+  console.error('currentUser:', {
+    id: currentUser?.id,
+    role: currentUser?.role,
+    email: currentUser?.email
+  });
+  console.error('patientId from props:', patientId);
+  console.error('profile.id:', profile?.id);
+  console.error('Computed values:', {
+    userRole,
+    isDoctor,
+    showCreateButton
+  });
+  console.error('============================');
 
   if (loading) {
     return <LoadingState message="Loading patient dashboard..." />;
@@ -62,12 +78,20 @@ const PatientDashboard = ({ patientId }) => {
             <Typography variant="h5" gutterBottom>
               {isDoctor ? 'Patient Prescriptions' : 'My Prescriptions'}
             </Typography>
-            <SimplePrescriptionList 
-              patientId={patientId || profile?.id}
-              doctorId={isDoctor ? currentUser?.id : null}
-              showCreateButton={showCreateButton}
-              userRole={userRole}
-            />
+            {profile?.id ? (
+              <SimplePrescriptionList 
+                patientId={patientId || profile.id}
+                userId={currentUser?.id}
+                doctorId={currentUser?.id} // Always pass the current user's ID as doctorId
+                showCreateButton={isDoctor} // Only show create button for doctors
+                userRole={userRole.toLowerCase()}
+              />
+            ) : (
+              <ErrorState 
+                message="Unable to load prescriptions: Patient profile not available" 
+                onRetry={retry} 
+              />
+            )}
           </Box>
         </Grid>
       </Grid>

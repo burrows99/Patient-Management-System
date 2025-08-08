@@ -9,20 +9,20 @@ import { formatDate, formatStatus, formatRole, formatVerificationStatus } from '
  * Follows ISP: Only depends on the account data it needs
  */
 const AccountInfoCard = ({ 
-  profile,
+  user,
   title = "Account Information" 
 }) => {
-  if (!profile) return null;
+  if (!user) return null;
 
   return (
     <SectionCard title={title}>
-      <InfoRow label="Email" value={profile.email} />
-      <InfoRow label="Role" value={formatRole(profile.role)} />
-      <InfoRow label="Status" value={formatStatus(profile.status)} />
-      <InfoRow label="Verified" value={formatVerificationStatus(profile.isVerified)} />
+      <InfoRow label="Email" value={user.email} />
+      <InfoRow label="Role" value={formatRole(user.role)} />
+      <InfoRow label="Status" value={formatStatus(user.status)} />
+      <InfoRow label="Verified" value={formatVerificationStatus(user.isVerified)} />
       <InfoRow 
         label="Member Since" 
-        value={formatDate(profile.createdAt)} 
+        value={formatDate(user.createdAt)} 
         showDivider={false}
       />
     </SectionCard>

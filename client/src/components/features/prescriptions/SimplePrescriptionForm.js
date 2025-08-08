@@ -6,7 +6,6 @@ import {
   DialogActions, 
   Button, 
   Typography, 
-  Box,
   Alert
 } from '@mui/material';
 import { prescriptions } from '../../../services/api';
@@ -37,15 +36,26 @@ const SimplePrescriptionForm = ({
     setError('');
     setLoading(true);
 
+    console.log('Submitting form with:', {
+      patientId,
+      doctorId,
+      hasContent: !!content.trim(),
+      isEditing: isEditing
+    });
+
     try {
       if (!content.trim()) {
-        setError('Please enter prescription content');
+        const errorMsg = 'Please enter prescription content';
+        console.error(errorMsg);
+        setError(errorMsg);
         setLoading(false);
         return;
       }
 
       if (!patientId || !doctorId) {
-        setError('Missing patient or doctor information');
+        const errorMsg = `Missing required information. Patient ID: ${patientId}, Doctor ID: ${doctorId}`;
+        console.error(errorMsg);
+        setError('Missing patient or doctor information. Please try again.');
         setLoading(false);
         return;
       }
@@ -101,19 +111,20 @@ const SimplePrescriptionForm = ({
         </Typography>
       </DialogTitle>
       
-      <DialogContent dividers sx={{ p: 3 }}>
+      <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-
-        <Box sx={{ mt: 2 }}>
-          <TextEditor 
-            initialContent={content}
+        <div style={{ minHeight: '40vh', marginTop: '16px' }}>
+          <TextEditor
+            key={`prescription-editor-${open ? 'open' : 'closed'}`}
+            value={content}
             onChange={setContent}
+            placeholder="Enter prescription details..."
           />
-        </Box>
+        </div>
       </DialogContent>
 
       <DialogActions sx={{ p: 3 }}>
