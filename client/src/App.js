@@ -11,13 +11,17 @@ function App() {
       <>
         <header className="nhsuk-header" role="banner">
           <div className="nhsuk-header__container nhsuk-width-container">
-            <div className="nhsuk-header__logo nhsuk-header__logo--nhs">
+            <div className="nhsuk-header__logo nhsuk-header__logo--only">
               <a className="nhsuk-header__link nhsuk-header__link--service" href="/" aria-label="NHS homepage">
-                <svg className="nhsuk-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 16" height="40" width="100">
-                  <path className="nhsuk-logo__background" d="M0 0h40v16H0z"></path>
-                  <path className="nhsuk-logo__text" d="M3.9 6.443c0-.276.224-.5.5-.5h7.555c.276 0 .5.224.5.5v7.555c0 .276-.224.5-.5.5H4.4c-.276 0-.5-.224-.5-.5V6.443z"></path>
-                  <path className="nhsuk-logo__text" d="M6.177 7.5v3.823c0 .276.224.5.5.5h3.823c.276 0 .5-.224.5-.5V7.5c0-.276-.224-.5-.5-.5H6.677c-.276 0-.5.224-.5.5z"></path>
-                </svg>
+                <img
+                  src="https://assets.nhs.uk/images/nhs-logo.png"
+                  alt="NHS"
+                  width="100"
+                  height="40"
+                  className="nhsuk-logo"
+                  loading="eager"
+                  decoding="async"
+                />
                 <span className="nhsuk-header__service-name">
                   MOA Triage System
                 </span>
