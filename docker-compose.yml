@@ -1,0 +1,46 @@
+services:
+  oauth-server:
+    build:
+      context: ./oauth-server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./oauth-server:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    networks:
+      - nhs-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/.next
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - REACT_APP_OAUTH_BASE=http://localhost:3001
+      - REACT_APP_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57
+      - REACT_APP_REDIRECT_URI=http://localhost:3000/callback
+      - REACT_APP_SCOPE=openid basic_demographics email phone
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: npm start
+    networks:
+      - nhs-network
+    depends_on:
+      - oauth-server
+
+networks:
+  nhs-network:
+    driver: bridge
+
+volumes:
+  node_modules:
