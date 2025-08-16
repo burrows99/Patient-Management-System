@@ -12,6 +12,16 @@ const PORT = process.env.PORT || 4001;
 
 app.use(cors({ origin: ['http://localhost:3000'], credentials: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Graceful JSON parse error handler
+// Ensures malformed JSON does not crash the process and returns 400 with a helpful message
+app.use((err, req, res, next) => {
+  if (err && err instanceof SyntaxError && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON body: ' + err.message });
+  }
+  return next(err);
+});
 
 // Swagger from JSDoc comments in route files
 const swaggerSpec = swaggerJSDoc({
@@ -20,7 +30,7 @@ const swaggerSpec = swaggerJSDoc({
     info: { title: 'NHS MOA API', version: '0.1.0', description: 'HRDC proxy and triage simulator APIs' },
     servers: [{ url: `http://localhost:${PORT}` }],
   },
-  apis: ['./routes/*.js'],
+  apis: ['./routes/hrdc.js', './routes/triage.js', './routes/openData.js'],
 });
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/docs.json', (req, res) => res.json(swaggerSpec));

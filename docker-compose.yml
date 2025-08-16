@@ -23,6 +23,8 @@ services:
     volumes:
       - ./api-server:/app
       - /app/node_modules
+    env_file:
+      - ./api-server/.env
     environment:
       - NODE_ENV=development
       - PORT=4001
