@@ -34,16 +34,36 @@ export async function getDataset(req, res) {
 // Fetch dataset detail using the provided HRDC self URL. We validate the base URL for safety.
 export async function getDatasetBySelf(req, res) {
   const apiKey = getNhsApiKey();
-  if (!apiKey) return res.status(403).json({ error: 'NHS_API_KEY required to fetch dataset detail' });
   const { self } = req.query;
   if (!self) return res.status(400).json({ error: 'Missing self parameter' });
   try {
-    const allowedPrefix = 'https://sandbox.api.service.nhs.uk/health-research-data-catalogue/datasets/';
-    if (!String(self).startsWith(allowedPrefix)) {
+    const u = new URL(String(self));
+    const isSandbox = u.hostname === 'sandbox.api.service.nhs.uk' && u.pathname.startsWith('/health-research-data-catalogue/datasets/');
+    const isHdrDev = u.hostname === 'hdr.dev.dataproducts.nhs.uk' && u.pathname.startsWith('/datasets/');
+    if (!isSandbox && !isHdrDev) {
       return res.status(400).json({ error: 'Invalid self URL' });
     }
-    const r = await fetch(self, { headers: { apikey: apiKey } });
-    const json = await r.json();
+    // Only require API key for sandbox domain
+    if (isSandbox && !apiKey) {
+      return res.status(403).json({ error: 'NHS_API_KEY required to fetch dataset detail' });
+    }
+    const headers = isSandbox && apiKey ? { apikey: apiKey } : undefined;
+    let r = await fetch(self, { headers });
+    if (!r.ok && isHdrDev) {
+      // Fallback: map HDR dev self URL to sandbox by persistentId
+      const id = u.pathname.split('/').pop();
+      if (id) {
+        if (!apiKey) return res.status(403).json({ error: 'NHS_API_KEY required to fetch dataset detail' });
+        const sandboxUrl = `https://sandbox.api.service.nhs.uk/health-research-data-catalogue/datasets/${encodeURIComponent(id)}`;
+        r = await fetch(sandboxUrl, { headers: { apikey: apiKey } });
+      }
+    }
+    let json;
+    try {
+      json = await r.json();
+    } catch (e) {
+      json = { error: 'Non-JSON response from upstream' };
+    }
     return res.status(r.status).json(json);
   } catch (e) {
     return res.status(502).json({ error: `HRDC self fetch failed: ${e.message}` });
