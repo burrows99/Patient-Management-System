@@ -6,6 +6,7 @@ import DatasetDetailPanel from '../components/DatasetDetailPanel';
 const TriageSimulatorPage = () => {
   const [params] = useSearchParams();
   const datasetId = params.get('datasetId') || '';
+  const datasetSelf = params.get('datasetSelf') || '';
   const hasDataset = Boolean(datasetId);
   const buttonLabel = hasDataset ? 'Back to Data Explorers' : 'Browse Data Explorers';
   const helperText = hasDataset
@@ -21,7 +22,7 @@ const TriageSimulatorPage = () => {
       </div>
       {hasDataset ? (
         <>
-          <DatasetDetailPanel datasetId={datasetId} />
+          <DatasetDetailPanel datasetId={datasetId} datasetSelf={datasetSelf} />
           <TriageSimulator />
         </>
       ) : (

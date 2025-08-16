@@ -15,7 +15,7 @@ function processDataset(detail) {
   }
 }
 
-export default function DatasetDetailPanel({ datasetId }) {
+export default function DatasetDetailPanel({ datasetId, datasetSelf }) {
   const [raw, setRaw] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +30,24 @@ export default function DatasetDetailPanel({ datasetId }) {
       setLoading(true);
       setError('');
       try {
-        const res = await fetch(`${API_BASE}/api/hrdc/datasets/${encodeURIComponent(datasetId)}`);
+        let res;
+        if (datasetSelf) {
+          // Try direct self URL with timeout, fallback to server by-self proxy
+          const ctrl = new AbortController();
+          const to = setTimeout(() => ctrl.abort(), 3500);
+          try {
+            res = await fetch(datasetSelf, { signal: ctrl.signal });
+          } catch (e) {
+            // will fallback
+          } finally {
+            clearTimeout(to);
+          }
+          if (!res || !res.ok) {
+            res = await fetch(`${API_BASE}/api/hrdc/datasets/by-self/url?self=${encodeURIComponent(datasetSelf)}`);
+          }
+        } else {
+          res = await fetch(`${API_BASE}/api/hrdc/datasets/${encodeURIComponent(datasetId)}`);
+        }
         if (!res.ok) {
           if (res.status === 404) {
             throw new Error('Dataset not found (404). It may no longer be available.');
@@ -46,7 +63,7 @@ export default function DatasetDetailPanel({ datasetId }) {
       }
     };
     run();
-  }, [datasetId]);
+  }, [datasetId, datasetSelf]);
 
   if (!datasetId) return null;
 

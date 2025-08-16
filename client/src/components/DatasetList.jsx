@@ -14,6 +14,17 @@ function guessColumnsFromDetail(detail) {
   return Object.keys(detail).slice(0, 15);
 }
 
+async function timeoutFetch(resource, options = {}, ms = 5000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(resource, { ...options, signal: ctrl.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 export default function DatasetList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,10 +57,25 @@ export default function DatasetList() {
     setExpanded((e) => ({ ...e, [uniqueKey]: !e[uniqueKey] }));
     if (!details[uniqueKey]) {
       try {
-        const url = selfUrl
-          ? `${API_BASE}/api/hrdc/datasets/by-self/url?self=${encodeURIComponent(selfUrl)}`
-          : `${API_BASE}/api/hrdc/datasets/${encodeURIComponent(realId)}`;
-        const res = await fetch(url);
+        let res;
+        if (selfUrl) {
+          // Try direct NHS fetch with timeout, then fallback to our proxy if needed
+          try {
+            res = await timeoutFetch(selfUrl, {}, 4000);
+          } catch (e) {
+            // fall through to proxy
+          }
+          if (!res || !res.ok) {
+            try {
+              res = await timeoutFetch(`${API_BASE}/api/hrdc/datasets/by-self/url?self=${encodeURIComponent(selfUrl)}`, {}, 5000);
+            } catch (e) {
+              // fall through to by-id below as last resort
+            }
+          }
+        }
+        if (!res) {
+          res = await timeoutFetch(`${API_BASE}/api/hrdc/datasets/${encodeURIComponent(realId)}`, {}, 5000);
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         setDetails((d) => ({ ...d, [uniqueKey]: json }));
@@ -92,7 +118,7 @@ export default function DatasetList() {
                       <button type="button" className="nhsuk-button nhsuk-button--secondary" onClick={() => toggle(uniqueKey, realId, selfUrl)}>
                         {isOpen ? 'Hide details' : 'Show details'}
                       </button>
-                      <Link to={`/triage-simulator?datasetId=${encodeURIComponent(realId)}`} className="nhsuk-button">View in Triage</Link>
+                      <Link to={`/triage-simulator?datasetId=${encodeURIComponent(realId)}${selfUrl ? `&datasetSelf=${encodeURIComponent(selfUrl)}` : ''}`} className="nhsuk-button">View in Triage</Link>
                     </div>
                   </div>
                 </div>
