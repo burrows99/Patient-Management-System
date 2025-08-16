@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import hrdcRouter from './routes/hrdc.js';
 import triageRouter from './routes/triage.js';
+import openDataRouter from './routes/openData.js';
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -30,6 +31,7 @@ app.get('/swagger.json', (req, res) => res.json(swaggerSpec));
 // Mount routers
 app.use('/api/hrdc/datasets', hrdcRouter);
 app.use('/triage', triageRouter);
+app.use('/api/open', openDataRouter);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

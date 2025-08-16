@@ -14,3 +14,4 @@ echo "🛑 Stop services: docker-compose down"
 # Show logs
 docker-compose logs -f
 
+

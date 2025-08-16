@@ -6,6 +6,7 @@ import Callback from './Callback';
 import AuthStatus from './AuthStatus';
 import Layout from './components/Layout';
 import TriageSimulator from './components/TriageSimulator';
+import OpenDataExplorer from './components/OpenDataExplorer';
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
 
             {/* Triage Simulator UI */}
             <TriageSimulator />
+
+            {/* NHS Open Data Explorer */}
+            <OpenDataExplorer />
           </div>
         </div>
       </Layout>
