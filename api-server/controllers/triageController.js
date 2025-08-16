@@ -1,10 +1,11 @@
-import 'dotenv/config';
+// Environment is injected by container; no local dotenv here.
+import { getNhsApiKey } from '../utils/environment.js';
 
 export async function simulateTriage(req, res) {
   const dept = (req.query.dept || 'ED').toString();
   const n = Math.min(parseInt((req.query.n || '30').toString(), 10) || 30, 200);
   const datasetId = (req.query.datasetId || 'dd5f0174-575f-4f4c-a4fc-b406aab953d9').toString();
-  const apiKey = process.env.NHS_API_KEY;
+  const apiKey = getNhsApiKey();
 
   let meta = {};
   if (apiKey) {

@@ -4,10 +4,12 @@ services:
       context: ./oauth-server
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "${OAUTH_PORT:-3001}:${OAUTH_PORT:-3001}"
     volumes:
       - ./oauth-server:/app
       - /app/node_modules
+    env_file:
+      - ./.env           # root: single source of truth for all services
     environment:
       - NODE_ENV=development
     command: npm run dev
@@ -19,15 +21,15 @@ services:
       context: ./api-server
       dockerfile: Dockerfile
     ports:
-      - "4001:4001"
+      - "${API_PORT:-4001}:${API_PORT:-4001}"
     volumes:
       - ./api-server:/app
       - /app/node_modules
     env_file:
-      - ./api-server/.env
+      - ./.env              # root shared envs
     environment:
       - NODE_ENV=development
-      - PORT=4001
+      - NHS_API_KEY=${NHS_API_KEY:?NHS_API_KEY not set in root .env}
     command: npm run dev
     networks:
       - nhs-network
@@ -37,20 +39,23 @@ services:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
     volumes:
       - ./client:/app
-      - /app/.next
+      - /app/node_modules
+    env_file:
+      - ./.env              # root: provides REACT_APP_* values
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      - REACT_APP_OAUTH_BASE=http://localhost:3001
-      - REACT_APP_API_BASE=http://localhost:4001
-      - REACT_APP_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57
-      - REACT_APP_REDIRECT_URI=http://localhost:3000/callback
-      - REACT_APP_SCOPE=openid basic_demographics email phone
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
+      - PORT=${CLIENT_PORT:-3000}
+      - HOST=0.0.0.0
+      # Use root .env values with sane fallbacks for local dev
+      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING:-true}
+      - WATCHPACK_POLLING=${WATCHPACK_POLLING:-true}
+      - REACT_APP_OAUTH_BASE=${REACT_APP_OAUTH_BASE:-http://localhost:3001}
+      - REACT_APP_API_BASE=${REACT_APP_API_BASE:-http://localhost:4001}
+      - REACT_APP_CLIENT_ID=${REACT_APP_CLIENT_ID:-9c7c344a-51e3-41c0-a655-a3467f2aca57}
+      - REACT_APP_REDIRECT_URI=${REACT_APP_REDIRECT_URI:-http://localhost:3000/callback}
+      - REACT_APP_SCOPE=${REACT_APP_SCOPE:-openid basic_demographics email phone}
     command: npm start
     networks:
       - nhs-network

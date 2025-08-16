@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listDatasets, getDataset } from '../controllers/hrdcController.js';
+import { listDatasets, getDataset, getDatasetBySelf } from '../controllers/hrdcController.js';
 
 const router = Router();
 
@@ -65,6 +65,9 @@ router.get('/', listDatasets);
  *       502:
  *         description: Upstream fetch failed
  */
+// Alternative: fetch by HRDC self URL to avoid ID mismatches causing 404s
+router.get('/by-self/url', getDatasetBySelf);
+
 router.get('/:id', getDataset);
 
 export default router;

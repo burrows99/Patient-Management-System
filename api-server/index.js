@@ -1,16 +1,16 @@
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import hrdcRouter from './routes/hrdc.js';
 import triageRouter from './routes/triage.js';
 import openDataRouter from './routes/openData.js';
+import ENV, { getPort, getClientOrigin, getPublicApiBase, getNhsApiKey } from './utils/environment.js';
 
 const app = express();
-const PORT = process.env.PORT || 4001;
+const PORT = getPort();
 
-app.use(cors({ origin: ['http://localhost:3000'], credentials: true }));
+app.use(cors({ origin: [getClientOrigin()], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -28,7 +28,7 @@ const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: '3.0.1',
     info: { title: 'NHS MOA API', version: '0.1.0', description: 'HRDC proxy and triage simulator APIs' },
-    servers: [{ url: `http://localhost:${PORT}` }],
+    servers: [{ url: getPublicApiBase() }],
   },
   apis: ['./routes/hrdc.js', './routes/triage.js', './routes/openData.js'],
 });
@@ -45,5 +45,14 @@ app.use('/api/open', openDataRouter);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`API server listening on http://localhost:${PORT}`);
+  console.log(`API server listening on ${getPublicApiBase()} (internal port ${PORT})`);
+  const key = getNhsApiKey();
+  if (!key) {
+    // eslint-disable-next-line no-console
+    console.warn('[WARN] NHS_API_KEY is not set; HRDC endpoints will return empty list or 403.');
+  } else {
+    const masked = key.length > 8 ? `${key.slice(0, 4)}…${key.slice(-4)}` : '***';
+    // eslint-disable-next-line no-console
+    console.log(`[INFO] NHS_API_KEY detected (${masked}).`);
+  }
 });

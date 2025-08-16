@@ -1,13 +1,19 @@
 import React, { useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
+import { useNavigate } from 'react-router-dom';
 
 const Callback = () => {
   const auth = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // react-oidc-context handles the redirect automatically when the route loads
     // Nothing needed here unless we want to show loading or errors
-  }, []);
+    if (!auth.isLoading && auth.isAuthenticated) {
+      const returnTo = auth?.user?.state?.returnTo || '/triage-simulator';
+      navigate(returnTo, { replace: true });
+    }
+  }, [auth.isLoading, auth.isAuthenticated, auth.user, navigate]);
 
   if (auth.isLoading) {
     return (

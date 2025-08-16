@@ -7,11 +7,11 @@ A React-based NHS.UK-styled client with an OAuth 2.1 (OIDC) provider for authent
 - `api-server/` – Express API server (HRDC proxy + triage simulator)
 - `docker-compose.yml` includes `oauth-server`, `api-server`, and `client` services (with hot reload mounted volumes).
 
-Environment variables consumed by Compose:
+Environment configuration is centralized in the root `./.env` and injected into all services by Docker Compose.
 
-- `NHS_API_KEY` – required by `api-server` to proxy HRDC
+- `NHS_API_KEY` – used by `api-server` to proxy HRDC (server-side secret)
 
-Client env passed via compose:
+Client env (public, must be prefixed with `REACT_APP_`):
 
 - `REACT_APP_OAUTH_BASE=http://localhost:3001`
 - `REACT_APP_API_BASE=http://localhost:4001`
@@ -55,12 +55,21 @@ Prereqs: Docker Desktop (or Docker Engine) and Node 18+ if running locally.
 
 ## Environment & config
 
-- Client env (via `.env` or docker compose):
-  - `REACT_APP_OAUTH_BASE_URL=http://localhost:3001`
-  - `REACT_APP_OAUTH_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57`
-  - `REACT_APP_REDIRECT_URI=http://localhost:3000/callback`
-  - `REACT_APP_SCOPES=openid profile offline_access`
-  - `REACT_APP_API_BASE=http://localhost:4001`
+- Single source of truth: root `./.env` (loaded by Docker Compose for all services).
+- Servers read only `process.env` (no per-service dotenv files).
+- Client (CRA) exposes only variables prefixed with `REACT_APP_`.
+
+Example `./.env`:
+
+```
+NHS_API_KEY=... # secret, server-only
+PORT=4001
+REACT_APP_OAUTH_BASE=http://localhost:3001
+REACT_APP_API_BASE=http://localhost:4001
+REACT_APP_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57
+REACT_APP_REDIRECT_URI=http://localhost:3000/callback
+REACT_APP_SCOPE=openid basic_demographics email phone
+```
 
 - OAuth server client config (in `oauth-server/index.js`):
   - `redirect_uris: ["http://localhost:3000/callback"]`
@@ -111,6 +120,17 @@ Reference: NHS Design System components
 - API Server: `npm start`, `npm run dev`
 
 
+## Documentation
+
+High-level docs live in `docs/`:
+
+- `docs/abstract.md` — project abstract
+- `docs/literature-survey.md` — related work and references
+- `docs/approaches.md` — architectural approaches, incl. mixture-of-agents
+- `docs/methodology.md` — methods, evaluation plan, datasets
+- `docs/future-scope.md` — roadmap and extensions
+
+
 ## Data sources (single source of truth)
 
 This section documents all current data sources used by the project. This README is the single source of truth; other READMEs simply point here.
@@ -118,7 +138,7 @@ This section documents all current data sources used by the project. This README
 - **NHS Health Research Data Catalogue (HRDC) Sandbox**
   - Base URL: `https://sandbox.api.service.nhs.uk/health-research-data-catalogue`
   - Auth: API key via header `apikey`
-  - Env var: set `NHS_API_KEY` in `api-server/.env`
+  - Env var: set `NHS_API_KEY` in root `./.env` (injected into `api-server` by Compose)
   - Access via API server proxy endpoints (client-safe; API key not exposed):
     - `GET http://localhost:4001/api/hrdc/datasets` (list)
     - `GET http://localhost:4001/api/hrdc/datasets/:id` (detail)
