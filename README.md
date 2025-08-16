@@ -136,6 +136,41 @@ This section documents all current data sources used by the project. This README
   - Rendered in `client/src/App.js`
   - Calls the simulator endpoint and displays a sortable table.
 
+## Triage prioritisation model vs real-world systems
+
+This project includes a synthetic triage simulator implemented in `api-server/controllers/triageController.js` (`simulateTriage()`). The current model is a pragmatic heuristic intended for demo purposes. Below is a concise comparison with widely used emergency triage systems and recommended improvements.
+
+### Current model (demo heuristic)
+- **Dominant terms**: linear combination of
+  - Rule score by triage category (1→10, 2→6, else 0)
+  - Time score: `min(waitMins/60, 4)`
+  - Risk score: age ≥75 (+2) and category uplift (+4 for cat1, +2 for cat2)
+  - Capacity score: `(1 - capacityFactor) * 2` (ED ~0.6, Imaging ~0.8, Outpatients ~0.9)
+- **Sorting**: by total `priorityScore` (higher first)
+
+### Real-world systems (ESI, MTS, CTAS, ATS)
+- **Category first**: Triage level (1–5) is a hard priority tier; higher acuity patients are seen first.
+- **Time-to-target**: Each level has a maximum waiting time (e.g., MTS: Red immediate, Orange 10m, Yellow 60m, Green 120m, Blue 240m). Breach of target increases urgency.
+- **Clinical discriminators**: Vital signs, pain, presentation, mechanism of injury, paediatric modifiers, and early warning scores (e.g., NEWS2) influence level and re-triage.
+- **ESI resources**: Anticipated resource use differentiates patients within the same level (labs, imaging, procedures) rather than changing categories.
+- **Capacity handling**: Managed operationally (escalation, flow), not as a per-patient score that overrides clinical priority.
+
+### Key differences
+- **Triage dominance**: Our model allows lower-acuity patients to outrank higher-acuity due to time/capacity; real systems keep category dominance.
+- **Time coupling**: We use linear minutes waited; real systems use target-based pressure relative to each level’s maximum.
+- **Clinical depth**: Our risk uses age only; real systems use NEWS2, vitals, pain, and presentation.
+- **Capacity use**: We include capacity in the patient score; real systems use it for service-level decisions, not individual priority.
+
+### Recommended improvements (non-breaking direction)
+- **Tiered sorting**: Sort by `(triageLevel asc, breachFlag desc, timePressure desc, risk desc, resources desc)` to maintain category dominance.
+- **Target-based time pressure**: Use level targets (Cat1=0, Cat2=10, Cat3=60, Cat4=120, Cat5=240 min). Compute `timePressure = max(0, waitMins - target[level]) / target[level]` and `breachFlag`.
+- **Risk enrichment**: Add a simple NEWS2 proxy or vitals-based risk; keep age as a small modifier.
+- **ESI-style resources (optional)**: Estimate resources to order patients within the same category.
+- **Remove patient-level capacity term**: Use capacity for system alerts/escalation, not to alter clinical priority per patient.
+- **Re-triage**: Increase urgency or trigger reassessment as waits approach/breach targets within a level.
+
+These changes would bring the simulator closer to clinical practice while remaining synthetic and safe for demos. If needed, we can implement a feature flag to toggle between the current heuristic and a target-based, category-dominant model for comparison.
+
 ## Data integrations (future work)
 
 - Explore ingesting NHS England aggregate datasets (RTT, diagnostics, A&E) and/or proxy NHS Scotland open data for real-time wait times.
