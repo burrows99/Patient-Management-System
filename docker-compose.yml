@@ -14,6 +14,22 @@ services:
     networks:
       - nhs-network
 
+  api-server:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./api-server:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4001
+    command: npm run dev
+    networks:
+      - nhs-network
+
   client:
     build:
       context: ./client
@@ -27,6 +43,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
       - REACT_APP_OAUTH_BASE=http://localhost:3001
+      - REACT_APP_API_BASE=http://localhost:4001
       - REACT_APP_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57
       - REACT_APP_REDIRECT_URI=http://localhost:3000/callback
       - REACT_APP_SCOPE=openid basic_demographics email phone
@@ -37,6 +54,7 @@ services:
       - nhs-network
     depends_on:
       - oauth-server
+      - api-server
 
 networks:
   nhs-network:

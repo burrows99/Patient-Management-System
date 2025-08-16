@@ -1,5 +1,5 @@
 {
-  "name": "oauth-server",
+  "name": "api-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,13 +8,13 @@
     "dev": "nodemon --watch . --ext js,json --exec 'node index.js'"
   },
   "dependencies": {
-    "@koa/cors": "^5.0.0",
-    "oidc-provider": "^9.4.1",
-    "dotenv": "^16.4.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "swagger-ui-express": "^5.0.1",
+    "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   }
 }
-
-

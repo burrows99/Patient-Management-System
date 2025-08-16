@@ -5,6 +5,7 @@ import LoginButton from './LoginButton';
 import Callback from './Callback';
 import AuthStatus from './AuthStatus';
 import Layout from './components/Layout';
+import TriageSimulator from './components/TriageSimulator';
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
                 <p>This system helps healthcare professionals manage patient triage efficiently and securely.</p>
               </div>
             )}
+
+            {/* Triage Simulator UI */}
+            <TriageSimulator />
           </div>
         </div>
       </Layout>

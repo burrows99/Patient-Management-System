@@ -3,25 +3,39 @@
 A React-based NHS.UK-styled client with an OAuth 2.1 (OIDC) provider for authentication. This repo includes:
 
 - `client/`: React app styled with NHS.UK frontend design system.
-- `oauth-server/`: Local OIDC provider using `oidc-provider` (PKCE, refresh tokens, logout redirect).
-- `docker-compose.yml`: One command to run client and OAuth server.
+- `oauth-server/` – Koa + oidc-provider auth server (auth-only)
+- `api-server/` – Express API server (HRDC proxy + triage simulator)
+- `docker-compose.yml` includes `oauth-server`, `api-server`, and `client` services (with hot reload mounted volumes).
 
+Environment variables consumed by Compose:
+
+- `NHS_API_KEY` – required by `api-server` to proxy HRDC
+
+Client env passed via compose:
+
+- `REACT_APP_OAUTH_BASE=http://localhost:3001`
+- `REACT_APP_API_BASE=http://localhost:4001`
 
 ## Quick start
 
 Prereqs: Docker Desktop (or Docker Engine) and Node 18+ if running locally.
 
-- With Docker (recommended):
-  - `docker compose up --build`
-  - Open http://localhost:3000
+### Running with Docker (recommended):
+
+- `docker compose up --build`
+- Open http://localhost:3000
 
 - Client only (local):
   - `cd client && npm ci && npm start`
-  - Open http://localhost:3000 (make sure OAuth server is running at 4000)
+  - Open http://localhost:3000 (make sure OAuth server is running at 3001)
 
 - OAuth server only (local):
   - `cd oauth-server && npm ci && npm start`
-  - OIDC issuer at http://localhost:4000
+  - OIDC issuer at http://localhost:3001
+
+- API server only (local):
+  - `cd api-server && npm ci && npm start`
+  - API server at http://localhost:4001
 
 
 ## Architecture
@@ -36,19 +50,25 @@ Prereqs: Docker Desktop (or Docker Engine) and Node 18+ if running locally.
   - `authorization_code` + `refresh_token`
   - PKCE S256 required
   - `post_logout_redirect_uris` to return users to the client after sign-out
+- `api-server/index.js` serves HRDC proxy and triage simulator endpoints
 
 
 ## Environment & config
 
 - Client env (via `.env` or docker compose):
-  - `REACT_APP_OAUTH_BASE_URL=http://localhost:4000`
+  - `REACT_APP_OAUTH_BASE_URL=http://localhost:3001`
   - `REACT_APP_OAUTH_CLIENT_ID=9c7c344a-51e3-41c0-a655-a3467f2aca57`
   - `REACT_APP_REDIRECT_URI=http://localhost:3000/callback`
   - `REACT_APP_SCOPES=openid profile offline_access`
+  - `REACT_APP_API_BASE=http://localhost:4001`
 
 - OAuth server client config (in `oauth-server/index.js`):
   - `redirect_uris: ["http://localhost:3000/callback"]`
   - `post_logout_redirect_uris: ["http://localhost:3000/"]`
+
+- API server config (in `api-server/index.js`):
+  - HRDC proxy endpoints
+  - Triage simulator endpoint
 
 
 ## Development workflow
@@ -56,6 +76,7 @@ Prereqs: Docker Desktop (or Docker Engine) and Node 18+ if running locally.
 - Start everything: `docker compose up --build`
 - Iterate on client: hot reload at http://localhost:3000
 - Iterate on OAuth server: nodemon-style restart if configured; otherwise re-run container
+- Iterate on API server: nodemon-style restart if configured; otherwise re-run container
 
 
 ## UI, layout, and accessibility
@@ -86,8 +107,34 @@ Reference: NHS Design System components
 ## Scripts
 
 - Client: `npm start`, `npm run build`, `npm test`
-- OAuth Server: `npm start`
+- OAuth Server: `npm start`, `npm run dev`
+- API Server: `npm start`, `npm run dev`
 
+
+## Data sources (single source of truth)
+
+This section documents all current data sources used by the project. This README is the single source of truth; other READMEs simply point here.
+
+- **NHS Health Research Data Catalogue (HRDC) Sandbox**
+  - Base URL: `https://sandbox.api.service.nhs.uk/health-research-data-catalogue`
+  - Auth: API key via header `apikey`
+  - Env var: set `NHS_API_KEY` in `api-server/.env`
+  - Access via API server proxy endpoints (client-safe; API key not exposed):
+    - `GET http://localhost:4001/api/hrdc/datasets` (list)
+    - `GET http://localhost:4001/api/hrdc/datasets/:id` (detail)
+  - Note: HRDC provides dataset metadata suitable for simulation parameters; it is not a live patient queue.
+
+- **Triage simulator API (synthetic data)**
+  - Endpoint (served by `api-server/index.js`):
+    - `GET http://localhost:4001/triage/simulate?dept=ED&n=30&datasetId=<persistentId>`
+  - Fetches HRDC dataset live each request and uses metadata (age ranges, etc.) to parameterise a synthetic queue.
+  - Response fields: `triageCategory`, `waitMins`, `age`, `arrivalTime`, `priorityScore`, `riskScore`, `capacityFactor`.
+  - MoA scoring combines rule-based uplift (triage 1–2), queue-time, risk (age, acuity), and capacity.
+
+- **Client UI for simulator**
+  - Component: `client/src/components/TriageSimulator.jsx`
+  - Rendered in `client/src/App.js`
+  - Calls the simulator endpoint and displays a sortable table.
 
 ## Data integrations (future work)
 

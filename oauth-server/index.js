@@ -1,6 +1,8 @@
 import Koa from 'koa';
 import cors from '@koa/cors';
 import Provider from 'oidc-provider';
+import 'dotenv/config';
+// no file IO or path usage in auth server now
 
 const PORT = 3001;
 const ISSUER = `http://localhost:${PORT}`;
@@ -53,6 +55,7 @@ provider.app.use(async (ctx, next) => {
     ctx.app.emit('error', err, ctx);
   }
 });
+
 
 provider.listen(PORT, () => {
   // eslint-disable-next-line no-console
