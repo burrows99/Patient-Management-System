@@ -15,6 +15,9 @@ services:
     command: npm run dev
     networks:
       - nhs-network
+    depends_on:
+      synthea:
+        condition: service_completed_successfully
 
   api-server:
     build:
@@ -39,9 +42,10 @@ services:
       - nhs-network
 
   synthea:
-    image: smartonfhir/synthea
+    image: synthetichealth/synthea:latest
+    platform: linux/amd64
     container_name: synthea
-    command: ["-p", "100", "-s", "1234", "-o", "/synthea/output"]
+    command: ["./run_synthea", "-p", "100", "-s", "1234", "-o", "/synthea/output"]
     volumes:
       - ./synthea-output:/synthea/output
     restart: "no"
@@ -76,7 +80,6 @@ services:
     depends_on:
       - oauth-server
       - api-server
-      - synthea
 
 networks:
   nhs-network:
