@@ -79,27 +79,20 @@ export default function SyntheaPage() {
   const rowDetail = (p) => {
     const patient = p.patient || {};
     return (
-      <div className="nhsuk-details nhsuk-u-padding-2">
-        <h3 className="nhsuk-heading-m">Patient resource</h3>
-        <JsonViewer title="Patient JSON" data={patient} defaultOpen={false} />
-        <h3 className="nhsuk-heading-m">Related resources</h3>
-        {renderResourceDetails('Conditions', p.conditions)}
-        {renderResourceDetails('Observations', p.observations)}
-        {renderResourceDetails('MedicationRequests', p.medicationRequests)}
-        {renderResourceDetails('MedicationStatements', p.medicationStatements)}
-        {renderResourceDetails('Procedures', p.procedures)}
-        {renderResourceDetails('Encounters', p.encounters)}
-        {renderResourceDetails('Allergies', p.allergies)}
-        {renderResourceDetails('Immunizations', p.immunizations)}
+      <div className="nhsuk-u-padding-2">
+        <JsonViewer title="Patient resource" data={patient} initiallyOpen />
+        <h3 className="nhsuk-heading-m nhsuk-u-margin-top-4">Related resources</h3>
+        <JsonViewer title="Conditions" data={p.conditions} />
+        <JsonViewer title="Observations" data={p.observations} />
+        <JsonViewer title="MedicationRequests" data={p.medicationRequests} />
+        <JsonViewer title="MedicationStatements" data={p.medicationStatements} />
+        <JsonViewer title="Procedures" data={p.procedures} />
+        <JsonViewer title="Encounters" data={p.encounters} />
+        <JsonViewer title="Allergies" data={p.allergies} />
+        <JsonViewer title="Immunizations" data={p.immunizations} />
       </div>
     );
   };
-
-  function renderResourceDetails(title, value) {
-    return (
-      <JsonViewer title={title} data={value || []} defaultOpen={false} />
-    );
-  }
 
   return (
     <PageLayout

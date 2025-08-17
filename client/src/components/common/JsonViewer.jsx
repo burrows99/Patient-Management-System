@@ -2,97 +2,42 @@ import React, { useMemo, useState } from 'react';
 
 /**
  * JsonViewer
- * - Collapsible JSON viewer with optional inline editing and copy
+ * - NHS-styled collapsible viewer for JSON payloads
+ * - Uses NHS.UK details pattern and code block semantics
  */
-export default function JsonViewer({
-  title = 'Details',
-  data,
-  defaultOpen = false,
-  editable = false,
-  onChange,
-}) {
-  const pretty = useMemo(() => safeStringify(data), [data]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(pretty);
-  const [error, setError] = useState('');
-
-  const handleCopy = async () => {
+export default function JsonViewer({ title = 'JSON', data, initiallyOpen = false, compact = false }) {
+  const [open, setOpen] = useState(!!initiallyOpen);
+  const pretty = useMemo(() => {
     try {
-      await navigator.clipboard.writeText(isEditing ? text : pretty);
+      return JSON.stringify(data ?? {}, null, compact ? 0 : 2);
     } catch {
-      // noop
+      return String(data);
     }
-  };
+  }, [data, compact]);
 
-  const handleToggleEdit = () => {
-    if (!isEditing) {
-      setText(pretty);
-      setError('');
-      setIsEditing(true);
-    } else {
-      setIsEditing(false);
-      setError('');
-    }
-  };
-
-  const handleApply = () => {
+  const onCopy = async () => {
     try {
-      const parsed = JSON.parse(text || 'null');
-      setError('');
-      setIsEditing(false);
-      if (onChange) onChange(parsed);
-    } catch (e) {
-      setError(e.message || 'Invalid JSON');
+      await navigator.clipboard.writeText(pretty);
+    } catch {
+      // ignore copy errors silently
     }
   };
 
   return (
-    <details className="nhsuk-details" open={defaultOpen}>
+    <details className="nhsuk-details" open={open} onToggle={(e) => setOpen(e.target.open)}>
       <summary className="nhsuk-details__summary">
         <span className="nhsuk-details__summary-text">{title}</span>
       </summary>
       <div className="nhsuk-details__text">
-        <div className="nhsuk-u-margin-bottom-2" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button type="button" className="nhsuk-button nhsuk-button--secondary" onClick={handleCopy}>Copy</button>
-          {editable && (
-            <>
-              <button type="button" className="nhsuk-button nhsuk-button--secondary" onClick={handleToggleEdit}>
-                {isEditing ? 'Cancel' : 'Edit'}
-              </button>
-              {isEditing && (
-                <button type="button" className="nhsuk-button" onClick={handleApply}>Apply</button>
-              )}
-            </>
-          )}
+        <div className="nhsuk-u-margin-bottom-2">
+          <button type="button" className="nhsuk-button nhsuk-button--secondary" onClick={onCopy}>
+            Copy JSON
+          </button>
         </div>
-
-        {error && (
-          <div className="nhsuk-error-summary nhsuk-u-margin-bottom-3" role="alert">
-            <h2 className="nhsuk-error-summary__title">Invalid JSON</h2>
-            <div className="nhsuk-error-summary__body"><p>{error}</p></div>
-          </div>
-        )}
-
-        {isEditing ? (
-          <textarea
-            className="nhsuk-textarea"
-            rows={12}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            style={{ width: '100%', fontFamily: 'monospace' }}
-          />
-        ) : (
-          <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{pretty}</pre>
-        )}
+        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>
+          <code>{pretty}</code>
+        </pre>
       </div>
     </details>
   );
-}
-
-function safeStringify(obj) {
-  try {
-    return JSON.stringify(obj, null, 2);
-  } catch {
-    try { return String(obj); } catch { return ''; }
-  }
 }
