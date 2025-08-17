@@ -52,3 +52,6 @@ Thumbs.db
 # Lock/backup artifacts
 *.bak
 *.orig
+
+# Temporary files
+tmp/
