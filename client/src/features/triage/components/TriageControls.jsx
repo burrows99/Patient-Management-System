@@ -8,6 +8,10 @@ export default function TriageControls({
   datasets,
   count,
   onCountChange,
+  method,
+  onMethodChange,
+  patientId,
+  onPatientIdChange,
   action,
   pending,
 }) {
@@ -35,6 +39,29 @@ export default function TriageControls({
       </div>
 
       <div className="nhsuk-form-group">
+        <label className="nhsuk-label" htmlFor="method">Methodology</label>
+        <select id="method" name="method" className="nhsuk-select" value={method} onChange={(e) => onMethodChange(e.target.value)}>
+          <option value="rules">Rules-based</option>
+          <option value="time">Time-based</option>
+          <option value="risk">Risk-based</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+      </div>
+
+      <div className="nhsuk-form-group">
+        <label className="nhsuk-label" htmlFor="patientId">Patient ID (optional)</label>
+        <input
+          id="patientId"
+          name="patientId"
+          className="nhsuk-input"
+          type="text"
+          value={patientId}
+          onChange={(e) => onPatientIdChange(e.target.value)}
+          placeholder="e.g. UUID or local ID"
+        />
+      </div>
+
+      <div className="nhsuk-form-group">
         <label className="nhsuk-label" htmlFor="count">Count</label>
         <input
           id="count"
@@ -49,7 +76,7 @@ export default function TriageControls({
       </div>
 
       <button className="nhsuk-button" type="submit" disabled={pending}>
-        {pending ? 'Generating…' : 'Generate'}
+        {pending ? 'Simulating…' : 'Simulate'}
       </button>
     </form>
   );

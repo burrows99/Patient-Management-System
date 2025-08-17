@@ -8,6 +8,8 @@ export default function TriageSimulator() {
     dept, setDept,
     count, setCount,
     datasetId, setDatasetId,
+    method, setMethod,
+    patientId, setPatientId,
     formState, formAction, pending,
     columns,
   } = useTriageSimulation();
@@ -34,6 +36,10 @@ export default function TriageSimulator() {
           datasets={datasets}
           count={count}
           onCountChange={setCount}
+          method={method}
+          onMethodChange={setMethod}
+          patientId={patientId}
+          onPatientIdChange={setPatientId}
           action={formAction}
           pending={pending}
         />

@@ -5,6 +5,8 @@ export async function simulateTriage(req, res) {
   const dept = (req.query.dept || 'ED').toString();
   const n = Math.min(parseInt((req.query.n || '30').toString(), 10) || 30, 200);
   const datasetId = (req.query.datasetId || 'dd5f0174-575f-4f4c-a4fc-b406aab953d9').toString();
+  const method = (req.query.method || 'rules').toString();
+  const patientId = (req.query.patientId || '').toString();
   const apiKey = getNhsApiKey();
 
   let meta = {};
@@ -55,11 +57,34 @@ export async function simulateTriage(req, res) {
     const timeScore = Math.min(waitMins / 60, 4);
     const ruleScore = triage === 1 ? 10 : triage === 2 ? 6 : 0;
     const capScore = (1 - cap) * 2;
-    const priorityScore = Number((ruleScore + timeScore + riskScore + capScore).toFixed(2));
+
+    let priorityScoreRaw = 0;
+    switch (method.toLowerCase()) {
+      case 'time':
+        // Emphasize waiting time, then capacity
+        priorityScoreRaw = timeScore * 2 + capScore + riskScore * 0.5;
+        break;
+      case 'risk':
+        // Emphasize clinical risk first
+        priorityScoreRaw = riskScore * 2 + ruleScore * 0.5 + capScore;
+        break;
+      case 'hybrid':
+        // Balanced weighting across factors
+        priorityScoreRaw = ruleScore + timeScore + riskScore + capScore;
+        break;
+      case 'rules':
+      default:
+        // Rules-based default: strongest weight on rule-derived category
+        priorityScoreRaw = ruleScore * 1.5 + timeScore + riskScore + capScore * 0.5;
+        break;
+    }
+    const priorityScore = Number(priorityScoreRaw.toFixed(2));
 
     return {
       id: `${dept}-${Date.now()}-${i}`,
       dept,
+      method,
+      patientId: patientId || undefined,
       triageCategory: triage,
       arrivalTime,
       waitMins,
@@ -71,5 +96,5 @@ export async function simulateTriage(req, res) {
   });
 
   items.sort((a, b) => b.priorityScore - a.priorityScore);
-  return res.json({ dept, count: items.length, items });
+  return res.json({ dept, method, patientId: patientId || undefined, count: items.length, items });
 }

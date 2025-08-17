@@ -3,8 +3,15 @@ import { getApiBase } from '../utils/environment';
 
 const API_BASE = getApiBase();
 
-export async function simulateTriage({ dept, n, datasetId }) {
-  const url = `${API_BASE}/triage/simulate?dept=${encodeURIComponent(dept)}&n=${encodeURIComponent(n)}&datasetId=${encodeURIComponent(datasetId)}`;
+export async function simulateTriage({ dept, n, datasetId, method, patientId }) {
+  const params = new URLSearchParams({
+    dept: String(dept),
+    n: String(n),
+    datasetId: String(datasetId),
+  });
+  if (method) params.set('method', String(method));
+  if (patientId) params.set('patientId', String(patientId));
+  const url = `${API_BASE}/triage/simulate?${params.toString()}`;
   const res = await fetch(url, { credentials: 'include' });
   const warning = res.headers.get('X-TriageSimulator-Warning') || '';
   if (!res.ok) {

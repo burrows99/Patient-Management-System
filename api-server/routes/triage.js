@@ -32,6 +32,19 @@ const router = Router();
  *         schema:
  *           type: string
  *           example: dd5f0174-575f-4f4c-a4fc-b406aab953d9
+ *       - name: method
+ *         in: query
+ *         description: Methodology to compute priority score
+ *         schema:
+ *           type: string
+ *           enum: [rules, time, risk, hybrid]
+ *           example: rules
+ *       - name: patientId
+ *         in: query
+ *         description: Optional patient identifier to run a targeted simulation
+ *         schema:
+ *           type: string
+ *           example: 123e4567-e89b-12d3-a456-426614174000
  *     responses:
  *       200:
  *         description: OK
@@ -48,6 +61,13 @@ const router = Router();
  *                 dept:
  *                   type: string
  *                   example: ED
+ *                 method:
+ *                   type: string
+ *                   example: rules
+ *                 patientId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: 123e4567-e89b-12d3-a456-426614174000
  *                 count:
  *                   type: integer
  *                   example: 30
