@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import NhsButton from '../components/common/button/NhsButton';
 import PageLayout from '../components/common/PageLayout';
 import NhsTable from '../components/common/NhsTable';
+import JsonViewer from '../components/common/JsonViewer';
 import { syntheaGenerate, syntheaGetPatients } from '../services/syntheaApi';
 
 // NHS-styled page to trigger Synthea generation, fetch patients, and render as table
@@ -80,7 +81,7 @@ export default function SyntheaPage() {
     return (
       <div className="nhsuk-details nhsuk-u-padding-2">
         <h3 className="nhsuk-heading-m">Patient resource</h3>
-        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(patient, null, 2)}</pre>
+        <JsonViewer title="Patient JSON" data={patient} defaultOpen={false} />
         <h3 className="nhsuk-heading-m">Related resources</h3>
         {renderResourceDetails('Conditions', p.conditions)}
         {renderResourceDetails('Observations', p.observations)}
@@ -96,14 +97,7 @@ export default function SyntheaPage() {
 
   function renderResourceDetails(title, value) {
     return (
-      <details className="nhsuk-details">
-        <summary className="nhsuk-details__summary">
-          <span className="nhsuk-details__summary-text">{title}</span>
-        </summary>
-        <div className="nhsuk-details__text">
-          <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(value || [], null, 2)}</pre>
-        </div>
-      </details>
+      <JsonViewer title={title} data={value || []} defaultOpen={false} />
     );
   }
 
