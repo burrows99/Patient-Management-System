@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import NhsButton from '../components/common/button/NhsButton';
+import PageLayout from '../components/common/PageLayout';
 import { syntheaGenerate, syntheaGetPatients } from '../services/syntheaApi';
 
 // NHS-styled page to trigger Synthea generation, fetch patients, and render as table
@@ -42,29 +43,26 @@ export default function SyntheaPage() {
   const toggleExpand = (key) => setExpanded((s) => ({ ...s, [key]: !s[key] }));
 
   return (
-    <div className="nhsuk-width-container">
-      <main className="nhsuk-main-wrapper" id="maincontent" role="main">
-        <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-full">
-            <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
-              <ol className="nhsuk-breadcrumb__list">
-                <li className="nhsuk-breadcrumb__item"><a className="nhsuk-breadcrumb__link" href="/">Home</a></li>
-                <li className="nhsuk-breadcrumb__item" aria-current="page">Synthea</li>
-              </ol>
-            </nav>
-
-            <h1 className="nhsuk-heading-xl">Synthea</h1>
-            <p className="nhsuk-body-l">Generate synthetic patient data and view recent bundles.</p>
-
-            <div className="nhsuk-card nhsuk-card--feature">
-              <div className="nhsuk-card__content">
-                <h2 className="nhsuk-heading-m">Actions</h2>
-                <fieldset className="nhsuk-fieldset" aria-describedby="synthea-hint">
-                  <legend className="nhsuk-visually-hidden">Synthea parameters</legend>
-                  <span className="nhsuk-hint" id="synthea-hint">Choose FHIR version and counts.</span>
-
-                  <div className="nhsuk-form-group">
-                    <label className="nhsuk-label" htmlFor="stu">FHIR version</label>
+    <PageLayout
+      title="Synthea"
+      lead="Generate synthetic patient data and view recent bundles."
+      actions={(
+        <>
+          <NhsButton onClick={onGenerate} disabled={loading}>
+            {loading ? 'Working…' : 'Generate'}
+          </NhsButton>
+          <NhsButton onClick={onFetch} variant="secondary" disabled={loading}>
+            {loading ? 'Working…' : 'Fetch Patients'}
+          </NhsButton>
+        </>
+      )}
+    >
+      <div className="nhsuk-card nhsuk-card--feature">
+        <div className="nhsuk-card__content">
+          <h2 className="nhsuk-heading-m">Parameters</h2>
+          <div className="nhsuk-form-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <label className="nhsuk-label" htmlFor="stu">FHIR STU</label>
                     <select
                       id="stu"
                       className="nhsuk-select"
@@ -76,9 +74,8 @@ export default function SyntheaPage() {
                       <option value="2">DSTU2</option>
                     </select>
                   </div>
-
-                  <div className="nhsuk-form-group">
-                    <label className="nhsuk-label" htmlFor="p">Generate patients</label>
+                  <div>
+                    <label className="nhsuk-label" htmlFor="p">Generate count (p)</label>
                     <input
                       id="p"
                       className="nhsuk-input nhsuk-input--width-5"
@@ -88,11 +85,9 @@ export default function SyntheaPage() {
                       value={params.p}
                       onChange={(e) => setParams((p) => ({ ...p, p: Math.max(1, Math.min(1000, Number(e.target.value)||0)) }))}
                     />
-                    <span className="nhsuk-hint" id="p-hint">How many to generate (p).</span>
                   </div>
-
-                  <div className="nhsuk-form-group">
-                    <label className="nhsuk-label" htmlFor="n">Fetch recent bundles</label>
+                  <div>
+                    <label className="nhsuk-label" htmlFor="n">Fetch count (n)</label>
                     <input
                       id="n"
                       className="nhsuk-input nhsuk-input--width-5"
@@ -102,69 +97,55 @@ export default function SyntheaPage() {
                       value={params.n}
                       onChange={(e) => setParams((p) => ({ ...p, n: Math.max(1, Math.min(1000, Number(e.target.value)||0)) }))}
                     />
-                    <span className="nhsuk-hint" id="n-hint">How many files to read (n).</span>
                   </div>
-                </fieldset>
+          </div>
 
-                <div className="nhsuk-button-group">
-                  <NhsButton onClick={onGenerate} disabled={loading}>{loading ? 'Working…' : 'Generate'}</NhsButton>
-                  <NhsButton onClick={onFetch} variant="secondary" disabled={loading}>{loading ? 'Working…' : 'Fetch patients'}</NhsButton>
-                </div>
-
-                {error && (
-                  <div className="nhsuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
-                    <h2 className="nhsuk-error-summary__title" id="error-summary-title">There is a problem</h2>
-                    <div className="nhsuk-error-summary__body">
-                      <p>{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                {genInfo && (
-                  <div className="nhsuk-inset-text" style={{ marginTop: '1rem' }}>
-                    <span className="nhsuk-u-visually-hidden">Information: </span>
-                    <p><strong>Generate diagnostics:</strong> {genInfo?.message || 'Done'}</p>
-                  </div>
-                )}
+          {error && (
+            <div className="nhsuk-error-summary" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+              <h2 className="nhsuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+              <div className="nhsuk-error-summary__body">
+                <p>{error}</p>
               </div>
             </div>
+          )}
 
-            <section aria-labelledby="patients-heading" style={{ marginTop: '1.5rem' }}>
-              <h2 id="patients-heading" className="nhsuk-heading-l">Patients</h2>
-              {patientsResp && (
-                <dl className="nhsuk-summary-list">
-                  <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">Directories</dt>
-                    <dd className="nhsuk-summary-list__value">{Array.isArray(patientsResp.directoriesFound) ? patientsResp.directoriesFound.join(', ') : '—'}</dd>
-                  </div>
-                  <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">Files available</dt>
-                    <dd className="nhsuk-summary-list__value">{patientsResp.totalFilesAvailable}</dd>
-                  </div>
-                  <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">Processed</dt>
-                    <dd className="nhsuk-summary-list__value">{patientsResp.filesProcessed}</dd>
-                  </div>
-                  <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">Patients</dt>
-                    <dd className="nhsuk-summary-list__value">{patientsResp.patientsFound}</dd>
-                  </div>
-                </dl>
-              )}
+          {genInfo && (
+            <div className="nhsuk-inset-text" style={{ marginTop: '1rem' }}>
+              <span className="nhsuk-u-visually-hidden">Information: </span>
+              <p><strong>Generate diagnostics:</strong> {genInfo?.message || 'Done'}</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-              <div className="nhsuk-table-responsive">
-                <table role="table" className="nhsuk-table">
-                  <caption className="nhsuk-table__caption nhsuk-table__caption--m">Most recent bundles</caption>
-                  <thead className="nhsuk-table__head">
-                    <tr role="row">
-                      <th scope="col" className="nhsuk-table__header">Patient</th>
-                      <th scope="col" className="nhsuk-table__header">Bundle File</th>
-                      <th scope="col" className="nhsuk-table__header">Source</th>
-                      <th scope="col" className="nhsuk-table__header">Counts</th>
-                      <th scope="col" className="nhsuk-table__header">Details</th>
-                    </tr>
-                  </thead>
-                  <tbody className="nhsuk-table__body">
+      <section aria-labelledby="patients-heading" style={{ marginTop: '1.5rem' }}>
+        <h2 id="patients-heading" className="nhsuk-heading-l">Patients</h2>
+        {patientsResp && (
+          <div className="nhsuk-details">
+            <div className="nhsuk-details__text">
+              <p className="nhsuk-body">
+                <strong>Directories:</strong> {Array.isArray(patientsResp.directoriesFound) ? patientsResp.directoriesFound.join(', ') : '—'}
+              </p>
+              <p className="nhsuk-body">
+                <strong>Files available:</strong> {patientsResp.totalFilesAvailable} · <strong>Processed:</strong> {patientsResp.filesProcessed} · <strong>Patients:</strong> {patientsResp.patientsFound}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="nhsuk-table-responsive">
+          <table role="table" className="nhsuk-table">
+            <caption className="nhsuk-table__caption">Most recent bundles</caption>
+            <thead className="nhsuk-table__head">
+              <tr role="row">
+                <th scope="col" className="nhsuk-table__header">Patient</th>
+                <th scope="col" className="nhsuk-table__header">Bundle File</th>
+                <th scope="col" className="nhsuk-table__header">Source</th>
+                <th scope="col" className="nhsuk-table__header">Counts</th>
+                <th scope="col" className="nhsuk-table__header">Details</th>
+              </tr>
+            </thead>
+            <tbody className="nhsuk-table__body">
                     {patients.length === 0 ? (
                       <tr>
                         <td className="nhsuk-table__cell" colSpan={5}>No patients loaded yet.</td>
@@ -208,7 +189,7 @@ export default function SyntheaPage() {
                             {isOpen && (
                               <tr>
                                 <td className="nhsuk-table__cell" colSpan={5}>
-                                  <div className="nhsuk-u-padding-2" style={{ background: '#f0f4f5' }}>
+                                  <div className="nhsuk-details nhsuk-u-padding-2">
                                     <h3 className="nhsuk-heading-m">Patient resource</h3>
                                     <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(patient, null, 2)}</pre>
                                     <h3 className="nhsuk-heading-m">Related resources</h3>
@@ -284,24 +265,21 @@ export default function SyntheaPage() {
                         );
                       })
                     )}
-                  </tbody>
-                </table>
-              </div>
-
-              {patientsResp?.skippedFiles?.length > 0 && (
-                <div className="nhsuk-warning-callout" style={{ marginTop: '1rem' }}>
-                  <h3 className="nhsuk-warning-callout__label"><span><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
-                  <ul className="nhsuk-list nhsuk-list--bullet">
-                    {patientsResp.skippedFiles.map((s, i) => (
-                      <li key={`${s.file}-${i}`}><code>{s.file}</code>: {s.reason}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </section>
-          </div>
+            </tbody>
+          </table>
         </div>
-      </main>
-    </div>
+
+        {patientsResp?.skippedFiles?.length > 0 && (
+          <div className="nhsuk-warning-callout" style={{ marginTop: '1rem' }}>
+            <h3 className="nhsuk-warning-callout__label"><span role="text"><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
+            <ul className="nhsuk-list nhsuk-list--bullet">
+              {patientsResp.skippedFiles.map((s, i) => (
+                <li key={`${s.file}-${i}`}><code>{s.file}</code>: {s.reason}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    </PageLayout>
   );
 }

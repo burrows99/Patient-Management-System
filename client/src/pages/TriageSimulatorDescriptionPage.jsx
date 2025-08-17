@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import NhsButton from '../components/common/button/NhsButton';
+import PageLayout from '../components/common/PageLayout';
 import DatasetsContent from '../components/common/text/DatasetsContent';
 import MethodologyContent from '../components/common/text/MethodologyContent';
 import BaselineContent from '../components/common/text/BaselineContent';
@@ -7,10 +8,11 @@ import BaselineContent from '../components/common/text/BaselineContent';
 const TriageSimulatorDescriptionPage = () => {
   const [tab, setTab] = useState('datasets'); // datasets | methodology | baseline
   return (
-    <>
-      <h1 className="nhsuk-heading-l">Triage Simulator</h1>
-      <p className="nhsuk-body">We will use a synthetic dataset (Synthea UK module) for prototyping. Real data integrations can follow later.</p>
-
+    <PageLayout
+      title="Triage Simulator"
+      lead="We use a synthetic dataset (Synthea UK module) for prototyping. Real data integrations can follow later."
+      actions={<NhsButton to="/triage-simulator">Go to Triage Simulator</NhsButton>}
+    >
       {/* Tabs header using NHS.UK pattern */}
       <div className="nhsuk-tabs" data-module="nhsuk-tabs">
         <h2 className="nhsuk-tabs__title">Contents</h2>
@@ -91,11 +93,7 @@ const TriageSimulatorDescriptionPage = () => {
         <BaselineContent />
       </section>
 
-      {/* Persistent CTA */}
-      <div className="nhsuk-u-margin-top-4">
-        <NhsButton to="/triage-simulator">Go to Triage Simulator</NhsButton>
-      </div>
-    </>
+    </PageLayout>
   );
 };
 
