@@ -80,8 +80,7 @@ export default function SyntheaPage() {
     const patient = p.patient || {};
     return (
       <div className="nhsuk-u-padding-2">
-        <JsonViewer title="Patient resource" data={patient} initiallyOpen />
-        <h3 className="nhsuk-heading-m nhsuk-u-margin-top-4">Related resources</h3>
+        <JsonViewer title="Patient" data={patient} />
         <JsonViewer title="Conditions" data={p.conditions} />
         <JsonViewer title="Observations" data={p.observations} />
         <JsonViewer title="MedicationRequests" data={p.medicationRequests} />
@@ -171,39 +170,43 @@ export default function SyntheaPage() {
       </div>
 
       <section aria-labelledby="patients-heading" style={{ marginTop: '1.5rem' }}>
-        <h2 id="patients-heading" className="nhsuk-heading-l">Patients</h2>
-        {patientsResp && (
-          <div className="nhsuk-details">
-            <div className="nhsuk-details__text">
-              <p className="nhsuk-body">
-                <strong>Directories:</strong> {Array.isArray(patientsResp.directoriesFound) ? patientsResp.directoriesFound.join(', ') : '—'}
-              </p>
-              <p className="nhsuk-body">
-                <strong>Files available:</strong> {patientsResp.totalFilesAvailable} · <strong>Processed:</strong> {patientsResp.filesProcessed} · <strong>Patients:</strong> {patientsResp.patientsFound}
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="nhsuk-card">
+          <div className="nhsuk-card__content">
+            <h2 className="nhsuk-heading-m">Patients</h2>
+            {patientsResp && (
+              <div className="nhsuk-details" style={{ marginBottom: '1rem' }}>
+                <div className="nhsuk-details__text">
+                  <p className="nhsuk-body">
+                    <strong>Directories:</strong> {Array.isArray(patientsResp.directoriesFound) ? patientsResp.directoriesFound.join(', ') : '—'}
+                  </p>
+                  <p className="nhsuk-body">
+                    <strong>Files available:</strong> {patientsResp.totalFilesAvailable} · <strong>Processed:</strong> {patientsResp.filesProcessed} · <strong>Patients:</strong> {patientsResp.patientsFound}
+                  </p>
+                </div>
+              </div>
+            )}
 
-        <NhsTable
-          caption="Most recent bundles"
-          columns={columns}
-          data={patients}
-          loading={loading}
-          keyField={(row, idx) => `${row.bundleFile || 'bundle'}-${idx}`}
-          rowDetail={rowDetail}
-        />
+            <NhsTable
+              caption="Most recent bundles"
+              columns={columns}
+              data={patients}
+              loading={loading}
+              keyField={(row, idx) => `${row.bundleFile || 'bundle'}-${idx}`}
+              rowDetail={rowDetail}
+            />
 
-        {patientsResp?.skippedFiles?.length > 0 && (
-          <div className="nhsuk-warning-callout" style={{ marginTop: '1rem' }}>
-            <h3 className="nhsuk-warning-callout__label"><span><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
-            <ul className="nhsuk-list nhsuk-list--bullet">
-              {patientsResp.skippedFiles.map((s, i) => (
-                <li key={`${s.file}-${i}`}><code>{s.file}</code>: {s.reason}</li>
-              ))}
-            </ul>
+            {patientsResp?.skippedFiles?.length > 0 && (
+              <div className="nhsuk-warning-callout" style={{ marginTop: '1rem' }}>
+                <h3 className="nhsuk-warning-callout__label"><span><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
+                <ul className="nhsuk-list nhsuk-list--bullet">
+                  {patientsResp.skippedFiles.map((s, i) => (
+                    <li key={`${s.file}-${i}`}><code>{s.file}</code>: {s.reason}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </section>
     </PageLayout>
   );

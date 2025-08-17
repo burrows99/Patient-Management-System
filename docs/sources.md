@@ -1,0 +1,21 @@
+# Sources and References
+
+- NHS.UK Design System
+  - Website: https://service-manual.nhs.uk/design-system
+  - Details pattern: https://service-manual.nhs.uk/design-system/components/details
+  - Tabs component: https://service-manual.nhs.uk/design-system/components/tabs
+  - Accessibility guidance: https://service-manual.nhs.uk/accessibility
+- HTML Details/Summary (MDN): https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
+- Clipboard API (MDN): https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
+- Synthea (SyntheticHealth)
+  - GitHub: https://github.com/synthetichealth/synthea
+  - Website: https://synthetichealth.github.io/synthea/
+  - Paper: Walonoski et al., "Synthea: An approach, method, and software mechanism for generating synthetic patients and the synthetic electronic health care record" (JAMIA, 2018). https://academic.oup.com/jamia/article/25/3/230/4098271
+- FHIR (HL7)
+  - Overview: https://www.hl7.org/fhir/overview.html
+  - Resources: https://www.hl7.org/fhir/resourcelist.html
+- Project docs
+  - Root README: ../README.md
+  - Docker quickstart: ../README-Docker.md
+  - Synthea Integration: ./synthea-integration.md
+  - JsonViewer Component: ./json-viewer.md

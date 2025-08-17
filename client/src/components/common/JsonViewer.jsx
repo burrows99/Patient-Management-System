@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState, useCallback } from 'react';
 
 /**
  * JsonViewer
@@ -8,6 +8,7 @@ import React, { useMemo, useState } from 'react';
 export default function JsonViewer({ title = 'JSON', data, initiallyOpen = false, compact = false }) {
   const [open, setOpen] = useState(!!initiallyOpen);
   const [copied, setCopied] = useState(false);
+  const treeRef = useRef(null);
   const pretty = useMemo(() => {
     try {
       return JSON.stringify(data ?? {}, null, compact ? 0 : 2);
@@ -27,44 +28,163 @@ export default function JsonViewer({ title = 'JSON', data, initiallyOpen = false
     }
   };
 
+  const setAllDetails = useCallback((expand) => {
+    // Keep controlled root <details> in sync
+    setOpen(!!expand);
+
+    const apply = () => {
+      const rootEl = treeRef.current;
+      if (!rootEl) return;
+      const nodes = rootEl.querySelectorAll('details');
+      nodes.forEach((d) => {
+        if (expand) d.setAttribute('open', '');
+        else d.removeAttribute('open');
+      });
+    };
+
+    // Apply now (in case DOM is already present)
+    apply();
+    // And after the next paint to catch any re-render from setOpen
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(apply);
+    } else {
+      setTimeout(apply, 0);
+    }
+  }, []);
+
+  const isObject = (v) => v && typeof v === 'object' && !Array.isArray(v);
+  const isArray = (v) => Array.isArray(v);
+
+  const JsonNode = ({ label, value, level = 0 }) => {
+    const labelEl = (
+      <span>
+        <span style={{ color: '#0b0c0c' }}>{label}</span>
+        {label ? ': ' : ''}
+      </span>
+    );
+
+    if (isObject(value)) {
+      const keys = Object.keys(value);
+      // At root, render children directly without an enclosing details
+      if (level === 0) {
+        return (
+          <div style={{ marginLeft: 0 }}>
+            {keys.map((k) => (
+              <JsonNode key={k} label={k} value={value[k]} level={level + 1} />
+            ))}
+          </div>
+        );
+      }
+      return (
+        <details className="nhsuk-details nhsuk-u-margin-bottom-1" style={{ marginTop: 4 }} onToggle={(e) => e.stopPropagation()}>
+          <summary className="nhsuk-details__summary">
+            <span className="nhsuk-details__summary-text" style={{ fontFamily: 'monospace' }}>
+              {labelEl}
+            </span>
+          </summary>
+          <div className="nhsuk-details__text" style={{ paddingTop: 0, paddingBottom: 0 }}>
+            <div style={{ marginLeft: 12 }}>
+              {keys.map((k) => (
+                <JsonNode key={k} label={k} value={value[k]} level={level + 1} />
+              ))}
+            </div>
+          </div>
+        </details>
+      );
+    }
+    if (isArray(value)) {
+      // At root, render children directly
+      if (level === 0) {
+        return (
+          <div style={{ marginLeft: 0 }}>
+            {value.map((v, idx) => (
+              <JsonNode key={idx} label={`${idx}`} value={v} level={level + 1} />
+            ))}
+          </div>
+        );
+      }
+      return (
+        <details className="nhsuk-details nhsuk-u-margin-bottom-1" style={{ marginTop: 4 }} onToggle={(e) => e.stopPropagation()}>
+          <summary className="nhsuk-details__summary">
+            <span className="nhsuk-details__summary-text" style={{ fontFamily: 'monospace' }}>
+              {labelEl}
+            </span>
+          </summary>
+          <div className="nhsuk-details__text" style={{ paddingTop: 0, paddingBottom: 0 }}>
+            <div style={{ marginLeft: 12 }}>
+              {value.map((v, idx) => (
+                <JsonNode key={idx} label={`${idx}`} value={v} level={level + 1} />
+              ))}
+            </div>
+          </div>
+        </details>
+      );
+    }
+    // Primitive
+    return (
+      <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+        {labelEl}
+        <span style={{ color: '#005eb8' }}>{formatPrimitive(value)}</span>
+      </div>
+    );
+  };
+
+  function formatPrimitive(v) {
+    if (typeof v === 'string') return JSON.stringify(v);
+    if (v === null) return 'null';
+    return String(v);
+  }
+
   return (
-    <details className="nhsuk-details" open={open} onToggle={(e) => setOpen(e.target.open)}>
-      <summary className="nhsuk-details__summary">
-        <span className="nhsuk-details__summary-text">{title}</span>
-      </summary>
-      <div className="nhsuk-details__text">
-        <div
-          className="nhsuk-u-margin-bottom-2"
-          style={{
-            position: 'relative',
-            backgroundColor: '#f3f2f1',
-            padding: '16px',
-            borderRadius: '4px',
-            border: '1px solid #d8dde0',
-          }}
-        >
-          <button
-            type="button"
-            className="nhsuk-button nhsuk-button--secondary"
-            onClick={onCopy}
-            aria-label={`Copy ${title} JSON to clipboard`}
-            style={{ position: 'absolute', top: '8px', right: '8px', margin: 0 }}
+    <div>
+      <div
+        className="nhsuk-u-margin-bottom-2"
+        style={{ position: 'relative' }}
+      >
+          <div
+            style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8, columnGap: 8, rowGap: 8 }}
+            aria-label={`${title} controls`}
           >
-            {copied ? 'Copied' : 'Copy JSON'}
-          </button>
+            <button
+              type="button"
+              className="nhsuk-button nhsuk-button--secondary"
+              onClick={onCopy}
+              aria-label={`Copy ${title} JSON to clipboard`}
+              style={{ margin: 0, verticalAlign: 'middle' }}
+            >
+              Copy JSON
+            </button>
+            <button
+              type="button"
+              className="nhsuk-button nhsuk-button--secondary"
+              onClick={() => setAllDetails(true)}
+              style={{ margin: 0, verticalAlign: 'middle' }}
+            >
+              Expand all
+            </button>
+            <button
+              type="button"
+              className="nhsuk-button nhsuk-button--secondary"
+              onClick={() => setAllDetails(false)}
+              style={{ margin: 0, verticalAlign: 'middle' }}
+            >
+              Collapse all
+            </button>
+          </div>
           <span aria-live="polite" className="nhsuk-u-visually-hidden">
             {copied ? `${title} JSON copied to clipboard` : ''}
           </span>
-          <pre
-            className="nhsuk-u-font-size-16"
-            style={{ whiteSpace: 'pre-wrap', overflowX: 'auto', margin: 0 }}
-            aria-label={`${title} JSON code`}
-            tabIndex={0}
-          >
-            <code>{pretty}</code>
-          </pre>
+          <div ref={treeRef} className="nhsuk-u-font-size-16" style={{ marginTop: 8 }} aria-label={`${title} JSON tree`}>
+            <details className="nhsuk-details" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
+              <summary className="nhsuk-details__summary">
+                <span className="nhsuk-details__summary-text">{title}</span>
+              </summary>
+              <div className="nhsuk-details__text" style={{ paddingTop: 0 }}>
+                <JsonNode label="" value={data} />
+              </div>
+            </details>
+          </div>
         </div>
       </div>
-    </details>
   );
 }

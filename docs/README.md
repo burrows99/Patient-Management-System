@@ -8,5 +8,9 @@ This folder houses project documentation beyond the code. Start here.
 - Methodology: `./methodology.md`
 - Future Scope: `./future-scope.md`
  - Frontend Triage Refactor Story: `./frontend-triage-refactor.md`
+ - Synthea Integration: `./synthea-integration.md`
+ - JsonViewer Component: `./json-viewer.md`
+ - Triage Simulator Description: `./triage-simulator.md`
+ - Sources and References: `./sources.md`
 
 Contributions welcome. Keep sections concise, cite sources, and date significant decisions. 

@@ -101,6 +101,16 @@ export default function MethodologyContent() {
           <span className="nhsuk-u-visually-hidden">Information: </span>
           <p className="nhsuk-body">Once the synthetic evaluation passes thresholds, we will run a staffed shadow deployment with retrospective, de-identified cases in a secure environment before any live use.</p>
         </div>
+
+        <h3 className="nhsuk-heading-s">Further reading</h3>
+        <ul className="nhsuk-list nhsuk-list--bullet">
+          <li>
+            NHS Design System Tabs: <a href="https://service-manual.nhs.uk/design-system/components/tabs">Tabs component</a>
+          </li>
+          <li>
+            Accessibility guidance: <a href="https://service-manual.nhs.uk/accessibility">NHS Accessibility</a>
+          </li>
+        </ul>
       </div>
     </div>
   );
