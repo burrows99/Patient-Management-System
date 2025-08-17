@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import TriageSimulatorPage from './pages/TriageSimulatorPage';
 import TriageSimulatorDescriptionPage from './pages/TriageSimulatorDescriptionPage';
+import SyntheaPage from './pages/SyntheaPage';
 
 function App() {
   return (
@@ -55,6 +56,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <TriageSimulatorPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/synthea"
+            element={
+              <ProtectedRoute>
+                <SyntheaPage />
               </ProtectedRoute>
             }
           />

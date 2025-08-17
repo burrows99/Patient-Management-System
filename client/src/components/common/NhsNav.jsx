@@ -28,6 +28,16 @@ export default function NhsNav() {
               Triage: Simulator
             </NavLink>
           </li>
+          <li className="nhsuk-header__navigation-item">
+            <NavLink
+              to="/synthea"
+              className={({ isActive }) =>
+                `nhsuk-header__navigation-link${isActive ? ' nhsuk-header__navigation-link--active' : ''}`
+              }
+            >
+              Synthea
+            </NavLink>
+          </li>
         </ul>
       </div>
     </nav>
