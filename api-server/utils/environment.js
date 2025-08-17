@@ -13,6 +13,8 @@ const ENV = Object.freeze({
   PORT: Number(process.env.API_PORT || process.env.PORT) || 4001,
   NODE_ENV: process.env.NODE_ENV || 'development',
   NHS_API_KEY: process.env.NHS_API_KEY || '',
+  // Base URL for Synthea HTTP interface (Docker service defaults to http://synthea)
+  SYNTHEA_BASE: process.env.SYNTHEA_BASE || 'http://synthea',
   // Client origin derived from redirect URI if provided
   CLIENT_ORIGIN: parseOrigin(process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/callback'),
   // Public bases (for docs, links)
@@ -24,3 +26,4 @@ export const getPort = () => ENV.PORT;
 export const getClientOrigin = () => ENV.CLIENT_ORIGIN;
 export const getNhsApiKey = () => ENV.NHS_API_KEY;
 export const getPublicApiBase = () => ENV.PUBLIC_API_BASE;
+export const getSyntheaBase = () => ENV.SYNTHEA_BASE;

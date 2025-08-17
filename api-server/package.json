@@ -5,16 +5,15 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon --watch . --ext js,json --exec node index.js",
-    "debug": "nodemon --legacy-watch --watch . --ext js,json --exec node -- --inspect=0.0.0.0:9229 index.js",
-    "start:inspect": "node --inspect=0.0.0.0:9229 index.js"
+    "start:inspect": "nodemon --inspect=0.0.0.0:9229 index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "swagger-ui-express": "^5.0.1",
-    "swagger-jsdoc": "^6.2.8"
+    "fhirpath": "^2.14.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

@@ -35,7 +35,7 @@ services:
       - NODE_ENV=development
       - NHS_API_KEY=${NHS_API_KEY:?NHS_API_KEY not set in root .env}
       - SYNTHEA_OUTPUT_DIR=/data/synthea
-    command: npm run debug
+    command: npm run start:inspect
     networks:
       - nhs-network
 
@@ -75,6 +75,7 @@ services:
       - "8000:80"   # external http interface for local testing
     volumes:
       - synthea-output:/synthea/output
+      - ./synthea.properties:/app/synthea.properties:ro
     networks:
       - nhs-network
 
