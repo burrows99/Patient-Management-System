@@ -65,6 +65,21 @@ services:
       - oauth-server
       - api-server
 
+  synthea:
+    image: synthetichealth/synthea:latest
+    container_name: synthea
+    profiles:
+      - data
+    platform: linux/amd64
+    environment:
+      - JAVA_OPTS=-Xmx2g
+    volumes:
+      - ./data/synthea/fhir:/mnt/synthea
+    command: >
+      bash -lc "bundle exec rake synthea:sequential"
+    networks:
+      - nhs-network
+
 networks:
   nhs-network:
     driver: bridge
