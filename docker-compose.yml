@@ -15,6 +15,8 @@ services:
     command: npm run dev
     networks:
       - nhs-network
+    depends_on:
+      - synthea
 
   api-server:
     build:
@@ -22,32 +24,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${API_PORT:-4001}:${API_PORT:-4001}"
+      - "9229:9229" # Node inspector for debugging
     volumes:
       - ./api-server:/app
       - /app/node_modules
-      - ./synthea-output:/app/data/synthea:ro
+      - synthea-output:/data/synthea:ro
     env_file:
       - ./.env              # root shared envs
     environment:
       - NODE_ENV=development
       - NHS_API_KEY=${NHS_API_KEY:?NHS_API_KEY not set in root .env}
-      - NODE_OPTIONS=--inspect=0.0.0.0:9229
-      - SYNTHEA_DATA_DIR=/app/data/synthea
-    command: npm run dev
-    networks:
-      - nhs-network
-    depends_on:
-      synthea:
-        condition: service_completed_successfully
-
-  synthea:
-    image: smartonfhir/synthea:latest
-    platform: linux/amd64
-    container_name: synthea
-    command: java -jar /synthea-with-dependencies.jar -p 100 -s 1234 -o /output
-    volumes:
-      - ./synthea-output:/output
-    restart: "no"
+      - SYNTHEA_OUTPUT_DIR=/data/synthea
+    command: npm run debug
     networks:
       - nhs-network
 
@@ -80,10 +68,20 @@ services:
       - oauth-server
       - api-server
 
+  synthea:
+    image: smartonfhir/synthea:latest
+    container_name: synthea
+    ports:
+      - "8000:80"   # external http interface for local testing
+    volumes:
+      - synthea-output:/synthea/output
+    networks:
+      - nhs-network
+
 networks:
   nhs-network:
     driver: bridge
 
 volumes:
   node_modules:
-  
+  synthea-output:

@@ -4,5 +4,5 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --no-audit --no-fund
 COPY . .
-EXPOSE 4001
-CMD ["npm", "run", "dev"]
+EXPOSE 4001 9229
+CMD ["npm", "run", "start:inspect"]

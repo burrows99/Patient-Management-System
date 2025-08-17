@@ -1,89 +1,148 @@
-import { Router } from 'express';
-import fs from 'fs';
+import express from 'express';
 import path from 'path';
+import { getSyntheaBase } from '../utils/environment.js';
+import { readLatestFhirBundles } from '../utils/syntheaOutput.js';
 
-const router = Router();
-const SYNTHEA_DIR = process.env.SYNTHEA_DATA_DIR || path.join(process.cwd(), 'data', 'synthea');
-
-function isSubPath(parent, child) {
-  const rel = path.relative(parent, child);
-  return !!rel && !rel.startsWith('..') && !path.isAbsolute(rel);
-}
-
-function walkJsonFiles(dir) {
-  const results = [];
-  if (!fs.existsSync(dir)) return results;
-  const stack = [dir];
-  while (stack.length) {
-    const current = stack.pop();
-    const entries = fs.readdirSync(current, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(current, e.name);
-      if (e.isDirectory()) stack.push(full);
-      else if (e.isFile() && e.name.toLowerCase().endsWith('.json')) results.push(full);
-    }
-  }
-  return results;
-}
+const router = express.Router();
 
 /**
  * @openapi
- * /synthea/bundles:
+ * /synthea/health:
  *   get:
- *     summary: List Synthea JSON bundles available on the server
+ *     summary: Health check for the Synthea service
+ *     tags: [Synthea]
+ *     description: Performs a simple GET to the configured Synthea base URL to verify reachability.
  *     responses:
  *       200:
- *         description: Array of bundle metadata
+ *         description: Synthea service reachable
+ *       502:
+ *         description: Upstream error or Synthea not reachable
  */
-router.get('/bundles', (req, res) => {
+router.get('/health', async (req, res) => {
+  const base = getSyntheaBase();
+  const timeoutMs = Number(process.env.SYNTHEA_TIMEOUT_MS || 120000);
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    if (!fs.existsSync(SYNTHEA_DIR)) {
-      return res.status(200).json({ dir: SYNTHEA_DIR, count: 0, items: [] });
-    }
-    const files = walkJsonFiles(SYNTHEA_DIR);
-    const items = files.map((abs) => ({
-      name: path.relative(SYNTHEA_DIR, abs),
-      size: fs.statSync(abs).size,
-    }));
-    res.json({ dir: SYNTHEA_DIR, count: items.length, items });
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[synthea] list error:', err);
-    res.status(500).json({ error: 'Failed to list Synthea output' });
+    console.log(`[Synthea][health] GET ${base} (timeout ${timeoutMs}ms)`);
+    console.time('[Synthea][health] duration');
+    const r = await fetch(base, { method: 'GET', signal: controller.signal });
+    console.timeEnd('[Synthea][health] duration');
+    clearTimeout(id);
+    console.log('[Synthea][health] status=%s content-type=%s', r.status, r.headers.get('content-type'));
+    return res.status(r.ok ? 200 : 502).json({ ok: r.ok, status: r.status });
+  } catch (e) {
+    clearTimeout(id);
+    console.error('[Synthea][health] error:', e);
+    return res.status(502).json({ ok: false, error: String(e) });
   }
 });
 
 /**
  * @openapi
- * /synthea/bundles/{name}:
+ * /synthea/generate:
  *   get:
- *     summary: Fetch a specific Synthea JSON bundle by relative path
+ *     summary: Generate synthetic patients via Synthea
+ *     description: |
+ *       Triggers smartonfhir/synthea to generate patients, then reads the latest output directory
+ *       and returns a combined JSON of all generated patient bundles in a single object keyed by patient id.
+ *       Example: `GET /synthea/generate?stu=3&p=100`.
+ *     tags: [Synthea]
  *     parameters:
- *       - name: name
- *         in: path
+ *       - in: query
+ *         name: stu
+ *         schema: { type: string, enum: ["2","3","4"] }
+ *         description: FHIR STU version
+ *       - in: query
+ *         name: p
  *         required: true
  *         schema:
- *           type: string
- *         description: Relative file path under SYNTHEA_DATA_DIR
+ *           type: integer
+ *           minimum: 1
+ *         description: Number of patients to generate.
  *     responses:
  *       200:
- *         description: JSON bundle
+ *         description: Generation completed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *                 directory:
+ *                   type: string
+ *                   description: Filesystem directory from which FHIR files were read.
+ *                 patients:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: object
+ *                   description: Object keyed by patient id with full FHIR Bundle JSON for each patient.
+ *       400:
+ *         description: Missing required `p` query parameter.
+ *       502:
+ *         description: Failed to contact Synthea or upstream error.
+ *       504:
+ *         description: Request to Synthea timed out.
  */
-router.get('/bundles/:name', (req, res) => {
+router.get('/generate', async (req, res) => {
+  const base = getSyntheaBase();
+  const timeoutMs = Number(process.env.SYNTHEA_TIMEOUT_MS || 300000); // generation can take time
+  const params = new URLSearchParams();
+  const p = Number(req.query.p);
+  const stu = (req.query.stu || '3').toString();
+  if (!p || p < 1) {
+    return res.status(400).json({ error: 'Missing required query param: p (patient count)' });
+  }
+  params.set('p', String(p));
+  params.set('stu', stu);
+  const url = `${base}/?${params.toString()}`;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const rel = req.params.name;
-    const target = path.join(SYNTHEA_DIR, rel);
-    const resolvedDir = path.resolve(SYNTHEA_DIR);
-    const resolvedTarget = path.resolve(target);
-    if (!resolvedTarget.startsWith(resolvedDir) || !fs.existsSync(resolvedTarget) || !fs.statSync(resolvedTarget).isFile()) {
-      return res.status(404).json({ error: 'File not found' });
+    console.log('[Synthea][generate] base=%s url=%s params=%o timeoutMs=%d', base, url, Object.fromEntries(params.entries()), timeoutMs);
+    console.time('[Synthea][generate] synthea');
+    const r = await fetch(url, { method: 'GET', signal: controller.signal });
+    // Drain body to allow upstream to complete, but we don't forward it
+    await r.text();
+    console.timeEnd('[Synthea][generate] synthea');
+    clearTimeout(id);
+
+    const outDir = process.env.SYNTHEA_OUTPUT_DIR || '/data/synthea';
+    // Read latest bundles and combine into a single object keyed by patient id
+    const result = await readLatestFhirBundles(outDir, p, { summary: false, requirePatient: true });
+
+    const patientsObj = {};
+    const srcPatients = Array.isArray(result?.patients) ? result.patients : [];
+    for (const item of srcPatients) {
+      const bundle = item?.bundle;
+      if (!bundle) continue;
+      let patientId = undefined;
+      try {
+        const entries = Array.isArray(bundle?.entry) ? bundle.entry : [];
+        const pat = entries.find(e => e?.resource?.resourceType === 'Patient');
+        patientId = pat?.resource?.id;
+      } catch (_) {
+        // ignore
+      }
+      if (!patientId) {
+        // fallback: derive from filename or generate index-based id
+        const baseName = (item?.file || '').split('/').pop() || '';
+        patientId = baseName.replace(/\.[^.]+$/, '') || `patient_${Object.keys(patientsObj).length + 1}`;
+      }
+      patientsObj[patientId] = bundle;
     }
-    res.setHeader('Content-Type', 'application/json');
-    fs.createReadStream(resolvedTarget).pipe(res);
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[synthea] read error:', err);
-    res.status(500).json({ error: 'Failed to read Synthea file' });
+
+    return res.status(200).json({
+      count: Object.keys(patientsObj).length,
+      directory: result?.directory || path.join(outDir, 'fhir'),
+      patients: patientsObj,
+    });
+  } catch (e) {
+    clearTimeout(id);
+    console.error('[Synthea][generate] error for url=%s -> %s', url, String(e));
+    const status = /AbortError/i.test(String(e)) ? 504 : 502;
+    return res.status(status).json({ error: 'Failed to contact Synthea', detail: String(e), url, timeoutMs });
   }
 });
 
