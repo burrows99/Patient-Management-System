@@ -31,3 +31,16 @@ This document describes how we design, evaluate, and iterate on the MOA triage s
 ## Observability
 - Structured logs with request ids; severity levels for errors.
 - Metrics: request counts, error rates, upstream failures, timeouts.
+
+## Frontend methodology (accessibility & testing)
+- **Design system compliance**: Use NHS.UK classes/components to meet WCAG and NHS guidance.
+- **Tabs accessibility**: In `TriageSimulatorDescriptionPage.jsx`, apply `role="tabpanel"`, `aria-labelledby`, and both `hidden` + `aria-hidden` on inactive panels to ensure correct screen reader behavior.
+- **Semantic structure**: Use NHS heading hierarchy (`nhsuk-heading-m/s`) and lists for narrative content.
+- **Reusable content components**: Encapsulate datasets, methodology, baseline in `client/src/components/common/text/` for SRP and consistency.
+- **Link consistency**: Use `client/src/components/common/links/ExternalLink.jsx` for external anchors.
+- **Testing**:
+  - Unit: tab state toggling and visibility assertions.
+  - Snapshot: ensure content components render without regressions.
+  - Lint/ARIA: validate for missing roles/labels.
+
+See `docs/frontend-triage-refactor.md` for engineering notes and rationale.

@@ -12,7 +12,7 @@ const LoginButton = () => {
       className="nhsuk-button"
       onClick={async () => {
         try {
-          await auth.signinRedirect({ state: { returnTo: '/triage-simulator' } });
+          await auth.signinRedirect({ state: { returnTo: '/triage-simulator-description' } });
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error('signinRedirect failed', e);

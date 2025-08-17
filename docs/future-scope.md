@@ -7,6 +7,10 @@ This roadmap outlines potential extensions for the NHS MOA Triage & Data Explore
 - Expand open-data integrations (OpenPrescribing drill-downs, additional NHS datasets) with caching.
 - Add charts and comparative visualisations to the client.
 - Harden error handling with structured logs and retries; expose warnings in UI.
+ - Frontend accessibility: add keyboard arrow navigation for tabs and manage focus states.
+ - Deep linking: sync URL hash to active tab on `TriageSimulatorDescriptionPage.jsx`.
+ - Tests: add unit/snapshot tests for tab logic and content components.
+ - Docs: keep `docs/frontend-triage-refactor.md` updated with decisions and PR links.
 
 ## Medium-term
 - Agentic data exploration: enable Planner/Retriever/Analyst/Explainer agents with server-side orchestration.

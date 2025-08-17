@@ -10,7 +10,7 @@ const Callback = () => {
     // react-oidc-context handles the redirect automatically when the route loads
     // Nothing needed here unless we want to show loading or errors
     if (!auth.isLoading && auth.isAuthenticated) {
-      const returnTo = auth?.user?.state?.returnTo || '/triage-simulator';
+      const returnTo = auth?.user?.state?.returnTo || '/triage-simulator-description';
       navigate(returnTo, { replace: true });
     }
   }, [auth.isLoading, auth.isAuthenticated, auth.user, navigate]);

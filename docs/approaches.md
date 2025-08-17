@@ -37,3 +37,16 @@ Coordination patterns:
 ## Evaluation
 - Task suites: retrieval accuracy, latency, robustness to schema changes.
 - Offline benchmarks for agent planning success vs baselines.
+
+## Frontend application approach
+
+- **Design system**: Use NHS.UK components and classes to ensure accessible, consistent UI.
+- **Tabs pattern**: `TriageSimulatorDescriptionPage.jsx` implements `nhsuk-tabs` with correct ARIA, `hidden`, and `aria-hidden` to keep inactive panels out of the accessibility tree.
+- **Componentization**: Large narrative blocks are split into topic components in `client/src/components/common/text/`:
+  - `DatasetsContent.jsx`
+  - `MethodologyContent.jsx`
+  - `BaselineContent.jsx`
+- **Shared link helper**: `client/src/components/common/links/ExternalLink.jsx` centralises external link markup/attributes.
+- **SOLID alignment**: Content components have single responsibility and are easy to maintain/extend.
+
+See `docs/frontend-triage-refactor.md` for the ongoing engineering story.

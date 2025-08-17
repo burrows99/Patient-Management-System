@@ -7,9 +7,9 @@ import Callback from './Callback';
 import AuthStatus from './AuthStatus';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import TriageSimulatorPage from './pages/TriageSimulatorPage';
-import DataExplorersPage from './pages/DataExplorersPage';
-import DataExplorerDetailPage from './pages/DataExplorerDetailPage';
+import TriageSimulatorDescriptionPage from './pages/TriageSimulatorDescriptionPage';
 
 function App() {
   return (
@@ -19,20 +19,22 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="nhsuk-grid-row">
-                <div className="nhsuk-grid-column-three-quarters">
-                  <h1 className="nhsuk-heading-xl">Welcome to NHS MOA Triage</h1>
-                  <p className="nhsuk-body-l">Use the sign-in button below to access the triage system.</p>
-                  <div className="nhsuk-action-link">
-                    <LoginButton />
-                  </div>
-                  <AuthStatus />
-                  <div className="nhsuk-inset-text">
-                    <span className="nhsuk-u-visually-hidden">Information: </span>
-                    <p>This system helps healthcare professionals manage patient triage efficiently and securely.</p>
+              <PublicRoute>
+                <div className="nhsuk-grid-row">
+                  <div className="nhsuk-grid-column-three-quarters">
+                    <h1 className="nhsuk-heading-xl">Welcome to NHS MOA Triage</h1>
+                    <p className="nhsuk-body-l">Use the sign-in button below to access the triage system.</p>
+                    <div className="nhsuk-action-link">
+                      <LoginButton />
+                    </div>
+                    <AuthStatus />
+                    <div className="nhsuk-inset-text">
+                      <span className="nhsuk-u-visually-hidden">Information: </span>
+                      <p>This system helps healthcare professionals manage patient triage efficiently and securely.</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </PublicRoute>
             }
           />
 
@@ -41,28 +43,18 @@ function App() {
 
           {/* Protected routes */}
           <Route
+            path="/triage-simulator-description"
+            element={
+              <ProtectedRoute>
+                <TriageSimulatorDescriptionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/triage-simulator"
             element={
               <ProtectedRoute>
                 <TriageSimulatorPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/data-explorers"
-            element={
-              <ProtectedRoute>
-                <DataExplorersPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/data-explorers/:id"
-            element={
-              <ProtectedRoute>
-                <DataExplorerDetailPage />
               </ProtectedRoute>
             }
           />

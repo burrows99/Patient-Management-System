@@ -100,6 +100,20 @@ This project follows the NHS.UK Design System for accessibility and consistency.
 Reference: NHS Design System components
 - https://service-manual.nhs.uk/design-system/components/
 
+## Frontend triage description refactor
+
+We refactored the Triage Simulator Description page to improve modularity, accessibility, and maintainability.
+
+- **Tabs (NHS.UK pattern):** `TriageSimulatorDescriptionPage.jsx` uses `nhsuk-tabs` with correct ARIA attributes. Three tabs: Datasets, Methodology, Baseline.
+- **Topic components:** Large text blocks are split into reusable components under `client/src/components/common/text/`:
+  - `DatasetsContent.jsx`
+  - `MethodologyContent.jsx`
+  - `BaselineContent.jsx`
+- **Accessibility:** Panels use `nhsuk-tabs__panel` and `nhsuk-tabs__panel--hidden` plus `aria-hidden`/`hidden` to ensure only the active panel is visible.
+- **NHS styling:** Content follows NHS.UK classes for headings, lists, inset text, and tables.
+
+See the ongoing engineering narrative in `docs/frontend-triage-refactor.md` for history, rationale, and next steps.
+
 
 ## Common issues & fixes
 
@@ -129,6 +143,7 @@ High-level docs live in `docs/`:
 - `docs/approaches.md` — architectural approaches, incl. mixture-of-agents
 - `docs/methodology.md` — methods, evaluation plan, datasets
 - `docs/future-scope.md` — roadmap and extensions
+- `docs/frontend-triage-refactor.md` — story document of the triage description refactor (motivation, changes, insights, next steps)
 
 
 ## Data sources (single source of truth)
