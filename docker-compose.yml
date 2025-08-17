@@ -15,9 +15,6 @@ services:
     command: npm run dev
     networks:
       - nhs-network
-    depends_on:
-      synthea:
-        condition: service_completed_successfully
 
   api-server:
     build:
@@ -25,7 +22,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${API_PORT:-4001}:${API_PORT:-4001}"
-      - "9229:9229" # Node inspector for debugging
     volumes:
       - ./api-server:/app
       - /app/node_modules
@@ -40,14 +36,17 @@ services:
     command: npm run dev
     networks:
       - nhs-network
+    depends_on:
+      synthea:
+        condition: service_completed_successfully
 
   synthea:
-    image: synthetichealth/synthea:latest
+    image: smartonfhir/synthea:latest
     platform: linux/amd64
     container_name: synthea
-    command: ["./run_synthea", "-p", "100", "-s", "1234", "-o", "/synthea/output"]
+    command: java -jar /synthea-with-dependencies.jar -p 100 -s 1234 -o /output
     volumes:
-      - ./synthea-output:/synthea/output
+      - ./synthea-output:/output
     restart: "no"
     networks:
       - nhs-network
