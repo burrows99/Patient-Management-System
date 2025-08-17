@@ -1,42 +1,32 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import NhsTable from '../../../components/common/NhsTable';
 
-function numberFormat(n) {
+export default function TriageTable({ dept, columns, data, loading }) {
+  const caption = useMemo(() => `${dept} queue (${formatCount(data?.length || 0)} shown)`, [dept, data]);
+  const mappedColumns = useMemo(
+    () =>
+      columns.map((c) => {
+        if (c.key === 'priorityScore') {
+          return { label: c.label, key: c.key, render: (v) => <strong>{Number(v).toFixed(2)}</strong> };
+        }
+        if (c.key === 'arrivalTime') {
+          return { label: c.label, key: c.key, render: (v) => new Date(v).toLocaleString() };
+        }
+        return { label: c.label, key: c.key };
+      }),
+    [columns]
+  );
+  return (
+    <div className="nhsuk-u-margin-top-4">
+      <NhsTable caption={caption} columns={mappedColumns} data={data} loading={loading} keyField={(row) => row.id} />
+    </div>
+  );
+}
+
+function formatCount(n) {
   try {
     return new Intl.NumberFormat('en-GB').format(n);
   } catch {
     return String(n);
   }
-}
-
-export default function TriageTable({ dept, columns, data, loading }) {
-  return (
-    <div className="nhsuk-table-responsive nhsuk-u-margin-top-4">
-      <table className="nhsuk-table">
-        <caption className="nhsuk-table__caption">{dept} queue (top {numberFormat(data.length)})</caption>
-        <thead className="nhsuk-table__head">
-          <tr className="nhsuk-table__row">
-            {columns.map((c) => (
-              <th key={c.key} className="nhsuk-table__header">{c.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="nhsuk-table__body">
-          {data.map((row) => (
-            <tr key={row.id} className="nhsuk-table__row">
-              <td className="nhsuk-table__cell">
-                <strong>{row.priorityScore.toFixed(2)}</strong>
-              </td>
-              <td className="nhsuk-table__cell">{row.triageCategory}</td>
-              <td className="nhsuk-table__cell">{row.waitMins}</td>
-              <td className="nhsuk-table__cell">{row.age}</td>
-              <td className="nhsuk-table__cell">{new Date(row.arrivalTime).toLocaleString()}</td>
-            </tr>
-          ))}
-          {!loading && data.length === 0 && (
-            <tr className="nhsuk-table__row"><td className="nhsuk-table__cell" colSpan={columns.length}>No items</td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
 }

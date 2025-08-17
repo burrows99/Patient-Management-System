@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import NhsButton from '../components/common/button/NhsButton';
 import PageLayout from '../components/common/PageLayout';
+import NhsTable from '../components/common/NhsTable';
 import { syntheaGenerate, syntheaGetPatients } from '../services/syntheaApi';
 
 // NHS-styled page to trigger Synthea generation, fetch patients, and render as table
@@ -10,9 +11,43 @@ export default function SyntheaPage() {
   const [patientsResp, setPatientsResp] = useState(null);
   const [error, setError] = useState(null);
   const [params, setParams] = useState({ p: 5, stu: '4', n: 25 });
-  const [expanded, setExpanded] = useState({}); // file -> bool
-
   const patients = useMemo(() => patientsResp?.patients || [], [patientsResp]);
+  const columns = useMemo(() => ([
+    {
+      label: 'Patient',
+      accessor: (row) => {
+        const patient = row.patient || {};
+        const name0 = (patient.name && patient.name[0]) || {};
+        const fullName = [...(name0.given || []), name0.family].filter(Boolean).join(' ');
+        return (
+          <div>
+            <div><strong>{fullName || patient.id || 'Patient'}</strong></div>
+            <div className="nhsuk-hint">{patient.id}</div>
+          </div>
+        );
+      },
+    },
+    { label: 'Bundle File', key: 'bundleFile' },
+    { label: 'Source', key: 'sourceDirectory' },
+    {
+      label: 'Counts',
+      accessor: (row) => {
+        const c = row.counts || {};
+        return (
+          <div>
+            <span className="nhsuk-tag nhsuk-tag--blue" style={{ marginRight: 4 }}>Cond {c.conditions ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--green" style={{ marginRight: 4 }}>Obs {c.observations ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--grey" style={{ marginRight: 4 }}>RxReq {c.medicationRequests ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--grey" style={{ marginRight: 4 }}>RxStmt {c.medicationStatements ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--yellow" style={{ marginRight: 4 }}>Proc {c.procedures ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--purple" style={{ marginRight: 4 }}>Enc {c.encounters ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--red" style={{ marginRight: 4 }}>Alg {c.allergies ?? 0}</span>
+            <span className="nhsuk-tag nhsuk-tag--orange" style={{ marginRight: 4 }}>Imm {c.immunizations ?? 0}</span>
+          </div>
+        );
+      },
+    },
+  ]), []);
 
   const onGenerate = async () => {
     setError(null);
@@ -40,7 +75,37 @@ export default function SyntheaPage() {
     }
   };
 
-  const toggleExpand = (key) => setExpanded((s) => ({ ...s, [key]: !s[key] }));
+  const rowDetail = (p) => {
+    const patient = p.patient || {};
+    return (
+      <div className="nhsuk-details nhsuk-u-padding-2">
+        <h3 className="nhsuk-heading-m">Patient resource</h3>
+        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(patient, null, 2)}</pre>
+        <h3 className="nhsuk-heading-m">Related resources</h3>
+        {renderResourceDetails('Conditions', p.conditions)}
+        {renderResourceDetails('Observations', p.observations)}
+        {renderResourceDetails('MedicationRequests', p.medicationRequests)}
+        {renderResourceDetails('MedicationStatements', p.medicationStatements)}
+        {renderResourceDetails('Procedures', p.procedures)}
+        {renderResourceDetails('Encounters', p.encounters)}
+        {renderResourceDetails('Allergies', p.allergies)}
+        {renderResourceDetails('Immunizations', p.immunizations)}
+      </div>
+    );
+  };
+
+  function renderResourceDetails(title, value) {
+    return (
+      <details className="nhsuk-details">
+        <summary className="nhsuk-details__summary">
+          <span className="nhsuk-details__summary-text">{title}</span>
+        </summary>
+        <div className="nhsuk-details__text">
+          <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(value || [], null, 2)}</pre>
+        </div>
+      </details>
+    );
+  }
 
   return (
     <PageLayout
@@ -133,145 +198,18 @@ export default function SyntheaPage() {
           </div>
         )}
 
-        <div className="nhsuk-table-responsive">
-          <table role="table" className="nhsuk-table">
-            <caption className="nhsuk-table__caption">Most recent bundles</caption>
-            <thead className="nhsuk-table__head">
-              <tr role="row">
-                <th scope="col" className="nhsuk-table__header">Patient</th>
-                <th scope="col" className="nhsuk-table__header">Bundle File</th>
-                <th scope="col" className="nhsuk-table__header">Source</th>
-                <th scope="col" className="nhsuk-table__header">Counts</th>
-                <th scope="col" className="nhsuk-table__header">Details</th>
-              </tr>
-            </thead>
-            <tbody className="nhsuk-table__body">
-                    {patients.length === 0 ? (
-                      <tr>
-                        <td className="nhsuk-table__cell" colSpan={5}>No patients loaded yet.</td>
-                      </tr>
-                    ) : (
-                      patients.map((p, idx) => {
-                        const patient = p.patient || {};
-                        const name0 = (patient.name && patient.name[0]) || {};
-                        const fullName = [
-                          ...(name0.given || []),
-                          name0.family,
-                        ].filter(Boolean).join(' ');
-                        const key = `${p.bundleFile || 'bundle'}-${idx}`;
-                        const isOpen = !!expanded[key];
-                        const counts = p.counts || {};
-                        return (
-                          <React.Fragment key={key}>
-                            <tr role="row">
-                              <td className="nhsuk-table__cell">
-                                <div><strong>{fullName || patient.id || 'Patient'}</strong></div>
-                                <div className="nhsuk-hint">{patient.id}</div>
-                              </td>
-                              <td className="nhsuk-table__cell">{p.bundleFile || '—'}</td>
-                              <td className="nhsuk-table__cell">{p.sourceDirectory || '—'}</td>
-                              <td className="nhsuk-table__cell">
-                                <span className="nhsuk-tag nhsuk-tag--blue" style={{ marginRight: 4 }}>Cond {counts.conditions ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--green" style={{ marginRight: 4 }}>Obs {counts.observations ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--grey" style={{ marginRight: 4 }}>RxReq {counts.medicationRequests ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--grey" style={{ marginRight: 4 }}>RxStmt {counts.medicationStatements ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--yellow" style={{ marginRight: 4 }}>Proc {counts.procedures ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--purple" style={{ marginRight: 4 }}>Enc {counts.encounters ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--red" style={{ marginRight: 4 }}>Alg {counts.allergies ?? 0}</span>
-                                <span className="nhsuk-tag nhsuk-tag--orange" style={{ marginRight: 4 }}>Imm {counts.immunizations ?? 0}</span>
-                              </td>
-                              <td className="nhsuk-table__cell">
-                                <NhsButton variant="secondary" onClick={() => toggleExpand(key)}>
-                                  {isOpen ? 'Hide' : 'View'}
-                                </NhsButton>
-                              </td>
-                            </tr>
-                            {isOpen && (
-                              <tr>
-                                <td className="nhsuk-table__cell" colSpan={5}>
-                                  <div className="nhsuk-details nhsuk-u-padding-2">
-                                    <h3 className="nhsuk-heading-m">Patient resource</h3>
-                                    <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(patient, null, 2)}</pre>
-                                    <h3 className="nhsuk-heading-m">Related resources</h3>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Conditions</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.conditions || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Observations</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.observations || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">MedicationRequests</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.medicationRequests || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">MedicationStatements</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.medicationStatements || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Procedures</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.procedures || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Encounters</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.encounters || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Allergies</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.allergies || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                    <details className="nhsuk-details">
-                                      <summary className="nhsuk-details__summary">
-                                        <span className="nhsuk-details__summary-text">Immunizations</span>
-                                      </summary>
-                                      <div className="nhsuk-details__text">
-                                        <pre className="nhsuk-u-font-size-16" style={{ whiteSpace: 'pre-wrap', overflowX: 'auto' }}>{JSON.stringify(p.immunizations || [], null, 2)}</pre>
-                                      </div>
-                                    </details>
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </React.Fragment>
-                        );
-                      })
-                    )}
-            </tbody>
-          </table>
-        </div>
+        <NhsTable
+          caption="Most recent bundles"
+          columns={columns}
+          data={patients}
+          loading={loading}
+          keyField={(row, idx) => `${row.bundleFile || 'bundle'}-${idx}`}
+          rowDetail={rowDetail}
+        />
 
         {patientsResp?.skippedFiles?.length > 0 && (
           <div className="nhsuk-warning-callout" style={{ marginTop: '1rem' }}>
-            <h3 className="nhsuk-warning-callout__label"><span role="text"><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
+            <h3 className="nhsuk-warning-callout__label"><span><span className="nhsuk-u-visually-hidden">Important: </span>Skipped files</span></h3>
             <ul className="nhsuk-list nhsuk-list--bullet">
               {patientsResp.skippedFiles.map((s, i) => (
                 <li key={`${s.file}-${i}`}><code>{s.file}</code>: {s.reason}</li>
