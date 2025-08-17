@@ -3,6 +3,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import triageRouter from './routes/triage.js';
+import syntheaRouter from './routes/synthea.js';
 import ENV, { getPort, getClientOrigin, getPublicApiBase, getNhsApiKey } from './utils/environment.js';
 
 const app = express();
@@ -28,7 +29,7 @@ const swaggerSpec = swaggerJSDoc({
     info: { title: 'NHS MOA API', version: '0.1.0', description: 'HRDC proxy and triage simulator APIs' },
     servers: [{ url: getPublicApiBase() }],
   },
-  apis: ['./routes/triage.js'],
+  apis: ['./routes/triage.js', './routes/synthea.js'],
 });
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/docs.json', (req, res) => res.json(swaggerSpec));
@@ -38,6 +39,7 @@ app.get('/swagger.json', (req, res) => res.json(swaggerSpec));
 
 // Mount routers
 app.use('/triage', triageRouter);
+app.use('/synthea', syntheaRouter);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

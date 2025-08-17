@@ -26,13 +26,25 @@ services:
     volumes:
       - ./api-server:/app
       - /app/node_modules
+      - ./synthea-output:/app/data/synthea:ro
     env_file:
       - ./.env              # root shared envs
     environment:
       - NODE_ENV=development
       - NHS_API_KEY=${NHS_API_KEY:?NHS_API_KEY not set in root .env}
       - NODE_OPTIONS=--inspect=0.0.0.0:9229
+      - SYNTHEA_DATA_DIR=/app/data/synthea
     command: npm run dev
+    networks:
+      - nhs-network
+
+  synthea:
+    image: smartonfhir/synthea
+    container_name: synthea
+    command: ["-p", "100", "-s", "1234", "-o", "/synthea/output"]
+    volumes:
+      - ./synthea-output:/synthea/output
+    restart: "no"
     networks:
       - nhs-network
 
@@ -64,6 +76,7 @@ services:
     depends_on:
       - oauth-server
       - api-server
+      - synthea
 
 networks:
   nhs-network:
@@ -71,3 +84,4 @@ networks:
 
 volumes:
   node_modules:
+  

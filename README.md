@@ -87,6 +87,39 @@ REACT_APP_SCOPE=openid basic_demographics email phone
 - Iterate on OAuth server: nodemon-style restart if configured; otherwise re-run container
 - Iterate on API server: nodemon-style restart if configured; otherwise re-run container
 
+## Synthea (synthetic patient generation)
+
+We include an optional Synthea container to generate synthetic FHIR bundles.
+
+- Service: `synthea` (Docker Compose)
+- Command (default): `-p 100 -s 1234 -o /synthea/output`
+- Host output directory: `./synthea-output/`
+- API server mount: `./synthea-output -> /app/data/synthea` (read-only)
+- Env: `SYNTHEA_DATA_DIR=/app/data/synthea`
+
+Run via Docker Compose (recommended):
+
+```
+docker compose up --build synthea
+```
+
+This will generate JSON under `./synthea-output/` on your host. The API exposes convenience endpoints to access these files:
+
+- `GET /synthea/bundles` — list available JSON bundles with sizes
+- `GET /synthea/bundles/:name` — stream a specific JSON file by relative path
+
+Example curl:
+
+```
+curl http://localhost:4001/synthea/bundles | jq
+curl -O http://localhost:4001/synthea/bundles/export/example_patient.json
+```
+
+Integration ideas:
+
+- Use demographics (age, sex) from Synthea output to seed simulator distributions.
+- Optional: load Synthea resources into a local FHIR server (e.g., HAPI) for realistic queries.
+
 
 ## UI, layout, and accessibility
 
