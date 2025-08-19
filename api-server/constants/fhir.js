@@ -42,6 +42,8 @@ export const TRIAGE_DEFAULT_ELEMENTS = [
   // Common clinical fields; intentionally omit meta/text to reduce noise
   'resourceType',
   'id',
+  // Include human-readable narrative and descriptive fields
+  'text',
   'code',
   'subject',
   'status',
@@ -50,4 +52,10 @@ export const TRIAGE_DEFAULT_ELEMENTS = [
   'encounter',
   'valueQuantity',
   'valueCodeableConcept',
+  // Common descriptive/clinical context fields (present where applicable)
+  'reasonCode',
+  'reasonReference',
+  'clinicalStatus',
+  'verificationStatus',
+  'interpretation',
 ];
