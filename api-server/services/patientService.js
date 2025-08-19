@@ -19,9 +19,33 @@ export async function fetchRecentPatients(n = 20) {
   return fetchJson(url);
 }
 
-export async function fetchEverythingForPatient(patientId, count = DEFAULT_EVERYTHING_COUNT) {
+function buildEverythingUrl(patientId, { count, types, typeFilter, elements, summary, start, end, since } = {}) {
+  const params = new URLSearchParams();
+  if (count) params.set('_count', String(count));
+  if (types && types.length) params.set('_type', types.join(','));
+  if (typeFilter && typeFilter.length) params.set('_typeFilter', typeFilter.join(','));
+  if (elements && elements.length) params.set('_elements', elements.join(','));
+  if (summary) params.set('_summary', String(summary));
+  if (start) params.set('start', start);
+  if (end) params.set('end', end);
+  if (since) params.set('_since', since);
+  return `${HAPI_BASE_URL}/Patient/${encodeURIComponent(patientId)}/$everything?${params.toString()}`;
+}
+
+export async function fetchEverythingForPatient(patientId, opts = {}) {
+  const {
+    count = DEFAULT_EVERYTHING_COUNT,
+    types,
+    typeFilter,
+    elements,
+    summary,
+    start,
+    end,
+    since,
+  } = opts || {};
+
   const resources = [];
-  let nextUrl = `${HAPI_BASE_URL}/Patient/${encodeURIComponent(patientId)}/$everything?_count=${count}`;
+  let nextUrl = buildEverythingUrl(patientId, { count, types, typeFilter, elements, summary, start, end, since });
   while (nextUrl) {
     const bundle = await fetchJson(nextUrl);
     if (Array.isArray(bundle.entry)) {

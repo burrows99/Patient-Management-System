@@ -131,12 +131,61 @@ export async function patients(req, res) {
       });
     }
 
-    // 2) For each patient, fetch raw $everything resources via service
+    // 2) For each patient, fetch triage-focused $everything resources via service
+    // Defaults are chosen for a triage use-case but are overridable via query params
+    const defaultTypes = [
+      'Condition',
+      'Observation',
+      'MedicationRequest',
+      'MedicationStatement',
+      'Procedure',
+      'Encounter',
+      'AllergyIntolerance',
+      'Immunization',
+    ];
+    const defaultTypeFilter = [
+      // Vital signs subset; override with typeFilter query if needed
+      'Observation?category=vital-signs',
+    ];
+    const defaultElements = [
+      // Common clinical fields; intentionally omit meta/text to reduce noise
+      'resourceType',
+      'id',
+      'code',
+      'subject',
+      'status',
+      'category',
+      'effectiveDateTime',
+      'encounter',
+      'valueQuantity',
+      'valueCodeableConcept',
+    ];
+
+    const parseCsv = (v) => (typeof v === 'string' && v.trim() ? v.split(',').map((s) => s.trim()).filter(Boolean) : undefined);
+
+    const count = Math.max(1, Math.min(200, Number(req.query._count) || undefined));
+    const types = parseCsv(req.query.types) || defaultTypes;
+    const typeFilter = parseCsv(req.query.typeFilter) || defaultTypeFilter; // e.g. "Observation?category=vital-signs"
+    const elements = parseCsv(req.query.elements) || defaultElements;
+    const summary = req.query._summary ? String(req.query._summary) : undefined; // e.g. 'data' | 'true' | 'count'
+    const start = req.query.start ? String(req.query.start) : undefined; // YYYY-MM-DD or instant
+    const end = req.query.end ? String(req.query.end) : undefined;
+    const since = req.query._since ? String(req.query._since) : undefined;
+
     const results = [];
     const skippedPatients = [];
     for (const p of patientsList) {
       try {
-        const resources = await fetchEverythingForPatient(p.id);
+        const resources = await fetchEverythingForPatient(p.id, {
+          count,
+          types,
+          typeFilter,
+          elements,
+          summary,
+          start,
+          end,
+          since,
+        });
         results.push({ patient: p, resources });
       } catch (e) {
         skippedPatients.push({ id: p.id, reason: e.message });
@@ -148,7 +197,12 @@ export async function patients(req, res) {
       patientsFound: results.length,
       skippedPatients,
       patients: results,
-      note: 'Raw Patient and $everything resources (no triage logic)',
+      note: 'Patient and triage-focused $everything resources (filterable via query params)',
+      triageDefaults: {
+        types: defaultTypes,
+        typeFilter: defaultTypeFilter,
+        elements: defaultElements,
+      },
     });
   } catch (err) {
     console.error('Patients endpoint error with HAPI:', err);
