@@ -99,6 +99,23 @@ services:
     depends_on:
       - synthea
 
+  langflow:
+    image: langflowai/langflow:latest
+    container_name: langflow
+    ports:
+      - "${LANGFLOW_PORT:-7860}:7860"
+    env_file:
+      - ./.env
+    environment:
+      - LANGFLOW_DATABASE_URL=sqlite:////data/langflow.db
+      - LANGFLOW_HOST=0.0.0.0
+      - LANGFLOW_PORT=7860
+    volumes:
+      - langflow-data:/data
+    command: ["bash", "-lc", "langflow run --host $LANGFLOW_HOST --port $LANGFLOW_PORT"]
+    networks:
+      - nhs-network
+
 networks:
   nhs-network:
     driver: bridge
@@ -107,3 +124,4 @@ volumes:
   node_modules:
   synthea-output:
   hapi-data:
+  langflow-data:

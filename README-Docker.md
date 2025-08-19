@@ -27,6 +27,11 @@ docker compose up --build
 ### API Server (Port 4001)
 - Express server that proxies HRDC and serves the triage simulator
 
+### Langflow (Port 7860)
+- Low/no‑code orchestration UI for building and running agentic flows
+- Persisted to `langflow-data` volume (SQLite DB)
+- Exposed at `http://localhost:7860` (configurable via `LANGFLOW_PORT`)
+
 ## Development Workflow
 
 1. **Start services**: `./start-dev.sh`
@@ -50,7 +55,7 @@ docker compose up --build
 
 ## Troubleshooting
 
-- **Port conflicts**: Ensure ports 3000 and 3001 are free
+- **Port conflicts**: Ensure ports 3000, 3001, 4001, 7860, and 8080 are free
 - **Build issues**: Run `docker-compose build --no-cache`
 - **Permission issues**: Check file ownership and Docker permissions
 
