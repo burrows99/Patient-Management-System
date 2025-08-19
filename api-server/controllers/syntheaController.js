@@ -2,6 +2,7 @@ import { getSyntheaBase, getSyntheaOutputDir } from '../utils/environment.js';
 import { reloadHapiFromSynthea } from '../utils/syntheaLoader.js';
 import { listDirOnce, previewJsonFiles, readMounts } from '../utils/syntheaFs.js';
 import { fetchPatientById, fetchRecentPatients, fetchEverythingForPatient } from '../services/patientService.js';
+import { TRIAGE_DEFAULT_TYPES, TRIAGE_DEFAULT_TYPE_FILTER, TRIAGE_DEFAULT_ELEMENTS } from '../constants/fhir.js';
 
 // Use loader utilities (moved out of controller for SRP)
 
@@ -133,33 +134,9 @@ export async function patients(req, res) {
 
     // 2) For each patient, fetch triage-focused $everything resources via service
     // Defaults are chosen for a triage use-case but are overridable via query params
-    const defaultTypes = [
-      'Condition',
-      'Observation',
-      'MedicationRequest',
-      'MedicationStatement',
-      'Procedure',
-      'Encounter',
-      'AllergyIntolerance',
-      'Immunization',
-    ];
-    const defaultTypeFilter = [
-      // Vital signs subset; override with typeFilter query if needed
-      'Observation?category=vital-signs',
-    ];
-    const defaultElements = [
-      // Common clinical fields; intentionally omit meta/text to reduce noise
-      'resourceType',
-      'id',
-      'code',
-      'subject',
-      'status',
-      'category',
-      'effectiveDateTime',
-      'encounter',
-      'valueQuantity',
-      'valueCodeableConcept',
-    ];
+    const defaultTypes = TRIAGE_DEFAULT_TYPES;
+    const defaultTypeFilter = TRIAGE_DEFAULT_TYPE_FILTER;
+    const defaultElements = TRIAGE_DEFAULT_ELEMENTS;
 
     const parseCsv = (v) => (typeof v === 'string' && v.trim() ? v.split(',').map((s) => s.trim()).filter(Boolean) : undefined);
 

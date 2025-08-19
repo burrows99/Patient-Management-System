@@ -20,3 +20,34 @@ export const Loinc = {
   BP_SYS: '8480-6',
   BP_DIA: '8462-4',
 };
+
+// Triage-focused defaults for Patient $everything
+export const TRIAGE_DEFAULT_TYPES = [
+  'Condition',
+  'Observation',
+  'MedicationRequest',
+  'MedicationStatement',
+  'Procedure',
+  'Encounter',
+  'AllergyIntolerance',
+  'Immunization',
+];
+
+export const TRIAGE_DEFAULT_TYPE_FILTER = [
+  // Vital signs subset; override as needed
+  'Observation?category=vital-signs',
+];
+
+export const TRIAGE_DEFAULT_ELEMENTS = [
+  // Common clinical fields; intentionally omit meta/text to reduce noise
+  'resourceType',
+  'id',
+  'code',
+  'subject',
+  'status',
+  'category',
+  'effectiveDateTime',
+  'encounter',
+  'valueQuantity',
+  'valueCodeableConcept',
+];
