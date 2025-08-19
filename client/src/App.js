@@ -11,6 +11,7 @@ import PublicRoute from './components/PublicRoute';
 import TriageSimulatorPage from './pages/TriageSimulatorPage';
 import TriageSimulatorDescriptionPage from './pages/TriageSimulatorDescriptionPage';
 import SyntheaPage from './pages/SyntheaPage';
+import SyntheaJsonViewPage from './pages/SyntheaJsonViewPage';
 
 function App() {
   return (
@@ -65,6 +66,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <SyntheaPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/synthea/json"
+            element={
+              <ProtectedRoute>
+                <SyntheaJsonViewPage />
               </ProtectedRoute>
             }
           />

@@ -16,7 +16,7 @@ services:
     networks:
       - nhs-network
     depends_on:
-      - synthea
+      - hapi-server
 
   api-server:
     build:
@@ -28,16 +28,18 @@ services:
     volumes:
       - ./api-server:/app
       - /app/node_modules
-      - synthea-output:/data/synthea:ro
+      - synthea-output:/synthea/output:ro
     env_file:
       - ./.env              # root shared envs
     environment:
       - NODE_ENV=development
       - NHS_API_KEY=${NHS_API_KEY:?NHS_API_KEY not set in root .env}
-      - SYNTHEA_OUTPUT_DIR=/data/synthea
+      - HAPI_BASE_URL=${HAPI_BASE_URL:-http://hapi-server:8080/hapi/fhir}
     command: npm run start:inspect
     networks:
       - nhs-network
+    depends_on:
+      - hapi-server
 
   client:
     build:
@@ -78,6 +80,24 @@ services:
       - ./synthea.properties:/app/synthea.properties:ro
     networks:
       - nhs-network
+    # Use image default entrypoint to run HTTP interface
+
+  hapi-server:
+    image: hapiproject/hapi:v7.2.0
+    ports:
+      - "8080:8080"
+    environment:
+      - DSTU2_ENABLED=true
+      - STU3_ENABLED=true
+      - R4_ENABLED=true
+      - HAPI_FHIR_DEFAULT_PRETTY_PRINT=true
+    volumes:
+      - hapi-data:/data/hapi
+      - synthea-output:/synthea/output:ro
+    networks:
+      - nhs-network
+    depends_on:
+      - synthea
 
 networks:
   nhs-network:
@@ -86,3 +106,4 @@ networks:
 volumes:
   node_modules:
   synthea-output:
+  hapi-data:

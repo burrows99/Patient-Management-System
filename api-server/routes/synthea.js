@@ -24,71 +24,107 @@ router.get('/health', health);
  *   get:
  *     summary: Generate synthetic patients via Synthea
  *     description: |
- *       Triggers smartonfhir/synthea to generate patients, then reads the latest output directory
- *       and returns a combined JSON of all generated patient bundles in a single object keyed by patient id.
- *       Example: `GET /synthea/generate?stu=3&p=100`.
+ *       Triggers Synthea to generate patients in FHIR R4 and reloads the HAPI FHIR server (which is R4-only).
+ *       There is no `stu` parameter; generation and reload are fixed to R4.
+ *
+ *       Version compatibility:
+ *       - The deployed HAPI server is R4-only.
+ *       - Synthea generation is fixed to R4 in this environment; other versions are omitted by design.
  *     tags: [Synthea]
  *     parameters:
- *       - in: query
- *         name: stu
- *         schema: { type: string, enum: ["2","3","4"] }
- *         description: FHIR STU version
+ *       # No STU selection parameter; generation is R4-only.
  *       - in: query
  *         name: p
- *         required: true
+ *         required: false
  *         schema:
  *           type: integer
  *           minimum: 1
- *         description: Number of patients to generate.
+ *           maximum: 5
+ *           default: 10
+ *         description: Number of patients to generate. The environment caps this to 5 per request; values above 5 are reduced to 5.
+ *       - in: query
+ *         name: debug
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: ["0", "1"]
+ *         description: When '1', returns directory scans and mount diagnostics in the response for troubleshooting.
  *     responses:
  *       200:
- *         description: Generation completed.
+ *         description: Generation completed (HAPI reload triggered).
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 count:
- *                   type: integer
- *                 directory:
+ *                 message:
  *                   type: string
- *                   description: Filesystem directory from which FHIR files were read.
- *                 patients:
+ *                 patientsGenerated:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                   description: The enforced per-request cap on generated patients
+ *                   example: 5
+ *                 limitMessage:
+ *                   type: string
+ *                   description: Human-readable explanation of the cap
+ *                 env:
  *                   type: object
- *                   additionalProperties:
+ *                   additionalProperties: true
+ *                 mounts:
+ *                   type: array
+ *                   items:
  *                     type: object
- *                   description: Object keyed by patient id with full FHIR Bundle JSON for each patient.
+ *                     additionalProperties: true
+ *                 scans:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *                 hapiStatus:
+ *                   type: string
+ *                   description: reload_triggered
  *       400:
- *         description: Missing required `p` query parameter.
+ *         description: Missing or invalid parameters.
  *       502:
  *         description: Failed to contact Synthea or upstream error.
- *       504:
- *         description: Request to Synthea timed out.
  */
 router.get('/generate', generate);
 
 /**
- * @swagger
+ * @openapi
  * /synthea/patients:
  *   get:
- *     summary: List Patients from Synthea FHIR output
+ *     summary: Retrieve Patients and their $everything resources from HAPI
  *     description: |
- *       Reads FHIR Bundle JSON files produced by Synthea from the mounted output volume and
- *       returns an array of Patient resources. If `stu` is provided, restricts to that STU subfolder.
+ *       Returns raw Patient resources and, for each, all related resources via the FHIR `$everything` operation.
+ *       This endpoint does not perform any triage logic or transformations.
+ *
+ *       Instructions:
+ *       - `patientId` is OPTIONAL. Provide it to fetch a single patient and all related resources.
+ *       - When `patientId` is omitted, the endpoint fetches recent patients; you may set `n` (1..100). If `n` is omitted, it defaults to 20.
+ *       - Responses can be large; consider using `patientId` to limit payload size.
+ *
+ *       Version compatibility:
+ *       - This endpoint queries the deployed HAPI FHIR server, which is R4-only in this environment.
+ *       - There is no `stu` parameter here by design.
  *     tags: [Synthea]
  *     parameters:
  *       - in: query
- *         name: stu
+ *         name: patientId
+ *         required: false
  *         schema:
  *           type: string
- *           enum: ["2", "3", "4"]
- *         description: FHIR STU version (2 = DSTU2, 3 = STU3, 4 = R4)
+ *         description: Optional. Fetch a single patient by id. When omitted, recent patients are returned.
  *       - in: query
  *         name: n
+ *         required: false
  *         schema:
  *           type: integer
  *           minimum: 1
- *         description: Max number of patient bundles to read (default 50)
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of most recent patients to include when `patientId` is not provided.
  *     responses:
  *       200:
  *         description: OK
@@ -99,16 +135,63 @@ router.get('/generate', generate);
  *               properties:
  *                 count:
  *                   type: integer
- *                 directories:
+ *                   description: Number of patient entries returned in this response
+ *                 patientsFound:
+ *                   type: integer
+ *                   description: Alias of count for convenience
+ *                 skippedPatients:
+ *                   type: array
+ *                   description: Patients that could not be expanded via $everything
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       reason:
+ *                         type: string
+ *                 patients:
+ *                   type: array
+ *                   description: Array of patient entries with raw Patient and related resources
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       patient:
+ *                         type: object
+ *                         description: Raw FHIR R4 Patient resource as returned by HAPI
+ *                         additionalProperties: true
+ *                       resources:
+ *                         type: array
+ *                         description: Raw FHIR resources from $everything for the patient
+ *                         items:
+ *                           type: object
+ *                           additionalProperties: true
+ *                 note:
+ *                   type: string
+ *                   description: Informational note about response contents
+ *       202:
+ *         description: No patients found in HAPI
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *                   example: 0
+ *                 patientsFound:
+ *                   type: integer
+ *                   example: 0
+ *                 skippedPatients:
  *                   type: array
  *                   items:
- *                     type: string
+ *                     type: object
  *                 patients:
  *                   type: array
  *                   items:
  *                     type: object
- *       202:
- *         description: No files yet
+ *                 note:
+ *                   type: string
+ *                   example: "Raw Patient and $everything resources (no triage logic)"
  *       500:
  *         description: Server error
  */

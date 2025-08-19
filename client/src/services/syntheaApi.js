@@ -19,14 +19,13 @@ async function request(path, opts = {}) {
   return json;
 }
 
-export async function syntheaGenerate({ p = 5, stu = '4' } = {}) {
-  // Triggers generation and returns diagnostics payload
-  return request(`/synthea/generate?p=${encodeURIComponent(p)}&stu=${encodeURIComponent(stu)}`);
+export async function syntheaGenerate({ p = 5 } = {}) {
+  // Triggers generation (R4-only) and returns diagnostics payload
+  return request(`/synthea/generate?p=${encodeURIComponent(p)}`);
 }
 
-export async function syntheaGetPatients({ n = 50, stu } = {}) {
+export async function syntheaGetPatients({ n = 50 } = {}) {
   const params = new URLSearchParams();
   if (n) params.set('n', String(n));
-  if (stu) params.set('stu', String(stu));
   return request(`/synthea/patients?${params.toString()}`);
 }
