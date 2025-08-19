@@ -1,82 +1,28 @@
 import React from 'react';
 
-export default function TriageControls({
-  dept,
-  onDeptChange,
-  datasetId,
-  onDatasetChange,
-  datasets,
-  count,
-  onCountChange,
-  method,
-  onMethodChange,
-  patientId,
-  onPatientIdChange,
-  action,
-  pending,
-}) {
+export default function TriageControls({ controls, action, pending }) {
+  // Backward compatibility: if controls object isn't provided, build a minimal shim
+  const c = controls || {};
   return (
     <form action={action}>
       <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="dept">Department</label>
-        <select id="dept" name="dept" className="nhsuk-select" value={dept} onChange={(e) => onDeptChange(e.target.value)}>
-          <option value="ED">ED</option>
-          <option value="Imaging">Imaging</option>
-          <option value="Outpatients">Outpatients</option>
-        </select>
-      </div>
-
-      <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="datasetId">Dataset</label>
-        <select id="datasetId" name="datasetId" className="nhsuk-select" value={datasetId} onChange={(e) => onDatasetChange(e.target.value)}>
-          {datasets.map((d, idx) => (
-            <option key={`${d.persistentId || d.id}-${idx}`} value={d.persistentId || d.id}>
-              {d.name || d.title || d.persistentId || d.id}
-            </option>
-          ))}
-          {datasets.length === 0 && <option value={datasetId}>Default dataset</option>}
-        </select>
-      </div>
-
-      <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="method">Methodology</label>
-        <select id="method" name="method" className="nhsuk-select" value={method} onChange={(e) => onMethodChange(e.target.value)}>
-          <option value="rules">Rules-based</option>
-          <option value="time">Time-based</option>
-          <option value="risk">Risk-based</option>
-          <option value="hybrid">Hybrid</option>
-        </select>
-      </div>
-
-      <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="patientId">Patient ID (optional)</label>
+        <label className="nhsuk-label" htmlFor="pace">Pace (seconds per event)</label>
         <input
-          id="patientId"
-          name="patientId"
-          className="nhsuk-input"
-          type="text"
-          value={patientId}
-          onChange={(e) => onPatientIdChange(e.target.value)}
-          placeholder="e.g. UUID or local ID"
-        />
-      </div>
-
-      <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="count">Count</label>
-        <input
-          id="count"
-          name="count"
-          className="nhsuk-input"
+          id="pace"
+          name={c.pace?.name || 'pace'}
           type="number"
-          min={1}
-          max={200}
-          value={count}
-          onChange={(e) => onCountChange(Number(e.target.value || 0))}
+          min="0.05"
+          step="0.05"
+          className="nhsuk-input"
+          value={c.pace?.value ?? ''}
+          onChange={c.pace?.onChange}
+          disabled={pending}
+          placeholder="2"
         />
       </div>
 
-      <button className="nhsuk-button" type="submit" disabled={pending}>
-        {pending ? 'Simulating…' : 'Simulate'}
+      <button type="submit" className="nhsuk-button" disabled={pending}>
+        {pending ? 'Applying…' : 'Apply'}
       </button>
     </form>
   );
