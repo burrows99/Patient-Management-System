@@ -28,6 +28,19 @@ export default function SyntheaControls({ params, setParam, loading, onGenerate,
             onChange={(e) => setParam('n', Math.max(1, Math.min(100, Number(e.target.value) || 0)))}
           />
         </div>
+        <div>
+          <label className="nhsuk-label" htmlFor="elementsPreset">Elements preset</label>
+          <select
+            id="elementsPreset"
+            className="nhsuk-select"
+            value={params.elementsPreset || 'rich'}
+            onChange={(e) => setParam('elementsPreset', e.target.value)}
+          >
+            <option value="rich">Rich (with narrative)</option>
+            <option value="lean">Lean (minimal)</option>
+          </select>
+          <span className="nhsuk-hint">Controls which FHIR _elements are requested from $everything</span>
+        </div>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <button type="button" className="nhsuk-button" onClick={onGenerate} disabled={loading}>

@@ -24,8 +24,9 @@ export async function syntheaGenerate({ p = 5 } = {}) {
   return request(`/synthea/generate?p=${encodeURIComponent(p)}`);
 }
 
-export async function syntheaGetPatients({ n = 50 } = {}) {
+export async function syntheaGetPatients({ n = 50, elementsPreset } = {}) {
   const params = new URLSearchParams();
   if (n) params.set('n', String(n));
+  if (elementsPreset) params.set('elementsPreset', String(elementsPreset));
   return request(`/synthea/patients?${params.toString()}`);
 }

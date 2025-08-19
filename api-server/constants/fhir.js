@@ -38,12 +38,10 @@ export const TRIAGE_DEFAULT_TYPE_FILTER = [
   'Observation?category=vital-signs',
 ];
 
-export const TRIAGE_DEFAULT_ELEMENTS = [
-  // Common clinical fields; intentionally omit meta/text to reduce noise
+// Lean elements: minimal payload (omits narrative/text)
+export const TRIAGE_ELEMENTS_LEAN = [
   'resourceType',
   'id',
-  // Include human-readable narrative and descriptive fields
-  'text',
   'code',
   'subject',
   'status',
@@ -52,10 +50,47 @@ export const TRIAGE_DEFAULT_ELEMENTS = [
   'encounter',
   'valueQuantity',
   'valueCodeableConcept',
-  // Common descriptive/clinical context fields (present where applicable)
+];
+
+// Rich elements: include narrative and descriptive text
+export const TRIAGE_ELEMENTS_RICH = [
+  // Core
+  'resourceType',
+  'id',
+  'status',
+  'subject',
+  'encounter',
+  // Narrative & notes
+  'text',
+  'note',
+  // Codes and displays
+  'code',
+  'category',
+  'type',
   'reasonCode',
-  'reasonReference',
+  'interpretation',
+  // Observation values
+  'effectiveDateTime',
+  'valueQuantity',
+  'valueCodeableConcept',
+  'valueString',
+  // Condition-specific
   'clinicalStatus',
   'verificationStatus',
-  'interpretation',
+  'severity',
+  'onsetDateTime',
+  // Encounter-specific
+  'period',
+  // Medication
+  'medicationCodeableConcept',
+  'dosageInstruction',
+  // Immunization
+  'vaccineCode',
+  // Allergy
+  'reaction',
 ];
+
+export const TRIAGE_ELEMENT_PRESETS = {
+  lean: TRIAGE_ELEMENTS_LEAN,
+  rich: TRIAGE_ELEMENTS_RICH,
+};

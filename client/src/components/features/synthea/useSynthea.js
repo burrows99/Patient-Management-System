@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { syntheaGenerate, syntheaGetPatients } from '../../../services/syntheaApi';
 
 // Hook: encapsulates state and side-effects for Synthea interactions
-export default function useSynthea(initial = { p: 5, n: 25 }) {
+export default function useSynthea(initial = { p: 5, n: 25, elementsPreset: 'rich' }) {
   const [loading, setLoading] = useState(false);
   const [genInfo, setGenInfo] = useState(null);
   const [patientsResp, setPatientsResp] = useState(null);
@@ -30,7 +30,7 @@ export default function useSynthea(initial = { p: 5, n: 25 }) {
     setError(null);
     setLoading(true);
     try {
-      const res = await syntheaGetPatients({ n: params.n });
+      const res = await syntheaGetPatients({ n: params.n, elementsPreset: params.elementsPreset });
       setPatientsResp(res);
     } catch (e) {
       setError(e?.message || 'Failed to fetch patients');

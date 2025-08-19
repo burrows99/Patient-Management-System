@@ -125,6 +125,14 @@ router.get('/generate', generate);
  *           maximum: 100
  *           default: 20
  *         description: Number of most recent patients to include when `patientId` is not provided.
+ *       - in: query
+ *         name: elementsPreset
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [lean, rich]
+ *           default: rich
+ *         description: Controls the default FHIR `_elements` set applied to $everything responses. `rich` includes narrative/description fields; `lean` minimizes payload by omitting narrative.
  *     responses:
  *       200:
  *         description: OK

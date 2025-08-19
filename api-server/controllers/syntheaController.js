@@ -2,7 +2,7 @@ import { getSyntheaBase, getSyntheaOutputDir } from '../utils/environment.js';
 import { reloadHapiFromSynthea } from '../utils/syntheaLoader.js';
 import { listDirOnce, previewJsonFiles, readMounts } from '../utils/syntheaFs.js';
 import { fetchPatientById, fetchRecentPatients, fetchEverythingForPatient } from '../services/patientService.js';
-import { TRIAGE_DEFAULT_TYPES, TRIAGE_DEFAULT_TYPE_FILTER, TRIAGE_DEFAULT_ELEMENTS } from '../constants/fhir.js';
+import { TRIAGE_DEFAULT_TYPES, TRIAGE_DEFAULT_TYPE_FILTER, TRIAGE_ELEMENT_PRESETS, TRIAGE_ELEMENTS_RICH } from '../constants/fhir.js';
 
 // Use loader utilities (moved out of controller for SRP)
 
@@ -136,7 +136,9 @@ export async function patients(req, res) {
     // Defaults are chosen for a triage use-case but are overridable via query params
     const defaultTypes = TRIAGE_DEFAULT_TYPES;
     const defaultTypeFilter = TRIAGE_DEFAULT_TYPE_FILTER;
-    const defaultElements = TRIAGE_DEFAULT_ELEMENTS;
+    const elementsPresetKey = (req.query.elementsPreset || 'rich').toString().toLowerCase();
+    const presetElements = TRIAGE_ELEMENT_PRESETS[elementsPresetKey] || TRIAGE_ELEMENTS_RICH;
+    const defaultElements = presetElements;
 
     const parseCsv = (v) => (typeof v === 'string' && v.trim() ? v.split(',').map((s) => s.trim()).filter(Boolean) : undefined);
 
