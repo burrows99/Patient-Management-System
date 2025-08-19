@@ -32,3 +32,16 @@ export async function simulateTriage({ dept, n, datasetId, method, patientId }) 
   const json = await res.json();
   return { items: json.items || [], warning };
 }
+
+// Open SSE stream for triage simulation
+export function openTriageSse({ dept, n, patientId, sim, pace }) {
+  const params = new URLSearchParams();
+  if (dept) params.set('dept', String(dept));
+  if (n != null) params.set('n', String(n));
+  if (patientId) params.set('patientId', String(patientId));
+  if (sim) params.set('sim', String(sim));
+  if (pace != null && Number(pace) > 0) params.set('pace', String(pace));
+  const url = `${API_BASE}/triage/simulate?${params.toString()}`;
+  const es = new EventSource(url, { withCredentials: true });
+  return es;
+}

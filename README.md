@@ -53,6 +53,35 @@ Prereqs: Docker Desktop (or Docker Engine) and Node 18+ if running locally.
 - `api-server/index.js` serves HRDC proxy and triage simulator endpoints
 
 
+## Synthea Integration & JSON Viewer
+
+- **Purpose**: Generate synthetic patients and fetch triage-focused FHIR data using `$everything` with curated defaults.
+- **Client**: `client/src/pages/SyntheaPage.jsx` for controls/table, `client/src/pages/SyntheaJsonViewPage.jsx` for focused JSON viewing.
+- **API client**: `client/src/services/syntheaApi.js`
+- **Viewer**: `client/src/components/common/JsonViewer.jsx` (NHS-styled, native `<details>`, toolbar for copy/expand/collapse)
+
+### Usage
+- Generate patients: click "Generate" or call `syntheaGenerate({ p })` (R4 only).
+- Fetch patients: choose count and `elementsPreset` (Rich or Lean), click "Fetch Patients".
+- View JSON: in the table, open the JSON action to launch the dedicated viewer tab. Data is passed via `localStorage`.
+
+### Backend endpoint
+`GET /synthea/patients`
+
+Query params:
+- `n` (1..100) – number of recent patients when `patientId` omitted
+- `patientId` – fetch a specific patient
+- `elementsPreset` – `lean | rich` (default `rich`)
+- Advanced: `_count`, `types`, `typeFilter`, `elements`, `_summary`, `start`, `end`, `_since`
+
+Defaults and presets are defined in `api-server/constants/fhir.js` and applied by `api-server/controllers/syntheaController.js`.
+
+### HAPI and defaults (quick notes)
+- HAPI FHIR R4 behind our API; client never calls HAPI directly.
+- Patient `$everything` with pagination; we follow `link[rel="next"].url`.
+- Defaults focus on triage: restricted `_type`, vital-signs `_typeFilter`, and element presets (`rich` default, `lean` minimal). Override with explicit `elements` if needed.
+
+
 ## Environment & config
 
 - Single source of truth: root `./.env` (loaded by Docker Compose for all services).

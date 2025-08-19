@@ -3,6 +3,7 @@ import PageLayout from '../components/common/PageLayout';
 import NhsTable from '../components/common/NhsTable';
 import useSynthea from '../components/features/synthea/useSynthea';
 import SyntheaControls from '../components/features/synthea/SyntheaControls';
+import SyntheaHapiNotes from '../components/common/text/SyntheaHapiNotes';
 
 // NHS-styled page to trigger Synthea generation, fetch patients, and render as table
 export default function SyntheaPage() {
@@ -99,6 +100,11 @@ export default function SyntheaPage() {
       )}
     >
       {/* Minimal UI: controls in header, table below */}
+
+      {/* Context: HAPI and triage defaults */}
+      <section aria-labelledby="hapi-notes-heading" style={{ marginTop: '1rem' }}>
+        <SyntheaHapiNotes />
+      </section>
 
       <section aria-labelledby="patients-heading" style={{ marginTop: '1.5rem' }}>
         <div className="nhsuk-card">

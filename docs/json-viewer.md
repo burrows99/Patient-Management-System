@@ -6,6 +6,10 @@ A reusable React component to display JSON with NHS styling and accessible colla
 
 `client/src/components/common/JsonViewer.jsx`
 
+Dedicated page wrapper (focused viewing):
+
+`client/src/pages/SyntheaJsonViewPage.jsx`
+
 ## Features
 
 - __NHS styling__: Uses NHS.UK classes and the native `details` pattern.
@@ -35,7 +39,14 @@ import JsonViewer from '../components/common/JsonViewer';
 <JsonViewer title="Patient resource" data={patient} />
 ```
 
+### In the dedicated viewer page
+
+- The Synthea table action opens `SyntheaJsonViewPage` in a new tab.
+- Data is transferred via `localStorage` using a generated key (avoids blob URLs and preserves app layout/auth).
+- The page reads the key from the URL, loads the JSON payload from `localStorage`, renders via `JsonViewer`, and optionally clears it on unload.
+
 ## Related files
 
 - Synthea page usage: `client/src/pages/SyntheaPage.jsx`
+- Dedicated viewer page: `client/src/pages/SyntheaJsonViewPage.jsx`
 - Synthea API: `client/src/services/syntheaApi.js`

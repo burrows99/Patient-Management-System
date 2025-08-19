@@ -5,16 +5,13 @@ import { useTriageSimulation } from '../hooks/useTriageSimulation';
 
 export default function TriageSimulator() {
   const {
-    dept, setDept,
-    count, setCount,
-    datasetId, setDatasetId,
-    method, setMethod,
-    patientId, setPatientId,
+    dept,
     formState, formAction, pending,
+    rows,
+    streaming, metaInfo, eventCount,
     columns,
+    controls,
   } = useTriageSimulation();
-
-  const datasets = [];
 
   return (
     <div className="nhsuk-card nhsuk-u-margin-top-5">
@@ -28,21 +25,7 @@ export default function TriageSimulator() {
           </div>
         )}
 
-        <TriageControls
-          dept={dept}
-          onDeptChange={setDept}
-          datasetId={datasetId}
-          onDatasetChange={setDatasetId}
-          datasets={datasets}
-          count={count}
-          onCountChange={setCount}
-          method={method}
-          onMethodChange={setMethod}
-          patientId={patientId}
-          onPatientIdChange={setPatientId}
-          action={formAction}
-          pending={pending}
-        />
+        <TriageControls controls={controls} action={formAction} pending={pending || streaming} />
 
         {formState.error && (
           <div className="nhsuk-error-summary nhsuk-u-margin-top-3" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
@@ -53,7 +36,20 @@ export default function TriageSimulator() {
           </div>
         )}
 
-        <TriageTable dept={dept} columns={columns} data={formState.data} loading={pending} />
+        {/* Debug/diagnostics panel */}
+        <div className="nhsuk-inset-text nhsuk-u-margin-top-3 nhsuk-u-margin-bottom-3">
+          <p>
+            <strong>Status:</strong> {streaming ? 'Streaming' : 'Idle'} · <strong>Events:</strong> {eventCount}
+            {metaInfo && (
+              <>
+                {' '}· <strong>Range:</strong> {metaInfo.historicalRange?.start} → {metaInfo.historicalRange?.end}
+                {' '}· <strong>Scale:</strong> {metaInfo.simScale}
+              </>
+            )}
+          </p>
+        </div>
+
+        <TriageTable dept={dept} columns={columns} data={rows} loading={streaming && rows.length === 0} />
       </div>
     </div>
   );
