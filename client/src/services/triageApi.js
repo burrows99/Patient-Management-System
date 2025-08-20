@@ -33,6 +33,40 @@ export async function simulateTriage({ dept, n, datasetId, method, patientId }) 
   return { items: json.items || [], warning };
 }
 
+// Call the new patient generation triage endpoint
+export async function simulateTriagePatient({ delay = 0, triageQueue = [] }) {
+  const url = `${API_BASE}/triage/simulate`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      delay,
+      triageQueue
+    })
+  });
+
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const txt = await res.text();
+      try {
+        const json = JSON.parse(txt);
+        message = json.error || message;
+      } catch {
+        message = txt || message;
+      }
+    } catch {
+      // If we can't read the response, use the status
+    }
+    throw new Error(message);
+  }
+
+  return await res.json();
+}
+
 // Open SSE stream for triage simulation
 export function openTriageSse({ dept, n, patientId, sim, pace }) {
   const params = new URLSearchParams();

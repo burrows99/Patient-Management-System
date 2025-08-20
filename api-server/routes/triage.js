@@ -80,5 +80,6 @@ const router = Router();
  *         description: Server error
  */
 router.get('/simulate', simulateTriage);
+router.post('/simulate', simulateTriage);
 
 export default router;
