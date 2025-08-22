@@ -24,7 +24,7 @@ docker compose up synthea
 ```
 
 ### Notes
-- Default patient count is set in `docker-compose.yml` via the service `command`.
+- Default patient count is set via `.env` -> `PATIENT_COUNT=5` and read by `docker-compose.yml`.
 - Override the patient count without editing the file by appending args:
   ```bash
   docker compose run --rm synthea -p 100
