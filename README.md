@@ -156,7 +156,7 @@ flowchart TD
     B --> C[dataAnalysis.py]
     C -->|stats & patterns| D[dashboard.py]
     B --> E[simulation/simulation.py]
-    E -->|priority mapping + time compression| F[SimPy Engine (PriorityResource, c servers)]
+    E -->|priority mapping + time compression| F[SimPy Engine<br/>(PriorityResource; c servers)]
     F --> G[Simulation Results]
     D --> H[analytics_summary.json]
     G --> H
