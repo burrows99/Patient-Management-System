@@ -13,6 +13,7 @@ from pathlib import Path
 import json
 import warnings
 warnings.filterwarnings('ignore')
+from data_loader import DataLoader
 
 class NpEncoder(json.JSONEncoder):
     """JSON encoder that converts numpy types to native Python types."""
@@ -37,17 +38,13 @@ class NHSTriageAnalytics:
         self.load_data()
     
     def load_data(self):
-        """Load and preprocess encounter data"""
+        """Load and preprocess encounter data via DataLoader"""
         try:
-            self.df = pd.read_csv(self.csv_path)
-            self.df['START_DT'] = pd.to_datetime(self.df['START'])
-            self.df['STOP_DT'] = pd.to_datetime(self.df['STOP'])
-            self.df['SERVICE_MIN'] = (self.df['STOP_DT'] - self.df['START_DT']).dt.total_seconds() / 60
-            self.df['SERVICE_MIN'] = self.df['SERVICE_MIN'].clip(lower=1, upper=480)
-            self.df['HOUR'] = self.df['START_DT'].dt.hour
-            self.df['DAY_OF_WEEK'] = self.df['START_DT'].dt.day_name()
-            self.df['MONTH'] = self.df['START_DT'].dt.month
-            self.df['YEAR'] = self.df['START_DT'].dt.year
+            # Determine output directory and initialize loader
+            output_dir = Path(self.csv_path).parent.parent / 'output'
+            loader = DataLoader(output_dir)
+            # Load encounters with standardized columns/features
+            self.df = loader.load_encounters()
             print(f"✅ Loaded {len(self.df)} encounters successfully")
         except Exception as e:
             raise Exception(f"Failed to load data: {e}")
