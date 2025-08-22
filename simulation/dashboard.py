@@ -14,6 +14,20 @@ import json
 import warnings
 warnings.filterwarnings('ignore')
 
+class NpEncoder(json.JSONEncoder):
+    """JSON encoder that converts numpy types to native Python types."""
+    def default(self, obj):
+        import numpy as _np
+        if isinstance(obj, _np.integer):
+            return int(obj)
+        if isinstance(obj, _np.floating):
+            return float(obj)
+        if isinstance(obj, _np.bool_):
+            return bool(obj)
+        if isinstance(obj, _np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
 class NHSTriageAnalytics:
     """Enhanced analytics for NHS triage system optimization"""
     
@@ -333,7 +347,7 @@ def main():
         # Save summary report
         output_path = script_dir.parent / 'analytics_summary.json'
         with open(output_path, 'w') as f:
-            json.dump(summary, f, indent=2)
+            json.dump(summary, f, indent=2, cls=NpEncoder)
         
         print(f"\n💾 Summary report saved: {output_path}")
         print("\n✅ Analysis complete! Use the recommendations above to optimize your triage system.")
