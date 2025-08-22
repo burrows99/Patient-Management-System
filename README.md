@@ -122,14 +122,23 @@ While results are generated empirically by simulation, capacity recommendations 
 - Let λ be average arrival rate, μ be average service rate per server, c be number of servers, and ρ = λ/(cμ) be utilization.
 - For an M/M/c with Erlang‑C, the probability an arrival must wait is:
 
-```
-P(wait) = \frac{\frac{(c\rho)^c}{c! (1-\rho)}}{\sum_{k=0}^{c-1} \frac{(c\rho)^k}{k!} + \frac{(c\rho)^c}{c! (1-\rho)}}
-```
+$$
+P(\text{wait}) = \frac{\frac{(c\,\rho)^c}{c!\,(1-\rho)}}{\sum\limits_{k=0}^{c-1} \frac{(c\,\rho)^k}{k!} + \frac{(c\,\rho)^c}{c!\,(1-\rho)}}
+$$
 
 - The expected waiting time in queue:
 
+$$
+W_q = \frac{P(\text{wait})}{c\,\mu - \lambda}
+$$
+
+Plain-text fallback (if math blocks don’t render):
 ```
-W_q = \frac{P(wait)}{c\mu - \lambda}
+P(wait) = ((c*rho)^c / (c! * (1 - rho)))
+          ------------------------------------------
+          sum_{k=0..c-1} (c*rho)^k / k!  +  (c*rho)^c / (c! * (1 - rho))
+
+W_q = P(wait) / (c*mu - lambda)
 ```
 
 - Expected time in system: `W = W_q + 1/μ`. These formulas are used for rough staffing guidance and validation of simulated behavior (see also Little’s Law `L = λ W`).
