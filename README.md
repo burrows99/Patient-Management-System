@@ -97,6 +97,53 @@ pip install -r requirements.txt
 - __M/M/c queue (queueing theory)__ — Background on multi‑server queues used for staffing/utilization reasoning: https://en.wikipedia.org/wiki/M/M/c_queue 
 - __Synthea__ — Synthetic patient generator used for data: https://github.com/synthetichealth/synthea 
 
+## Simulation Details and Rationale
+
+### Model overview
+- __Queueing paradigm__: We simulate a service system where encounters arrive over time with service durations extracted from `START`/`STOP` in `output/csv/encounters.csv`.
+- __Engines__: `utils/queue_simulation.py` uses `simpy.Resource` (FIFO) and `simulation/simulation.py` uses `simpy.PriorityResource` for non‑preemptive priorities. See SimPy docs: https://simpy.readthedocs.io/en/latest/
+- __Servers__: Parallel capacity `c = --servers`.
+
+### Time compression (for sparse timelines)
+Real datasets may span days/months with low density. `simulation/simulation.py` compresses timestamps to a target window (e.g., 8 hours) while preserving ordering and relative gaps. This creates realistic queueing pressure for experimentation without altering the event sequence. The approach maintains causality and relative inter‑arrival structure, which is essential for queue dynamics.
+
+### Manchester Triage System (MTS) priorities
+- __Priority classes__: P1–P5 with target maximum waits (e.g., Immediate/Red, Very Urgent/Orange, etc.). In `ManchesterTriageSystem.PRIORITIES` we encode names, color codes, and target waits; assignment uses encounter class plus clinical keywords from `REASONDESCRIPTION`.
+- __Rule choice__: We bias toward higher priority (P1/P2) when critical terms are present (e.g., “cardiac arrest”, “stroke”, “chest pain”), moderate (P2/P3) for acute terms (e.g., “pain”, “infection”), and otherwise sample from encounter‑class distributions. This mirrors MTS’s discriminator‑based urgency determination while remaining data‑driven and lightweight for synthetic data.
+- __Queue discipline__: Non‑preemptive priority queue via `PriorityResource.request(priority=p)`. Lower numeric priority (P1) is served first when a server frees; service is not interrupted mid‑treatment, aligning with ED practice. Breaches are measured against the target max wait per MTS level.
+- __Why MTS__: MTS is widely used across UK EDs and Europe and supported by NHS guidance noting several validated triage systems (MTS, CTAS, ESI) in use in England.
+  - NHS England initial assessment guidance: https://www.england.nhs.uk/guidance-for-emergency-departments-initial-assessment/
+  - Systematic review on MTS validity: https://pmc.ncbi.nlm.nih.gov/articles/PMC5289484/
+  - EMJ before/after MTS study: https://emj.bmj.com/content/31/1/13
+
+### Queueing theory background (staffing intuition)
+While results are generated empirically by simulation, capacity recommendations in `simulation/dashboard.py` are informed by classic M/M/c intuition:
+
+- Let λ be average arrival rate, μ be average service rate per server, c be number of servers, and ρ = λ/(cμ) be utilization.
+- For an M/M/c with Erlang‑C, the probability an arrival must wait is:
+
+```
+P(wait) = \frac{\frac{(c\rho)^c}{c! (1-\rho)}}{\sum_{k=0}^{c-1} \frac{(c\rho)^k}{k!} + \frac{(c\rho)^c}{c! (1-\rho)}}
+```
+
+- The expected waiting time in queue:
+
+```
+W_q = \frac{P(wait)}{c\mu - \lambda}
+```
+
+- Expected time in system: `W = W_q + 1/μ`. These formulas are used for rough staffing guidance and validation of simulated behavior (see also Little’s Law `L = λ W`).
+
+References:
+- Queueing theory M/M/c summary: https://en.wikipedia.org/wiki/Queueing_theory#M/M/c
+- Erlang C formula: https://en.wikipedia.org/wiki/Erlang_(unit)#Erlang_C_formula
+- Priority queueing background: https://en.wikipedia.org/wiki/Priority_queueing
+
+### NHS relevance
+- __Policy context__: NHS EDs use validated triage systems; MTS is widely adopted across the UK and Europe (see NHS England guidance above).
+- __Operational impact__: Modeling non‑preemptive priority queues with MTS targets allows analysis of breach rates by acuity, peak‑period staffing needs, and service‑time variability—key to meeting access targets and improving patient flow.
+- __Practical use__: The dashboard highlights peak hours/days, P95 wait times, and recommends staffing buffers at high demand periods. This aligns with ED operations where resource matching to arrival variability is critical.
+
 ## Next Steps
 - Adjust patient count (`-p N`) to scale datasets.
 - Explore additional Synthea flags/modules as needed.
