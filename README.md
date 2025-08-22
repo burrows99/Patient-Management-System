@@ -148,6 +148,43 @@ References:
 - Erlang C formula: https://en.wikipedia.org/wiki/Erlang_(unit)#Erlang_C_formula
 - Priority queueing background: https://en.wikipedia.org/wiki/Priority_queueing
 
+## Simulation Architecture (Diagram)
+
+```mermaid
+flowchart TD
+    A[Synthea Synthetic Data] -->|generate| B[output/csv/encounters.csv]
+    B --> C[dataAnalysis.py]
+    C -->|stats & patterns| D[dashboard.py]
+    B --> E[simulation/simulation.py]
+    E -->|priority mapping + time compression| F[SimPy Engine (PriorityResource, c servers)]
+    F --> G[Simulation Results]
+    D --> H[analytics_summary.json]
+    G --> H
+
+    subgraph Preprocessing & Analytics
+      B
+      C
+      D
+      H
+    end
+
+    subgraph Discrete-Event Simulation
+      E
+      F
+      G
+    end
+
+    classDef file fill:#e8f0fe,stroke:#4976f2,color:#1a3a8a
+    classDef proc fill:#e6f4ea,stroke:#34a853,color:#0b4b1f
+    class B,H file
+    class C,D,E,F,G proc
+```
+
+Legend:
+- Data source: `output/csv/encounters.csv`
+- Analysis pipeline: `simulation/dataAnalysis.py` → `simulation/dashboard.py` → `analytics_summary.json`
+- Simulation pipeline: `simulation/simulation.py` → SimPy engine (non‑preemptive priorities, c servers)
+
 ### NHS relevance
 - __Policy context__: NHS EDs use validated triage systems; MTS is widely adopted across the UK and Europe (see NHS England guidance above).
 - __Operational impact__: Modeling non‑preemptive priority queues with MTS targets allows analysis of breach rates by acuity, peak‑period staffing needs, and service‑time variability—key to meeting access targets and improving patient flow.
