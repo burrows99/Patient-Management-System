@@ -1,0 +1,14 @@
+{
+  "name": "nhs-moa-triage-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Utilities and compose setup for generating and reading Synthea datasets",
+  "license": "MIT",
+  "main": "utils/patientData.js",
+  "scripts": {
+    "patient": "node utils/patientData.js"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6"
+  }
+}
