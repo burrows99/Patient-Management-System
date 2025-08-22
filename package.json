@@ -6,7 +6,9 @@
   "license": "MIT",
   "main": "utils/patientData.js",
   "scripts": {
-    "patient": "node utils/patientData.js"
+    "patient": "node utils/patientData.js",
+    "simulate": "python utils/queue_simulation.py",
+    "simulate-js": "node utils/queueSimulation.js"
   },
   "dependencies": {
     "csv-parse": "^5.5.6"

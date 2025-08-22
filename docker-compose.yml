@@ -4,6 +4,6 @@ services:
     volumes:
       - ./output:/output
     command: [
-      "-p", "${PATIENT_COUNT}",
+      "-p", "100",
       "--exporter.csv.export=true"
     ]
