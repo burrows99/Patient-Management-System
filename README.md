@@ -195,3 +195,90 @@ Legend:
 - Explore additional Synthea flags/modules as needed.
  - Extend priority mapping and calibration in `simulation/simulation.py` using your local clinical policies.
  - Parameterize staffing rules and utilization targets in `simulation/dashboard.py` for scenario testing.
+
+---
+
+## Future Scope: Langflow Mixture of Agents
+
+Build a Langflow pipeline that generates simulation-ready triage and staffing plans using a mixture-of-agents (MoA) design. The simulation then consumes the agent output to run scenarios at scale.
+
+### Approach
+- __System prompt agents__
+  - __Data Curator Agent__: validates and summarizes `encounters.csv` slices; outputs clean feature signals (arrival bursts, encounterclass mix, service-time priors).
+  - __Clinical Triage Agent__: maps encounter text to MTS-like priorities using discriminator keywords and contextual rules; ensures safety defaults.
+  - __Ops Planner Agent__: proposes compression window, server counts, and stress-test sets using M/M/c heuristics and policy targets.
+  - __Verifier Agent__: checks internal consistency, constraints (e.g., P1 wait=0), and emits JSON conforming to schema.
+
+- __Routing and aggregation__
+  - Curator → Triage and Ops run in parallel.
+  - Verifier merges results and enforces schema.
+  - Optional feedback loop if constraints fail.
+
+### Architecture (Langflow)
+
+```mermaid
+flowchart TD
+    SRC[encounters.csv slice] --> CUR[Data Curator]
+    CUR --> TRI[Clinical Triage]
+    CUR --> OPS[Ops Planner]
+    TRI --> VER[Verifier]
+    OPS --> VER
+    VER --> OUT[langflow_output.json]
+```
+
+### Output schema (consumed by simulation)
+
+```json
+{
+  "version": "1.0",
+  "window": {
+    "start": "2020-08-31T02:07:21Z",
+    "end": "2020-08-31T23:06:01Z",
+    "compress_to": "8hours"
+  },
+  "priority_mapping": {
+    "emergency": {"P1": 0.2, "P2": 0.5, "P3": 0.3},
+    "urgentcare": {"P2": 0.3, "P3": 0.5, "P4": 0.2},
+    "ambulatory": {"P3": 0.3, "P4": 0.5, "P5": 0.2},
+    "outpatient": {"P3": 0.2, "P4": 0.6, "P5": 0.2},
+    "wellness": {"P4": 0.4, "P5": 0.6},
+    "inpatient": {"P2": 0.2, "P3": 0.6, "P4": 0.2}
+  },
+  "staffing": {
+    "servers": 3,
+    "utilization_target": 0.8,
+    "stress": [2, 4, 6]
+  },
+  "constraints": {
+    "p1_wait_max_min": 0,
+    "p2_wait_max_min": 10,
+    "p3_wait_max_min": 60,
+    "p4_wait_max_min": 120,
+    "p5_wait_max_min": 240
+  }
+}
+```
+
+### How the simulation consumes this
+- __File input__: Save Langflow output to `output/langflow_output.json`.
+- __Simulation hook__: Extend `simulation/simulation.py` to accept `--config output/langflow_output.json`.
+  - Parse `window` to select and compress time slice.
+  - Use `priority_mapping` to sample per-encounter priority.
+  - Apply `staffing.servers` to set SimPy `PriorityResource` capacity.
+  - Validate against `constraints` and log breaches.
+
+Minimal CLI example (planned):
+```
+python simulation/simulation.py --config=output/langflow_output.json --limit=200
+```
+
+### Scaling to hundreds of patients quickly
+- __Batching__: Chunk encounters by day or hour; process each chunk through Langflow in parallel; concatenate JSONs before simulation.
+- __Asynchronous requests__: Use Langflow REST with async workers and a job queue; backoff on rate limits.
+- __Deterministic prompts__: Fix temperature and use few-shot exemplars to minimize retries.
+- __Caching__: Hash inputs (text, encounterclass mix); reuse prior agent outputs for identical or similar chunks.
+- __Lightweight paths__: Only send minimal features (class, key terms, times) to agents; keep bulk data local.
+- __Vector prefilter__: Embed reasons/descriptions once; retrieve nearest exemplars to guide Triage agent without large prompts.
+- __Fail-open rules__: If an agent times out, fall back to policy defaults (e.g., emergency→P2) so the simulation proceeds.
+
+This MoA pipeline enables rapid, policy-aligned scenario generation while preserving the discrete-event simulation as the single source of truth for system dynamics.
