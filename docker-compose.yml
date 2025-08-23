@@ -12,3 +12,44 @@ services:
       "--generate.lookup_tables", "true",
       "Massachusetts"
     ]
+    networks:
+      - triage-network
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - triage-network
+    # No healthcheck as per official setup
+    # The service will be ready when the API is responsive
+
+  comparison:
+    build: .
+    volumes:
+      - .:/app
+      - ./output:/app/output
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      synthea:
+        condition: service_completed_successfully
+      ollama:
+        condition: service_started
+    networks:
+      - triage-network
+    command: >
+      sh -c "chmod +x /app/init_ollama.sh && 
+             /app/init_ollama.sh && 
+             python -m pip install -r requirements.txt && 
+             python -m simulation.compare_triage_systems"
+
+networks:
+  triage-network:
+    driver: bridge
+
+volumes:
+  ollama_data:

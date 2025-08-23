@@ -1,0 +1,431 @@
+[2025-08-23 12:15:27,137] [INFO] Starting triage system comparison...
+[2025-08-23 12:15:27,139] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:15:27,276] [ERROR] Simulation error
+Traceback (most recent call last):
+  File "/app/simulation/simulation.py", line 55, in run_simulation
+    encounters = svc_load_and_prepare_encounters(
+  File "/app/simulation/services/encounter_loader.py", line 69, in load_and_prepare_encounters
+    priority = ManchesterTriageSystem.assign_priority(
+  File "/app/simulation/domain/manchester.py", line 72, in assign_priority
+    if not self.PRIORITIES:
+AttributeError: 'str' object has no attribute 'PRIORITIES'
+[2025-08-23 12:15:27,281] [INFO] MTA simulation completed in 0.14 seconds
+[2025-08-23 12:15:27,282] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:15:27,381] [ERROR] Simulation error
+Traceback (most recent call last):
+  File "/app/simulation/simulation.py", line 55, in run_simulation
+    encounters = svc_load_and_prepare_encounters(
+  File "/app/simulation/services/encounter_loader.py", line 69, in load_and_prepare_encounters
+    priority = ManchesterTriageSystem.assign_priority(
+  File "/app/simulation/domain/manchester.py", line 72, in assign_priority
+    if not self.PRIORITIES:
+AttributeError: 'str' object has no attribute 'PRIORITIES'
+[2025-08-23 12:15:27,385] [INFO] OLLAMA simulation completed in 0.10 seconds
+[2025-08-23 12:15:28,443] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:15:28,444] [INFO] Comparison completed at: 2025-08-23T12:15:27.385943
+[2025-08-23 12:15:28,444] [INFO] 
+Total Patients:
+[2025-08-23 12:15:28,445] [INFO]   MTA: 0.00
+[2025-08-23 12:15:28,445] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:15:28,445] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:15:28,446] [INFO]   MTA: 0.00
+[2025-08-23 12:15:28,446] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:15:28,447] [INFO] 
+Breach Rate:
+[2025-08-23 12:15:28,447] [INFO]   MTA: 0.00
+[2025-08-23 12:15:28,448] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:15:28,448] [INFO] 
+Simulation Durations:
+[2025-08-23 12:15:28,448] [INFO]   MTA: 0.14 seconds
+[2025-08-23 12:15:28,449] [INFO]   OLLAMA: 0.10 seconds
+[2025-08-23 12:15:28,449] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:22:45,785] [INFO] Starting triage system comparison...
+[2025-08-23 12:22:45,785] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:22:45,857] [INFO] Using MTA triage system
+[2025-08-23 12:22:45,872] [ERROR] Simulation error
+Traceback (most recent call last):
+  File "/app/simulation/simulation.py", line 115, in run_simulation
+    for p, info in ManchesterTriageSystem.PRIORITIES.items()
+NameError: name 'ManchesterTriageSystem' is not defined
+[2025-08-23 12:22:45,873] [INFO] MTA simulation completed in 0.09 seconds
+[2025-08-23 12:22:45,873] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:22:45,925] [INFO] Using OLLAMA triage system
+[2025-08-23 12:22:45,925] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:22:45,934] [ERROR] Simulation error
+Traceback (most recent call last):
+  File "/app/simulation/simulation.py", line 115, in run_simulation
+    for p, info in ManchesterTriageSystem.PRIORITIES.items()
+NameError: name 'ManchesterTriageSystem' is not defined
+[2025-08-23 12:22:45,935] [INFO] OLLAMA simulation completed in 0.06 seconds
+[2025-08-23 12:22:46,151] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:22:46,151] [INFO] Comparison completed at: 2025-08-23T12:22:45.935251
+[2025-08-23 12:22:46,151] [INFO] 
+Total Patients:
+[2025-08-23 12:22:46,151] [INFO]   MTA: 0.00
+[2025-08-23 12:22:46,151] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:22:46,151] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:22:46,151] [INFO]   MTA: 0.00
+[2025-08-23 12:22:46,152] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:22:46,152] [INFO] 
+Breach Rate:
+[2025-08-23 12:22:46,152] [INFO]   MTA: 0.00
+[2025-08-23 12:22:46,152] [INFO]   OLLAMA: 0.00
+[2025-08-23 12:22:46,152] [INFO] 
+Simulation Durations:
+[2025-08-23 12:22:46,152] [INFO]   MTA: 0.09 seconds
+[2025-08-23 12:22:46,152] [INFO]   OLLAMA: 0.06 seconds
+[2025-08-23 12:22:46,152] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:25:24,379] [INFO] Starting triage system comparison...
+[2025-08-23 12:25:24,380] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:25:24,477] [INFO] Using MTA triage system
+[2025-08-23 12:25:24,502] [INFO] MTA simulation completed in 0.12 seconds
+[2025-08-23 12:25:24,503] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:25:24,569] [INFO] Using OLLAMA triage system
+[2025-08-23 12:25:24,570] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:25:24,583] [INFO] OLLAMA simulation completed in 0.08 seconds
+[2025-08-23 12:25:24,884] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:25:24,884] [INFO] Comparison completed at: 2025-08-23T12:25:24.585451
+[2025-08-23 12:25:24,885] [INFO] 
+Total Patients:
+[2025-08-23 12:25:24,885] [INFO]   MTA: 58.00
+[2025-08-23 12:25:24,885] [INFO]   OLLAMA: 58.00
+[2025-08-23 12:25:24,885] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:25:24,885] [INFO]   MTA: 82.30
+[2025-08-23 12:25:24,885] [INFO]   OLLAMA: 82.30
+[2025-08-23 12:25:24,885] [INFO] 
+Breach Rate:
+[2025-08-23 12:25:24,885] [INFO]   MTA: 0.38
+[2025-08-23 12:25:24,886] [INFO]   OLLAMA: 0.38
+[2025-08-23 12:25:24,886] [INFO] 
+Simulation Durations:
+[2025-08-23 12:25:24,886] [INFO]   MTA: 0.12 seconds
+[2025-08-23 12:25:24,886] [INFO]   OLLAMA: 0.08 seconds
+[2025-08-23 12:25:24,886] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:31:48,355] [INFO] Starting triage system comparison...
+[2025-08-23 12:31:48,356] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:31:48,446] [INFO] Using MTA triage system
+[2025-08-23 12:31:48,475] [INFO] MTA simulation completed in 0.12 seconds
+[2025-08-23 12:31:48,475] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:31:48,543] [INFO] Using OLLAMA triage system
+[2025-08-23 12:31:48,544] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:31:48,557] [INFO] OLLAMA simulation completed in 0.08 seconds
+[2025-08-23 12:31:48,787] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:31:48,787] [INFO] Comparison completed at: 2025-08-23T12:31:48.557844
+[2025-08-23 12:31:48,787] [INFO] 
+Total Patients:
+[2025-08-23 12:31:48,787] [INFO]   MTA: 100.00
+[2025-08-23 12:31:48,787] [INFO]   OLLAMA: 100.00
+[2025-08-23 12:31:48,788] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:31:48,788] [INFO]   MTA: 705.70
+[2025-08-23 12:31:48,788] [INFO]   OLLAMA: 705.70
+[2025-08-23 12:31:48,788] [INFO] 
+Breach Rate:
+[2025-08-23 12:31:48,788] [INFO]   MTA: 0.88
+[2025-08-23 12:31:48,789] [INFO]   OLLAMA: 0.88
+[2025-08-23 12:31:48,789] [INFO] 
+Simulation Durations:
+[2025-08-23 12:31:48,789] [INFO]   MTA: 0.12 seconds
+[2025-08-23 12:31:48,789] [INFO]   OLLAMA: 0.08 seconds
+[2025-08-23 12:31:48,789] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:38:03,469] [INFO] Starting triage system comparison...
+[2025-08-23 12:38:03,471] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:38:03,523] [INFO] Using MTA triage system
+[2025-08-23 12:38:03,538] [INFO] MTA simulation completed in 0.07 seconds
+[2025-08-23 12:38:03,538] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:38:03,573] [INFO] Using OLLAMA triage system
+[2025-08-23 12:38:03,573] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:38:03,573] [INFO] Ollama fallback disabled: True
+[2025-08-23 12:38:03,585] [INFO] OLLAMA simulation completed in 0.05 seconds
+[2025-08-23 12:38:03,802] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:38:03,803] [INFO] Comparison completed at: 2025-08-23T12:38:03.586234
+[2025-08-23 12:38:03,803] [INFO] 
+Total Patients:
+[2025-08-23 12:38:03,803] [INFO]   MTA: 91.00
+[2025-08-23 12:38:03,803] [INFO]   OLLAMA: 91.00
+[2025-08-23 12:38:03,803] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:38:03,803] [INFO]   MTA: 156.80
+[2025-08-23 12:38:03,803] [INFO]   OLLAMA: 156.80
+[2025-08-23 12:38:03,803] [INFO] 
+Breach Rate:
+[2025-08-23 12:38:03,803] [INFO]   MTA: 0.64
+[2025-08-23 12:38:03,804] [INFO]   OLLAMA: 0.64
+[2025-08-23 12:38:03,804] [INFO] 
+Simulation Durations:
+[2025-08-23 12:38:03,804] [INFO]   MTA: 0.07 seconds
+[2025-08-23 12:38:03,804] [INFO]   OLLAMA: 0.05 seconds
+[2025-08-23 12:38:03,804] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:40:33,242] [INFO] Starting triage system comparison...
+[2025-08-23 12:40:33,243] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:40:33,304] [INFO] Using MTA triage system
+[2025-08-23 12:40:33,331] [INFO] MTA simulation completed in 0.09 seconds
+[2025-08-23 12:40:33,333] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:40:33,404] [INFO] Using OLLAMA triage system
+[2025-08-23 12:40:33,404] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:40:33,404] [INFO] Ollama fallback disabled: True
+[2025-08-23 12:40:33,405] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,405] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,405] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,406] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,407] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,407] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,407] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,408] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,408] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,408] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,408] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,409] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,410] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,411] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,411] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,411] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,411] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,412] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,412] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,412] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,412] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,412] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,417] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff7958c370>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,418] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff79584220>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,419] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff79584a30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,419] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,419] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,419] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,419] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,420] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,421] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,422] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,423] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff794c60a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,424] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,425] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,425] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,425] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,425] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,425] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,426] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,426] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,426] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,426] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,428] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff79584df0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,428] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,428] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,428] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,429] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,429] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,429] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,431] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff794c0b80>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:40:33,431] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,431] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,431] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,432] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,432] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,432] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:40:33,441] [INFO] OLLAMA simulation completed in 0.11 seconds
+[2025-08-23 12:40:33,976] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:40:33,977] [INFO] Comparison completed at: 2025-08-23T12:40:33.442229
+[2025-08-23 12:40:33,977] [INFO] 
+Total Patients:
+[2025-08-23 12:40:33,977] [INFO]   MTA: 91.00
+[2025-08-23 12:40:33,978] [INFO]   OLLAMA: 91.00
+[2025-08-23 12:40:33,978] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:40:33,978] [INFO]   MTA: 156.80
+[2025-08-23 12:40:33,978] [INFO]   OLLAMA: 148.10
+[2025-08-23 12:40:33,978] [INFO] 
+Breach Rate:
+[2025-08-23 12:40:33,978] [INFO]   MTA: 0.64
+[2025-08-23 12:40:33,979] [INFO]   OLLAMA: 0.75
+[2025-08-23 12:40:33,979] [INFO] 
+Simulation Durations:
+[2025-08-23 12:40:33,979] [INFO]   MTA: 0.09 seconds
+[2025-08-23 12:40:33,979] [INFO]   OLLAMA: 0.11 seconds
+[2025-08-23 12:40:33,979] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 12:46:19,796] [INFO] Starting triage system comparison...
+[2025-08-23 12:46:19,797] [INFO] Running simulation with MTA triage system...
+[2025-08-23 12:46:19,886] [INFO] Using MTA triage system
+[2025-08-23 12:46:19,907] [INFO] MTA simulation completed in 0.11 seconds
+[2025-08-23 12:46:19,908] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 12:46:19,951] [INFO] Using OLLAMA triage system
+[2025-08-23 12:46:19,951] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 12:46:19,952] [INFO] Ollama fallback disabled: True
+[2025-08-23 12:46:19,952] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,953] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,953] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,953] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,953] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,953] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,957] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f6e370>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,960] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f6ed60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,960] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,962] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f75640>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,962] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,962] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,962] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,962] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,963] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,963] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,963] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,963] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,964] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,964] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,964] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,965] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,966] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f75d90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,966] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,967] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,967] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,967] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,968] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,968] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,968] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,970] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f75c70>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,970] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,970] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,970] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,971] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,973] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f75490>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,973] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,973] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,974] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,974] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,975] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d81fd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,975] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,976] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,976] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,976] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,977] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f6ed60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,978] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f6e220>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,980] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d58940>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,980] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,980] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,980] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,981] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,982] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f6ed90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,983] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d81fd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,984] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d8d7f0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,984] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,985] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d58d90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,985] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,985] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,986] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,986] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,986] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,987] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,987] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,987] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,988] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,988] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,988] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,989] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,989] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,991] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4f75a30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,993] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d872e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,993] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,993] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,994] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,994] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,994] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,997] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d81a60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:19,997] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,998] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,998] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,998] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,999] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,999] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:19,999] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,000] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,000] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,000] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,000] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,001] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,003] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffffa4d8adf0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 12:46:20,003] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,003] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,003] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,004] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,004] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,004] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,005] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,005] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,006] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 12:46:20,016] [INFO] OLLAMA simulation completed in 0.11 seconds
+[2025-08-23 12:46:20,278] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 12:46:20,278] [INFO] Comparison completed at: 2025-08-23T12:46:20.016953
+[2025-08-23 12:46:20,279] [INFO] 
+Total Patients:
+[2025-08-23 12:46:20,279] [INFO]   MTA: 73.00
+[2025-08-23 12:46:20,279] [INFO]   OLLAMA: 81.00
+[2025-08-23 12:46:20,279] [INFO] 
+Avg Wait Time:
+[2025-08-23 12:46:20,280] [INFO]   MTA: 686.20
+[2025-08-23 12:46:20,280] [INFO]   OLLAMA: 577.00
+[2025-08-23 12:46:20,280] [INFO] 
+Breach Rate:
+[2025-08-23 12:46:20,280] [INFO]   MTA: 0.80
+[2025-08-23 12:46:20,280] [INFO]   OLLAMA: 0.81
+[2025-08-23 12:46:20,280] [INFO] 
+Simulation Durations:
+[2025-08-23 12:46:20,281] [INFO]   MTA: 0.11 seconds
+[2025-08-23 12:46:20,281] [INFO]   OLLAMA: 0.11 seconds
+[2025-08-23 12:46:20,281] [INFO] 
+Detailed results saved to the output directory.

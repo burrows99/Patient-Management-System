@@ -64,10 +64,15 @@ def load_and_prepare_encounters(
     # Compress timeline for simulation horizon
     encounters = compress_encounter_times(encounters, compression_hours, debug)
 
+    # Use an instance of the ManchesterTriageSystem to assign priorities
+    triage_system = ManchesterTriageSystem()
     priority_counts = {p: 0 for p in range(1, 6)}
     for encounter in encounters:
-        priority = ManchesterTriageSystem.assign_priority(
-            encounter["encounter_class"], encounter["reason_description"]
+        priority = triage_system.assign_priority(
+            {
+                "encounter_class": encounter["encounter_class"],
+                "reason_description": encounter["reason_description"],
+            }
         )
         encounter["priority"] = priority
         priority_counts[priority] += 1

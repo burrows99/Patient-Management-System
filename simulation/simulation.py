@@ -13,15 +13,14 @@ import sys
 import logging
 import random
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional, Any, Tuple, Union
 import pandas as pd
 from simulation.services.encounter_loader import (
     load_and_prepare_encounters as svc_load_and_prepare_encounters,
 )
-from simulation.engine.simulator import (
-    CompressedMTSSimulation as EngineCompressedMTSSimulation,
-)
+from simulation.engine.simulator import CompressedMTSSimulation
 from simulation.domain.manchester import ManchesterTriageSystem
+from simulation.domain.triage_factory import create_triage_system, TriageSystemType
 from simulation.utils.time_utils import (
     parse_duration_to_hours,
     compute_horizon,
@@ -30,10 +29,13 @@ from simulation.utils.time_utils import (
 
 
 def run_simulation(servers: int = 3,
-                   encounter_class: str | None = '',
+                   encounter_class: Optional[str] = '',
                    limit: int = 100,
                    compress_to: str = '8hours',
-                   debug: bool = False) -> Dict:
+                   debug: bool = False,
+                   triage_system: TriageSystemType = "mta",
+                   ollama_model: Optional[str] = None,
+                   disable_fallback: bool = False) -> Dict:
     """Run the time-compressed MTS simulation and return the report dict."""
     # Configure logging based on debug
     logging.basicConfig(
@@ -64,6 +66,12 @@ def run_simulation(servers: int = 3,
             logging.warning("No encounters found.")
             return {}
 
+        # If using Ollama triage, ensure priorities are not pre-assigned by MTA
+        if triage_system == "ollama":
+            for enc in encounters:
+                if "priority" in enc:
+                    del enc["priority"]
+
         # Set simulation horizon via utils
         horizon = compute_horizon(encounters)
 
@@ -71,8 +79,23 @@ def run_simulation(servers: int = 3,
         logging.debug(f"  Horizon: {humanize_minutes(horizon)}")
         logging.debug(f"  Servers: {servers}")
 
-        # Run simulation
-        simulation = EngineCompressedMTSSimulation(servers)
+        # Initialize the appropriate triage system
+        triage_kwargs = {}
+        if triage_system == "ollama":
+            if ollama_model:
+                triage_kwargs["model_name"] = ollama_model
+            triage_kwargs["disable_fallback"] = disable_fallback
+            
+        triage = create_triage_system(triage_system, **triage_kwargs)
+        
+        if debug:
+            logging.info(f"Using {triage_system.upper()} triage system")
+            if triage_system == "ollama":
+                logging.info(f"Ollama model: {ollama_model}")
+                logging.info(f"Ollama fallback disabled: {disable_fallback}")
+        
+        # Run simulation with the selected triage system
+        simulation = CompressedMTSSimulation(servers=servers, triage_system=triage)
         results = simulation.run_simulation(encounters, horizon)
 
         # Aggregate with pandas
@@ -161,25 +184,26 @@ def run_simulation(servers: int = 3,
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Time-compressed Manchester Triage System simulation')
-    parser.add_argument('--servers', type=int, default=3,
-                       help='Number of clinical staff (default: 3)')
-    parser.add_argument('--class', dest='encounter_class', type=str, default='',
-                       help='Filter by encounter class')
-    parser.add_argument('--limit', type=int, default=100,
-                       help='Limit number of encounters (default: 100)')
-    parser.add_argument('--compressTo', type=str, default='8hours',
-                       help='Compress timeline to: Nhours, Ndays (default: 8hours)')
-    parser.add_argument('--debug', action='store_true',
-                       help='Show debug information')
-    
+    parser = argparse.ArgumentParser(description='Run MTS simulation with time compression.')
+    parser.add_argument('--servers', type=int, default=3, help='Number of servers (default: 3)')
+    parser.add_argument('--class', dest='encounter_class', default='', help='Filter by encounter class')
+    parser.add_argument('--limit', type=int, default=100, help='Max number of encounters (default: 100)')
+    parser.add_argument('--compressTo', default='8hours', help='Compress to duration (e.g., 8hours, 1day)')
+    parser.add_argument('--triage', choices=["mta", "ollama"], default="mta", 
+                       help='Triage system to use (mta or ollama)')
+    parser.add_argument('--ollama-model', default='mistral:7b-instruct',
+                       help='Ollama model to use (default: mistral:7b-instruct)')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
+
     report = run_simulation(
         servers=args.servers,
         encounter_class=args.encounter_class,
         limit=args.limit,
         compress_to=args.compressTo,
         debug=args.debug,
+        triage_system=args.triage,
+        ollama_model=args.ollama_model if args.triage == "ollama" else None
     )
 
     if not report:
