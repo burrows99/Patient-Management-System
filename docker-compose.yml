@@ -5,5 +5,10 @@ services:
       - ./output:/output
     command: [
       "-p", "100",
-      "--exporter.csv.export=true"
+      "--exporter.csv.export=true",
+      "--exporter.fhir.export", "false",
+      "--exporter.baseDirectory", "/output",
+      "--generate.demographics.socioeconomic", "true",
+      "--generate.lookup_tables", "true",
+      "Massachusetts"
     ]
