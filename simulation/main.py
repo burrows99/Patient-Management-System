@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--servers', type=int, default=None, help='Override server count (if omitted, uses recommended)')
     parser.add_argument('--debug', action='store_true', help='Show debug information for simulation')
     parser.add_argument('--plots', action='store_true', help='Generate plots for key metrics and save to output/plots')
+    parser.add_argument('--plotsDir', type=str, default=None, help='Directory to save plots (default: output/plots)')
     args = parser.parse_args()
 
     # Locate CSV used by both analytics and simulation
@@ -71,7 +72,7 @@ def main():
 
     # 4) Optional: generate plots
     if args.plots and report:
-        plots_dir = script_dir.parent / 'output' / 'plots'
+        plots_dir = Path(args.plotsDir) if args.plotsDir else (script_dir.parent / 'output' / 'plots')
         paths = []
         try:
             paths += plot_priority_breakdown(report, plots_dir)

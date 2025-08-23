@@ -78,6 +78,7 @@ pip install -r requirements.txt
   python3 -m simulation.main --class=emergency           # filter by encounter class
   python3 -m simulation.main --limit=200 --debug         # larger sample + debug logs
   python3 -m simulation.main --plots                     # also save charts to output/plots/
+  python3 -m simulation.main --plots --plotsDir=reports/plots  # custom output folder
   ```
   This reads `output/csv/encounters.csv`, prints a comprehensive analytics report, saves a summary to `analytics_summary.json`, and then runs the simulation with the selected parameters.
 
@@ -90,6 +91,7 @@ pip install -r requirements.txt
 ### Plots and visual reports
 
 - Use the `--plots` flag with the unified entrypoint to generate PNG charts summarizing key metrics. Files are saved to `output/plots/`:
+ - You can set a custom directory via `--plotsDir <path>`.
   - `patients_per_priority.png` — bar chart of patients by MTS priority
   - `breach_rate_by_priority.png` — breach percentage by priority (if available)
   - `wait_times_by_priority.png` — average and P95 wait times by priority
@@ -97,7 +99,7 @@ pip install -r requirements.txt
 
 - Example:
   ```bash
-  python3 -m simulation.main --servers=4 --compressTo=8hours --plots
+  python3 -m simulation.main --servers=4 --compressTo=8hours --plots --plotsDir=output/plots
   ```
   Plots are produced by `simulation/utils/plotting.py` using seaborn/matplotlib.
 
