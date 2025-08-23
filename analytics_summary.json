@@ -1,9 +1,19 @@
 {
-  "generated_at": "2025-08-22T22:01:11.950016",
-  "dataset_size": 3444,
+  "generated_at": "2025-08-23T09:59:39.884376",
+  "dataset_size": 4389,
   "date_range": {
-    "start": "1949",
+    "start": "1943",
     "end": "2025"
   },
   "key_metrics": {
-    "peak_hour": 
+    "peak_hour": 13,
+    "busiest_day": "Friday",
+    "recommended_servers": 5,
+    "daily_max_volume": 5,
+    "avg_service_time_min": 47.6
+  },
+  "recommendations": {
+    "optimal_simulation_date": "2020-11-18",
+    "recommended_servers": 2
+  }
+}

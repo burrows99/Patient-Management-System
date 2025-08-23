@@ -8,6 +8,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 - __[queue simulation]__ Discrete-event simulations using `simpy` over real encounter timelines: `utils/queue_simulation.py`
 - __[time-compressed MTS sim]__ Manchester Triage System-based priority queue with time compression for sparse data: `simulation/simulation.py`
 - __[analytics dashboard]__ Comprehensive analysis and recommendations for capacity planning: `simulation/dashboard.py`
+- __[unified entrypoint]__ One command to run analytics then simulation: `python3 -m simulation.main`
 
 ## Prerequisites
 - Docker installed and running
@@ -21,6 +22,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
   - `output/csv/` — CSV exports
 - `utils/queue_simulation.py` — basic SimPy queue model over encounters
 - `simulation/simulation.py` — time-compressed MTS priority simulation
+- `simulation/main.py` — unified entrypoint: analytics → `analytics_summary.json` → simulation
 - `simulation/dataAnalysis.py` — dataset exploration helpers
 - `simulation/dashboard.py` — end-to-end analytics and recommendations
 
@@ -65,11 +67,24 @@ pip install -r requirements.txt
   ```
   Outputs JSON with `avg_wait_min`, `avg_time_in_system_min`, `utilization`, etc. See `utils/queue_simulation.py`.
 
-- __[Time-compressed MTS simulation]__ priority queue with Manchester Triage weights and timelines compressed to a target window:
+- __[Unified entrypoint]__ Recommended: runs the analytics dashboard, writes `analytics_summary.json`, then runs the simulation using the recommended servers unless overridden.
   ```bash
-  python simulation/simulation.py --servers=3 --compressTo=8hours --limit=100 --debug
+  # Run analytics then simulation (module form ensures package imports work)
+  python3 -m simulation.main
+
+  # Examples
+  python3 -m simulation.main --servers=4                 # override server count
+  python3 -m simulation.main --compressTo=12hours        # gentler compression
+  python3 -m simulation.main --class=emergency           # filter by encounter class
+  python3 -m simulation.main --limit=200 --debug         # larger sample + debug logs
   ```
-  Reads `output/csv/encounters.csv`, assigns MTS priorities based on encounter class and reason, compresses long time spans to simulate denser queues, and reports priority-level breach rates and P95 waits. See `simulation/simulation.py` (`ManchesterTriageSystem`, `CompressedMTSSimulation`).
+  This reads `output/csv/encounters.csv`, prints a comprehensive analytics report, saves a summary to `analytics_summary.json`, and then runs the simulation with the selected parameters.
+
+- __[Time-compressed MTS simulation (direct)]__ You can still run the simulator directly if needed:
+  ```bash
+  python3 simulation/simulation.py --servers=3 --compressTo=8hours --limit=100 --debug
+  ```
+  See `simulation/simulation.py` (`ManchesterTriageSystem`, `CompressedMTSSimulation`).
 
 - __[Dataset analysis helpers]__ overview stats and parameter suggestions:
   ```bash
@@ -78,7 +93,7 @@ pip install -r requirements.txt
 
 - __[Comprehensive analytics dashboard]__ prints a full report and writes `analytics_summary.json`:
   ```bash
-  python simulation/dashboard.py
+  python3 simulation/dashboard.py
   ```
 
 ## Troubleshooting
@@ -87,6 +102,17 @@ pip install -r requirements.txt
   mkdir -p output
   ```
 - Docker cannot find image: ensure you’re online; Docker will pull `intersystemsdc/irisdemo-base-synthea:version-1.3.4` automatically.
+
+- Module imports error: `ModuleNotFoundError: No module named 'simulation'`
+  - Always run the unified entrypoint as a module from the repo root:
+    ```bash
+    python3 -m simulation.main
+    ```
+  - Running `python simulation/main.py` may not treat `simulation/` as a package in some environments.
+
+- Data not found error for `encounters.csv`
+  - Ensure data exists at `output/csv/encounters.csv`.
+  - Path handling in `simulation/dashboard.py` was fixed to avoid `output/output/...`. If you previously saw a doubled path, pull latest and re-run.
 
 ## References (selected)
 

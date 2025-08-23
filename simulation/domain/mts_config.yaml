@@ -1,0 +1,41 @@
+priorities:
+  1: { name: Immediate, color: Red, max_wait_min: 0, weight: 0.05 }
+  2: { name: Very Urgent, color: Orange, max_wait_min: 10, weight: 0.15 }
+  3: { name: Urgent, color: Yellow, max_wait_min: 60, weight: 0.30 }
+  4: { name: Standard, color: Green, max_wait_min: 120, weight: 0.35 }
+  5: { name: Non-urgent, color: Blue, max_wait_min: 240, weight: 0.15 }
+
+encounter_priority_map:
+  emergency: [1, 2, 3]
+  ambulatory: [3, 4, 5]
+  wellness: [4, 5]
+  outpatient: [3, 4, 5]
+  inpatient: [2, 3, 4]
+  urgentcare: [2, 3, 4]
+
+default_priority: 4
+
+keyword_rules:
+  high:
+    terms:
+      - cardiac arrest
+      - stroke
+      - trauma
+      - bleeding
+      - fracture
+      - chest pain
+      - difficulty breathing
+      - unconscious
+      - emergency
+    assign: [1, 2]
+    threshold: 90
+  medium:
+    terms:
+      - pain
+      - infection
+      - fever
+      - injury
+      - acute
+      - urgent
+    assign: [2, 3]
+    threshold: 85

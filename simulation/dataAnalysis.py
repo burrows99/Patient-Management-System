@@ -7,75 +7,47 @@ import pandas as pd
 from datetime import datetime
 import sys
 from pathlib import Path
+from simulation.utils.data_utils import load_encounters_df
+from simulation.utils.analytics import (
+    temporal_patterns,
+    capacity_planning,
+    simulation_optimization,
+)
+from simulation.utils.format_utils import print_section, print_sim_commands
 
 def analyze_encounters(csv_path: str):
     """Analyze the encounters dataset"""
     
     try:
-        df = pd.read_csv(csv_path)
+        # Reuse standardized loader (parsing timestamps and features)
+        output_dir = Path(csv_path).parent.parent  # .../output
+        df = load_encounters_df(output_dir)
         print(f"Total encounters loaded: {len(df)}")
         print(f"Columns: {list(df.columns)}")
         
-        # Convert dates
-        df['START_DT'] = pd.to_datetime(df['START'])
-        df['STOP_DT'] = pd.to_datetime(df['STOP'])
-        
-        print(f"\n=== DATE ANALYSIS ===")
+        print_section("🗓️  DATE & TEMPORAL OVERVIEW")
         print(f"Date range: {df['START_DT'].min()} to {df['START_DT'].max()}")
-        print(f"Time span: {(df['START_DT'].max() - df['START_DT'].min()).days} days")
-        
-        # Year distribution
-        df['YEAR'] = df['START_DT'].dt.year
-        print(f"\n=== ENCOUNTERS BY YEAR ===")
-        year_counts = df['YEAR'].value_counts().sort_index()
-        for year, count in year_counts.items():
-            print(f"{year}: {count} encounters")
-        
-        # Encounter class distribution
-        print(f"\n=== ENCOUNTER TYPES ===")
-        class_counts = df['ENCOUNTERCLASS'].value_counts()
+        print(f"Time span (days): {(df['START_DT'].max() - df['START_DT'].min()).days}")
+
+        tp = temporal_patterns(df)
+        print(f"Peak hour: {tp['peak_hour']}:00")
+        print(f"Busiest day: {tp['busiest_day']}")
+        print(f"Peak month: {tp['peak_month']}")
+
+        print_section("🏷️  ENCOUNTER TYPES (top)")
+        class_counts = df['ENCOUNTERCLASS'].value_counts().head(10)
         for enc_class, count in class_counts.items():
-            print(f"{enc_class}: {count} encounters")
-        
-        # Monthly distribution (to find busy periods)
-        df['YEAR_MONTH'] = df['START_DT'].dt.to_period('M')
-        monthly_counts = df['YEAR_MONTH'].value_counts().sort_index()
-        
-        print(f"\n=== BUSIEST MONTHS (Top 10) ===")
-        top_months = monthly_counts.head(10)
-        for period, count in top_months.items():
-            print(f"{period}: {count} encounters")
-        
-        # Service time analysis
-        df['SERVICE_MIN'] = (df['STOP_DT'] - df['START_DT']).dt.total_seconds() / 60
-        df['SERVICE_MIN'] = df['SERVICE_MIN'].clip(lower=0, upper=480)  # Cap at 8 hours
-        
-        print(f"\n=== SERVICE TIME ANALYSIS ===")
-        print(f"Average service time: {df['SERVICE_MIN'].mean():.1f} minutes")
-        print(f"Median service time: {df['SERVICE_MIN'].median():.1f} minutes")
-        print(f"Service time range: {df['SERVICE_MIN'].min():.1f} - {df['SERVICE_MIN'].max():.1f} minutes")
-        
-        # Daily encounter patterns (find days with multiple encounters)
-        df['DATE'] = df['START_DT'].dt.date
-        daily_counts = df['DATE'].value_counts()
-        
-        print(f"\n=== DAILY PATTERNS ===")
-        print(f"Days with encounters: {len(daily_counts)}")
-        print(f"Average encounters per day: {daily_counts.mean():.2f}")
-        print(f"Max encounters in a single day: {daily_counts.max()}")
-        
-        # Find days with multiple encounters (good for simulation)
-        busy_days = daily_counts[daily_counts > 1].head(10)
-        if not busy_days.empty:
-            print(f"\n=== BUSY DAYS (Multiple Encounters) ===")
-            for date, count in busy_days.items():
-                encounters_that_day = df[df['DATE'] == date][['START', 'ENCOUNTERCLASS', 'DESCRIPTION']].head(5)
-                print(f"\n{date}: {count} encounters")
-                for _, row in encounters_that_day.iterrows():
-                    print(f"  {row['START'][:19]} | {row['ENCOUNTERCLASS']} | {row['DESCRIPTION'][:50]}...")
+            print(f"{enc_class}: {count}")
+
+        print_section("⏱️  SERVICE TIME SUMMARY")
+        print(f"Avg: {df['SERVICE_MIN'].mean():.1f} min | Median: {df['SERVICE_MIN'].median():.1f} min | Range: {df['SERVICE_MIN'].min():.1f}-{df['SERVICE_MIN'].max():.1f} min")
+
+        # Daily encounter patterns (kept for simulation suggestions)
+        daily_counts = df['START_DT'].dt.date.value_counts()
+        print(f"Days with encounters: {len(daily_counts)} | Max/day: {daily_counts.max()} | Avg/day: {daily_counts.mean():.2f}")
         
         # Patient distribution
-        print(f"\n=== PATIENT ANALYSIS ===")
+        print_section("🧍 PATIENT ANALYSIS")
         print(f"Unique patients: {df['PATIENT'].nunique()}")
         patient_encounters = df['PATIENT'].value_counts()
         print(f"Avg encounters per patient: {patient_encounters.mean():.1f}")
@@ -93,55 +65,25 @@ def suggest_simulation_parameters(df, daily_counts):
     if df is None or daily_counts.empty:
         return
     
-    print(f"\n=== SIMULATION RECOMMENDATIONS ===")
+    print_section("🚀 SIMULATION RECOMMENDATIONS")
     
-    # Find periods with reasonable activity
-    busy_days = daily_counts[daily_counts > 1]
-    
-    if busy_days.empty:
-        print("⚠️  No days with multiple encounters found.")
-        print("   Consider using --timeWindow=0 to use all data")
-        print("   Or artificially compress time windows for simulation")
-        
-        # Find the month with most encounters
-        df['YEAR_MONTH'] = df['START_DT'].dt.to_period('M')
-        monthly_counts = df['YEAR_MONTH'].value_counts()
-        busiest_month = monthly_counts.index[0]
-        busiest_count = monthly_counts.iloc[0]
-        
-        print(f"\n📅 Busiest month: {busiest_month} ({busiest_count} encounters)")
-        print(f"   Try: --timeWindow=0 --compressTime=daily")
-        
-    else:
-        busiest_day = daily_counts.index[0]
-        max_daily = daily_counts.iloc[0]
-        
-        print(f"📅 Busiest day: {busiest_day} ({max_daily} encounters)")
-        
-        # Get the actual datetime for that day
-        encounters_that_day = df[df['START_DT'].dt.date == busiest_day]
-        start_time = encounters_that_day['START_DT'].min()
-        
-        print(f"   Use specific date simulation starting from: {start_time}")
-        
-        # Time window recommendations
-        if max_daily >= 5:
-            print(f"✅ Good for single-day simulation: --timeWindow=1")
-        elif len(busy_days) >= 3:
-            print(f"✅ Use multi-day window: --timeWindow=7")
-        else:
-            print(f"⚠️  Limited daily activity. Consider --timeWindow=30")
-    
-    # Server recommendations based on encounter types
-    emergency_count = len(df[df['ENCOUNTERCLASS'] == 'emergency'])
-    if emergency_count > 0:
-        print(f"\n🏥 Emergency encounters: {emergency_count}")
-        print(f"   Recommended servers for emergency: --servers=2-4")
-    
-    wellness_count = len(df[df['ENCOUNTERCLASS'] == 'wellness'])
-    if wellness_count > 0:
-        print(f"🏥 Wellness encounters: {wellness_count}")
-        print(f"   Recommended servers for wellness: --servers=3-6")
+    # Quick busiest day signal
+    busiest_day = daily_counts.index[0]
+    max_daily = daily_counts.iloc[0]
+    print(f"📅 Busiest day: {busiest_day} ({max_daily} encounters)")
+
+    # Augment with shared analytics recommendations
+    print_section("➕ ADDITIONAL CAPACITY & OPTIMIZATION")
+    cap = capacity_planning(df)
+    print(f"Peak daily/hourly: {cap['daily_max']}/{cap['hourly_max']} | Avg svc: {cap['avg_service_time']:.1f} min")
+    print(f"Servers -> min: {cap['min_servers']} | rec: {cap['recommended_servers']}")
+    if cap.get('growth_rate') is not None:
+        print(f"Growth: {cap['growth_rate']:.1f}% | 1yr: {cap['projected_1yr']:.0f} | 3yr: {cap['projected_3yr']:.0f}")
+
+    sim = simulation_optimization(df)
+    if sim.get('optimal_date') is not None:
+        print(f"Optimal date: {sim['optimal_date']} | span: {sim.get('time_span_hours', 0.0):.1f}h | servers rec: {sim.get('recommended_servers', 2)}")
+        print_sim_commands()
 
 
 if __name__ == '__main__':
