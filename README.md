@@ -77,6 +77,7 @@ pip install -r requirements.txt
   python3 -m simulation.main --compressTo=12hours        # gentler compression
   python3 -m simulation.main --class=emergency           # filter by encounter class
   python3 -m simulation.main --limit=200 --debug         # larger sample + debug logs
+  python3 -m simulation.main --plots                     # also save charts to output/plots/
   ```
   This reads `output/csv/encounters.csv`, prints a comprehensive analytics report, saves a summary to `analytics_summary.json`, and then runs the simulation with the selected parameters.
 
@@ -85,6 +86,20 @@ pip install -r requirements.txt
   python3 simulation/simulation.py --servers=3 --compressTo=8hours --limit=100 --debug
   ```
   See `simulation/simulation.py` (`ManchesterTriageSystem`, `CompressedMTSSimulation`).
+
+### Plots and visual reports
+
+- Use the `--plots` flag with the unified entrypoint to generate PNG charts summarizing key metrics. Files are saved to `output/plots/`:
+  - `patients_per_priority.png` — bar chart of patients by MTS priority
+  - `breach_rate_by_priority.png` — breach percentage by priority (if available)
+  - `wait_times_by_priority.png` — average and P95 wait times by priority
+  - `overall_metrics.png` — overall breach %, average wait, and P95 wait
+
+- Example:
+  ```bash
+  python3 -m simulation.main --servers=4 --compressTo=8hours --plots
+  ```
+  Plots are produced by `simulation/utils/plotting.py` using seaborn/matplotlib.
 
 - __[Dataset analysis helpers]__ overview stats and parameter suggestions:
   ```bash

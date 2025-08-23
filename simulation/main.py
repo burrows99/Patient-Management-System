@@ -13,6 +13,10 @@ import json
 from simulation.dashboard import NHSTriageAnalytics
 from simulation.utils.format_utils import print_section, NpEncoder
 from simulation.simulation import run_simulation
+from simulation.utils.plotting import (
+    plot_priority_breakdown,
+    plot_overall_metrics,
+)
 
 
 def main():
@@ -22,6 +26,7 @@ def main():
     parser.add_argument('--compressTo', type=str, default='8hours', help='Compress timeline to: Nhours, Ndays')
     parser.add_argument('--servers', type=int, default=None, help='Override server count (if omitted, uses recommended)')
     parser.add_argument('--debug', action='store_true', help='Show debug information for simulation')
+    parser.add_argument('--plots', action='store_true', help='Generate plots for key metrics and save to output/plots')
     args = parser.parse_args()
 
     # Locate CSV used by both analytics and simulation
@@ -63,6 +68,20 @@ def main():
     # Print final simulation JSON
     print_section("✅ SIMULATION REPORT (JSON)")
     print(json.dumps(report, indent=2))
+
+    # 4) Optional: generate plots
+    if args.plots and report:
+        plots_dir = script_dir.parent / 'output' / 'plots'
+        paths = []
+        try:
+            paths += plot_priority_breakdown(report, plots_dir)
+            paths += plot_overall_metrics(report, plots_dir)
+        except Exception as e:
+            print(f"[plotting] Failed to generate plots: {e}")
+        if paths:
+            print_section("📈 PLOTS SAVED")
+            for p in paths:
+                print(f"Saved: {p}")
 
 
 if __name__ == '__main__':
