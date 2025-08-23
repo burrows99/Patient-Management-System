@@ -419,3 +419,64 @@ python simulation/simulation.py --config=output/langflow_output.json --limit=200
 - __Fail-open rules__: If an agent times out, fall back to policy defaults (e.g., emergency→P2) so the simulation proceeds.
 
 This MoA pipeline enables rapid, policy-aligned scenario generation while preserving the discrete-event simulation as the single source of truth for system dynamics.
+
+## Comparison: Manchester Triage (MTA) vs Ollama LLM
+
+This repo includes a side‑by‑side comparison harness to evaluate a rules/keyword‑driven Manchester Triage System against a local LLM triage agent (Ollama).
+
+### Approaches
+- __MTA (`simulation/domain/manchester.py`)__
+  - Deterministic, keyword and encounter‑class based.
+  - Emits priorities P1–P5 with target max waits, used by the SimPy priority queue.
+
+- __Ollama (`simulation/domain/ollama_agent.py`)__
+  - Calls a local Ollama server (default model `mistral:7b-instruct`).
+  - Prompt asks for a JSON `{ "priority": <1..5>, "explanation": "..." }`.
+  - Safety: when `disable_fallback=True`, the agent will NOT silently fall back to MTA; on invalid/short/no‑response it returns priority 3.
+
+### Methodology
+- Both systems run over the same compressed encounter timeline using `simulation/engine/simulator.py`.
+- For the Ollama run we remove any pre‑assigned priorities to ensure the agent is actually invoked.
+- Default comparison settings in `simulation/compare_triage_systems.py`:
+  - `servers=3`, `limit=100`, `compress_to=8hours`, `debug=True`.
+  - Ollama uses `ollama_model="mistral:7b-instruct"` and `disable_fallback=True`.
+- Outputs are saved under `output/comparison/`:
+  - `mta_results_<ts>.json`, `ollama_results_<ts>.json`, `comparison_<ts>.json`, and a `comparison_<ts>.png` chart.
+
+### How to run
+- Docker (recommended; brings up Ollama and runs the comparison container):
+  ```bash
+  docker compose up --build -d
+  # comparison logs
+  docker compose logs --tail=200 comparison
+  ```
+
+- Local Python (requires `pip install -r requirements.txt` and a running local Ollama at http://localhost:11434 for the Ollama run):
+  ```bash
+  python3 simulation/compare_triage_systems.py
+  ```
+
+### Latest sample results (limit=100, servers=3)
+- Files: `output/comparison/*_20250823_124620.*`
+- __MTA__ (`mta_results_20250823_124620.json`)
+  - Completed: 73 patients
+  - Overall breach: 79.5%
+  - Avg wait: 686.2 min; P95 wait: 1294.1 min
+  - Priority mix: P2=8, P3=15, P4=48, P5=2
+
+- __Ollama__ (`ollama_results_20250823_124620.json`)
+  - Completed: 81 patients
+  - Overall breach: 81.5%
+  - Avg wait: 577.0 min; P95 wait: 1281.8 min
+  - Priority mix: P3=81 (current prompt/parse trends to P3 default in errors/short reasons)
+
+- PNG chart: `comparison_20250823_124620.png`
+
+### Interpretation
+- MTA yields a broader acuity distribution (P2–P5) reflecting rules and keywords; Ollama currently concentrates on P3, leading to different queue dynamics and slightly different waits/breach rates.
+- Because Ollama runs with `disable_fallback=True`, results reflect the agent judgment (or safe default=3) rather than hidden MTS behavior.
+
+### Next improvements for the Ollama path
+- Harden JSON parsing and add few‑shot exemplars to reduce default‑to‑P3 cases.
+- Include explicit bounds checking and instruction to always return an integer 1–5.
+- Consider adding lightweight keyword guards to bump likely P1/P2 cases.
