@@ -480,3 +480,10 @@ This repo includes a side‑by‑side comparison harness to evaluate a rules/key
 - Harden JSON parsing and add few‑shot exemplars to reduce default‑to‑P3 cases.
 - Include explicit bounds checking and instruction to always return an integer 1–5.
 - Consider adding lightweight keyword guards to bump likely P1/P2 cases.
+
+### Conclusion
+- __Both approaches breach heavily at 3 servers__: With `limit=100` and `compress_to=8hours`, overall breach remains high for both MTA (79.5%) and Ollama (81.5%), indicating under‑capacity rather than solely triage logic limitations.
+- __Acuity distribution differs__: MTA yields a spread across P2–P5 (P4‑heavy), while Ollama concentrates on P3 (81/81). This materially changes queue order and who breaches, even when headline metrics look similar.
+- __Wait vs breach trade‑off__: Ollama shows a lower average wait (577.0 min vs 686.2 min) and similar P95, but a slightly higher overall breach, consistent with mid‑acuity concentration delaying higher‑acuity cases that should be escalated.
+- __Operational stance__: Use MTA as the baseline for planning and benchmarking. Treat the Ollama path as experimental until prompt/validation improvements recover sensitivity to P1/P2 cases.
+- __Next steps to validate__: Re‑run comparisons at higher server counts (e.g., 4–8), after improving the Ollama prompt and JSON enforcement, and add breach‑by‑priority plots to verify improvements specifically for P1/P2.
