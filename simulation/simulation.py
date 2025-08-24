@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Manchester Triage System simulation orchestrator.
 
@@ -9,18 +8,10 @@ Design notes (SOLID):
 - OCP: New triage systems can be introduced via `create_triage_system(...)` factory without changing core logic.
 """
 
-import argparse
-import json
-import sys
 import logging
 import random
 from pathlib import Path
 from typing import List, Dict, Optional, Any, Tuple, Union, Callable
-
-# Ensure project root is on sys.path when running as a script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 from simulation.services.encounter_loader import (
     load_and_prepare_encounters as svc_load_and_prepare_encounters,
@@ -136,44 +127,3 @@ def run_simulation(servers: int = 3,
     except Exception:
         logging.exception("Simulation error")
         return {}
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Run MTS simulation with time compression.')
-    parser.add_argument('--servers', type=int, default=3, help='Number of servers (default: 3)')
-    parser.add_argument('--class', dest='encounter_class', default='', help='Filter by encounter class')
-    parser.add_argument('--limit', type=int, default=100, help='Max number of encounters (default: 100)')
-    parser.add_argument('--compressTo', default='8hours', help='Compress to duration (e.g., 8hours, 1day)')
-    parser.add_argument('--triage', choices=["mta", "ollama"], default="mta", 
-                       help='Triage system to use (mta or ollama)')
-    parser.add_argument('--ollama-model', default='phi:2.7b',
-                       help='Ollama model to use (default: phi:2.7b)')
-    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
-    args = parser.parse_args()
-
-    # Configure logging here (not inside core logic) per SRP
-    logging.basicConfig(
-        level=logging.DEBUG if args.debug else logging.INFO,
-        format='[%(levelname)s] %(message)s',
-        stream=sys.stderr,
-    )
-
-    report = run_simulation(
-        servers=args.servers,
-        encounter_class=args.encounter_class,
-        limit=args.limit,
-        compress_to=args.compressTo,
-        debug=args.debug,
-        triage_system=args.triage,
-        ollama_model=args.ollama_model if args.triage == "ollama" else None,
-        disable_fallback=True if args.triage == "ollama" else True
-    )
-
-    if not report:
-        sys.exit(1)
-
-    print(json.dumps(report, indent=2))
-
-
-if __name__ == '__main__':
-    main()
