@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 """
-Time-compressed Manchester Triage System simulation for sparse encounter data.
-Compresses long time periods into shorter simulation periods for realistic queue analysis.
-
-Usage:
-    python simulation/simulation.py --compressTo=8hours --servers=3 --debug
+Manchester Triage System simulation orchestrator.
 
 Design notes (SOLID):
 - SRP: This module orchestrates the simulation run only. Aggregation/report building lives in
@@ -32,7 +28,6 @@ from simulation.services.encounter_loader import (
 from simulation.engine.simulator import CompressedMTSSimulation
 from simulation.domain.triage_factory import create_triage_system, TriageSystemType
 from simulation.utils.time_utils import (
-    parse_duration_to_hours,
     compute_horizon,
     humanize_minutes,
 )
@@ -42,21 +37,17 @@ from simulation.utils.sim_reporting import build_simulation_report
 def run_simulation(servers: int = 3,
                    encounter_class: Optional[str] = '',
                    limit: int = 100,
-                   compress_to: str = '8hours',
                    debug: bool = False,
                    triage_system: TriageSystemType = "mta",
                    ollama_model: Optional[str] = None,
                    disable_fallback: bool = True,
                    csv_path: Optional[Union[str, Path]] = None,
-                   loader: Optional[Callable[[str, Optional[str], int, int, bool], List[Dict]]] = None,
+                   loader: Optional[Callable[[str, Optional[str], int, bool], List[Dict]]] = None,
                    seed: Optional[int] = 42) -> Dict:
     """Run the time-compressed MTS simulation and return the report dict.
 
     Dependencies are injected via parameters (csv_path, loader) to improve testability and separation of concerns.
     """
-
-    # Parse compression parameter using utils
-    compression_hours = parse_duration_to_hours(compress_to, default_hours=8)
 
     # Seed RNG deterministically unless caller overrides
     if seed is not None:
@@ -75,7 +66,6 @@ def run_simulation(servers: int = 3,
             str(csv_path),
             encounter_class or '',
             limit,
-            compression_hours,
             debug,
         )
 
@@ -120,7 +110,6 @@ def run_simulation(servers: int = 3,
         parameters = {
             'original_encounters': len(encounters),
             'servers': servers,
-            'compression_target': compress_to,
             'filter': encounter_class or 'all',
         }
         report = build_simulation_report(parameters, results, horizon)

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
-NHS MOA Triage System Analytics Dashboard (refactored)
-Delegates analysis logic to reusable utilities under `simulation/utils/`.
+CLI for the analytics dashboard (namespaced under simulation/analytics/cli/)
 """
-
 from pathlib import Path
 import sys
 import json
 
-# Ensure project root is on sys.path when running as a script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -20,7 +17,7 @@ from simulation.utils.format_utils import NpEncoder
 def main():
     try:
         script_dir = Path(__file__).parent
-        csv_path = script_dir.parent / 'output' / 'csv' / 'encounters.csv'
+        csv_path = PROJECT_ROOT / 'output' / 'csv' / 'encounters.csv'
         if not csv_path.exists():
             print(f"❌ CSV file not found: {csv_path}")
             return
@@ -28,7 +25,7 @@ def main():
         analytics = NHSTriageAnalytics(str(csv_path))
         summary = analytics.generate_comprehensive_report()
 
-        output_path = script_dir.parent / 'analytics_summary.json'
+        output_path = PROJECT_ROOT / 'analytics_summary.json'
         with open(output_path, 'w') as f:
             json.dump(summary, f, indent=2, cls=NpEncoder)
 

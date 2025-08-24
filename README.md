@@ -175,7 +175,7 @@ Use the `--plots` flag with the unified entrypoint to generate PNG charts summar
   # (Deprecated) legacy dashboard runner
   python3 -m simulation.main --servers=4 --compressTo=8hours --plots --plotsDir=output/plots
   ```
-  Plots are produced by `simulation/utils/plotting.py` using seaborn/matplotlib.
+  Plots are produced by `simulation/analytics/viz/plotting.py` using seaborn/matplotlib.
 
 ## References
 
@@ -444,10 +444,10 @@ This repo includes a side‑by‑side comparison harness to evaluate a rules/key
 ### Methodology
 - Both systems run over the same compressed encounter timeline using `simulation/engine/simulator.py`.
 - For the Ollama run we remove any pre‑assigned priorities to ensure the agent is actually invoked.
-- Default comparison settings in `simulation/compare_triage_systems.py`:
-  - `servers=3`, `limit=100`, `compress_to=8hours`, `debug=True`.
-  - Ollama uses `ollama_model="mistral:7b-instruct"` and `disable_fallback=True`.
-- Outputs are saved under `output/comparison/`:
+- Run comparison via the unified CLI:
+  ```bash
+  python3 simulate.py --system both --servers 3 --limit 100 --compressTo 8hours --analyze
+  ```
   - `mta_results_<ts>.json`, `ollama_results_<ts>.json`, `comparison_<ts>.json`, and a `comparison_<ts>.png` chart.
 
 ### How to run
@@ -458,10 +458,7 @@ This repo includes a side‑by‑side comparison harness to evaluate a rules/key
   docker compose logs --tail=200 comparison
   ```
 
-- Local Python (requires `pip install -r requirements.txt` and a running local Ollama at http://localhost:11434 for the Ollama run):
-  ```bash
-  python3 simulation/compare_triage_systems.py
-  ```
+- Requirements: `pip install -r requirements.txt` and a running local Ollama at http://localhost:11434 for the Ollama path.
 
 ### Latest sample results (limit=100, servers=3)
 - Files: `output/comparison/*_20250823_124620.*`
