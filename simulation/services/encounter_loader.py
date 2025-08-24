@@ -1,11 +1,9 @@
-import random
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 import pandas as pd
 import sys
 
-from simulation.domain.manchester import ManchesterTriageSystem
 from simulation.utils.data_utils import (
     load_encounters_df,
     compute_arrival_minutes,
@@ -16,21 +14,53 @@ from simulation.utils.data_utils import (
     build_structured_encounter,
 )
 
+def get_distinct_patient_ids(df: pd.DataFrame) -> List[Any]:
+    """Return distinct patient IDs present in the encounters dataframe.
+
+    Uses `resolve_encounter_patient_column(df)` to locate the patient identifier
+    column across possible schemas.
+    """
+    if df is None or df.empty:
+        return []
+    pid_col = resolve_encounter_patient_column(df)
+    if not pid_col or pid_col not in df.columns:
+        return []
+    return (
+        df[pid_col]
+        .dropna()
+        .drop_duplicates()
+        .tolist()
+    )
+
+
+def latest_encounters_by_patient(df: pd.DataFrame) -> pd.DataFrame:
+    """Select the most recent encounter per patient.
+
+    Assumes the dataframe has a `START_DT` column (already standardized) and
+    uses the resolved patient id column. If columns are missing, returns the
+    input dataframe unchanged.
+    """
+    if df is None or df.empty:
+        return df
+    pid_col = resolve_encounter_patient_column(df)
+    if not pid_col or pid_col not in df.columns or 'START_DT' not in df.columns:
+        return df
+    # Sort by START_DT ascending, then keep the last per patient id
+    sdf = df.sort_values('START_DT', kind='mergesort')
+    latest = sdf.drop_duplicates(subset=[pid_col], keep='last')
+    # Preserve a consistent ordering (newest first) for downstream limiting if needed
+    latest = latest.sort_values('START_DT', ascending=False, kind='mergesort')
+    return latest
+
 def _assign_priorities(encounters: List[Dict[str, Any]], debug: bool = False) -> None:
-    triage_system = ManchesterTriageSystem()
-    for e in encounters:
-        priority = triage_system.assign_priority({
-            'encounter_class': e['encounter_class'],
-            'reason_description': e['reason_description'],
-        })
-        e['priority'] = priority
-        base_service = e['service_min']
-        if priority <= 2:
-            e['service_min'] = base_service * random.uniform(1.2, 2.0)
-        elif priority == 3:
-            e['service_min'] = base_service * random.uniform(0.9, 1.4)
-        else:
-            e['service_min'] = base_service * random.uniform(0.6, 1.2)
+    """
+    Deprecated: Keep for backward compatibility. No-op to ensure
+    neutral data preparation across triage systems. Priority assignment
+    now happens uniformly at runtime inside the simulator via the selected
+    triage system (MTA or Ollama).
+    """
+    if debug:
+        print("[encounter_loader] _assign_priorities is a no-op; priorities assigned at runtime.", file=sys.stderr)
 
 
 def load_and_prepare_encounters(
@@ -44,7 +74,8 @@ def load_and_prepare_encounters(
     Fresh implementation:
     - Includes structured patient demographics
     - Includes structured related history (recent encounters, prescriptions, observations)
-    - Preserves simulator-required fields: arrival_min, service_min, priority, encounter_class, reason_description
+    - Preserves simulator-required fields: arrival_min, service_min, encounter_class, reason_description
+    - Neutral across triage systems: does NOT pre-assign priority or mutate service time
     """
 
     output_dir = Path(csv_path).parent.parent  # .../output
@@ -60,7 +91,14 @@ def load_and_prepare_encounters(
     if df.empty:
         return []
 
-    # Sort and limit
+    # Reduce to latest encounter per distinct patient to avoid redundancy in history
+    if debug:
+        total_before = len(df)
+    df = latest_encounters_by_patient(df)
+    if debug:
+        print(f"Reduced to latest encounters per patient: {len(df)} from {total_before}", file=sys.stderr)
+
+    # Sort and limit on the reduced set
     df = sort_and_limit(df, date_col='START_DT', limit=limit)
 
     arrival_min_series = compute_arrival_minutes(df, start_col='START_DT')
@@ -85,13 +123,12 @@ def load_and_prepare_encounters(
         )
         encounters.append(encounter)
 
-    # Assign priorities and adjust service time by priority
-    _assign_priorities(encounters, debug)
+    # Do not assign priorities here. Priorities are assigned uniformly at runtime by the chosen triage system.
+    # _assign_priorities(encounters, debug)  # intentionally not called
 
     if debug:
         print("\nFinal dataset:", file=sys.stderr)
         print(f"  Encounters: {len(encounters)}", file=sys.stderr)
-        print("  Priority distribution:", file=sys.stderr)
-        # Optionally, compute distribution if needed here (omitted for SRP)
+        # Priority distribution is determined at runtime by the simulator's triage system.
 
     return encounters

@@ -28,6 +28,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from simulation.simulation import run_simulation  # type: ignore
 from simulation.analytics.core.compare import summarize_report, compare_reports
+from simulation.analytics.viz.plotting import (
+    save_system_plots,
+    plot_overall_comparison,
+)
 
 
 # Compare helpers now imported from simulation.analytics.core.compare
@@ -84,6 +88,9 @@ def main():
         }
         _dump(meta, 'parameters.json')
         mta_path = _dump(mta_report, 'mta_results.json')
+        # Plots
+        plots_dir = run_outdir / 'plots' / 'mta'
+        save_system_plots(mta_report, plots_dir)
         if args.analyze:
             print(json.dumps(summarize_report('mta', mta_report), indent=2))
         else:
@@ -117,6 +124,9 @@ def main():
         }
         _dump(meta, 'parameters.json')
         ollama_path = _dump(ollama_report, 'ollama_results.json')
+        # Plots
+        plots_dir = run_outdir / 'plots' / 'ollama'
+        save_system_plots(ollama_report, plots_dir)
         if args.analyze:
             print(json.dumps(summarize_report('ollama', ollama_report), indent=2))
         else:
@@ -174,6 +184,16 @@ def main():
     mta_path = _dump(mta_report, 'mta_results.json')
     ollama_path = _dump(ollama_report, 'ollama_results.json')
     comparison_path = _dump(comparison, 'comparison.json')
+
+    # Plots for both systems
+    mta_plots_dir = run_outdir / 'plots' / 'mta'
+    ollama_plots_dir = run_outdir / 'plots' / 'ollama'
+    save_system_plots(mta_report, mta_plots_dir)
+    save_system_plots(ollama_report, ollama_plots_dir)
+
+    # Comparative overall metrics plot
+    comp_plots_dir = run_outdir / 'plots'
+    plot_overall_comparison(mta_report, ollama_report, comp_plots_dir)
     print(json.dumps(comparison, indent=2))
     print(f"\nSaved: {mta_path}\nSaved: {ollama_path}\nSaved: {comparison_path}")
 

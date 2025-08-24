@@ -19,7 +19,7 @@ class PriorityInfo:
 class ManchesterTriageSystem(TriageSystem):
     """Manchester Triage System priority levels and wait times, configured via YAML.
 
-    Config file: simulation/domain/mts_config.yaml
+    Config file: config/mts_config.yaml
     """
 
     # These will be populated from YAML at import time
@@ -30,7 +30,11 @@ class ManchesterTriageSystem(TriageSystem):
 
     @classmethod
     def _load_config(cls) -> None:
-        cfg_path = Path(__file__).with_name("mts_config.yaml")
+        # Load ONLY from root-level centralized config
+        project_root = Path(__file__).resolve().parents[2]
+        cfg_path = project_root / "config" / "mts_config.yaml"
+        if not cfg_path.exists():
+            raise FileNotFoundError("Expected config at 'config/mts_config.yaml' but it was not found.")
         cfg = read_yaml(cfg_path)
 
         # Priorities
@@ -91,24 +95,5 @@ class ManchesterTriageSystem(TriageSystem):
         return self.DEFAULT_PRIORITY
         
     def get_priority_info(self, priority: int) -> Dict[str, Any]:
-        """Get information about a priority level.
-        
-        Args:
-            priority: Priority level (1-5)
-            
-        Returns:
-            Dict with priority information (name, color, max_wait_min, weight)
-        """
-        if not self.PRIORITIES:
-            self._load_config()
-            
-        if priority not in self.PRIORITIES:
-            raise ValueError(f"Invalid priority level: {priority}")
-            
-        info = self.PRIORITIES[priority]
-        return {
-            'name': info.name,
-            'color': info.color,
-            'max_wait_min': info.max_wait_min,
-            'weight': info.weight
-        }
+        """Delegate to base class implementation backed by shared config."""
+        return super().get_priority_info(priority)

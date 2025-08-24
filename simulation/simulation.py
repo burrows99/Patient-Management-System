@@ -25,7 +25,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from simulation.services.encounter_loader import (
     load_and_prepare_encounters as svc_load_and_prepare_encounters,
 )
-from simulation.engine.simulator import CompressedMTSSimulation
+from simulation.engine.simulator import TriageSimulation
 from simulation.domain.triage_factory import create_triage_system, TriageSystemType
 from simulation.utils.time_utils import (
     compute_horizon,
@@ -103,7 +103,7 @@ def run_simulation(servers: int = 3,
                 logging.info(f"Ollama fallback disabled: True")
         
         # Run simulation with the selected triage system
-        simulation = CompressedMTSSimulation(servers=servers, triage_system=triage)
+        simulation = TriageSimulation(servers=servers, triage_system=triage)
         results = simulation.run_simulation(encounters, horizon)
 
         # Build final report via reporting utilities

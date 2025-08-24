@@ -6,7 +6,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 
 - __[data generation]__ Dockerized Synthea run to produce FHIR and CSV under `output/`
 - __[queue simulation]__ Discrete-event simulations using `simpy` over real encounter timelines: `utils/queue_simulation.py`
-- __[time-compressed MTS sim]__ Manchester Triage System-based priority queue with time compression for sparse data: `simulation/simulation.py`
+- __[TriageSimulation runs the Manchester Triage based simulation.]__ TriageSimulation runs the Manchester Triage based simulation.
 - __[analytics dashboard]__ Comprehensive analysis and recommendations for capacity planning: `simulation/dashboard.py`
 - __[unified CLI]__ Single entry point to run MTA, Ollama, or both, with optional summary analytics: `python3 simulate.py`
 
@@ -21,7 +21,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
   - `output/fhir/` — FHIR JSON
   - `output/csv/` — CSV exports
 - `utils/queue_simulation.py` — basic SimPy queue model over encounters
-- `simulation/simulation.py` — time-compressed MTS priority simulation
+- `simulation/simulation.py` — TriageSimulation runs the Manchester Triage based simulation.
 - `simulation/main.py` — unified entrypoint: analytics → `analytics_summary.json` → simulation
 - `simulation/dataAnalysis.py` — dataset exploration helpers
 - `simulation/dashboard.py` — end-to-end analytics and recommendations
@@ -70,29 +70,28 @@ pip install -r requirements.txt
 - __[Unified CLI — simulate.py]__ Recommended single entry point.
   ```bash
   # MTA only
-  python3 simulate.py --system mta --servers 3 --limit 100 --compressTo 8hours --analyze
+  python3 simulate.py --system mta --servers 3 --limit 100 --analyze
 
   # Ollama only (ensure local Ollama running). Env vars optional:
   OLLAMA_EXPLANATION_DETAIL=long OLLAMA_TELEMETRY_PATH=ollama_telemetry.jsonl \
-  python3 simulate.py --system ollama --ollama-model phi:2.7b --servers 3 --limit 100 --compressTo 8hours --analyze
+  python3 simulate.py --system ollama --ollama-model phi:2.7b --servers 3 --limit 100 --analyze
 
   # Run both and compare (prints compact diff and per-system summaries)
-  python3 simulate.py --system both --servers 3 --limit 100 --compressTo 8hours
+  python3 simulate.py --system both --servers 3 --limit 100
   ```
   Flags:
   - `--system`: `mta`, `ollama`, or `both`
   - `--servers`: parallel capacity (default 3)
   - `--class`: optional encounter class filter (e.g., `emergency`, `wellness`)
   - `--limit`: max encounters to simulate (default 100)
-  - `--compressTo`: time-compression target (e.g., `8hours`, `1day`)
   - `--ollama-model`: model name when using Ollama (default `phi:2.7b`)
   - `--analyze`: print compact summary instead of full JSON report
 
-- __[Time-compressed MTS simulation (direct)]__ You can still run the simulator directly if needed:
+- __[TriageSimulation (direct)]__ You can still run the simulator directly if needed:
   ```bash
-  python3 simulation/simulation.py --servers=3 --compressTo=8hours --limit=100 --debug
+  python3 simulation/simulation.py --servers=3 --limit=100 --debug
   ```
-  See `simulation/simulation.py` (`ManchesterTriageSystem`, `CompressedMTSSimulation`).
+  See `simulation/simulation.py` (`TriageSimulation`).
 
 ## Literature Review
 

@@ -1,0 +1,95 @@
+# Centralized configuration for the Ollama triage agent
+
+model_name: "phi:2.7b"
+base_url: "http://localhost:11434"
+disable_fallback: true
+
+request:
+  timeout_sec: 60
+  retries: 3
+  options:
+    temperature: 0.3
+    top_p: 0.9
+    num_predict: 120
+
+prompt:
+  template: |-
+    You are a triage assistant using the Manchester Triage System (MTS).
+    Assign a priority level from 1 (Red) to 5 (Blue) for the patient based on the encounter details.
+    Only return a JSON object with fields 'priority' and 'explanation'. Do NOT include code blocks, backticks, or any extra prose.
+    1. Immediate (life-threatening) - requires immediate medical attention
+    2. Very Urgent - condition could deteriorate quickly
+    3. Urgent - serious but stable condition
+    4. Standard - needs assessment but not immediately urgent
+    5. Non-urgent - can wait for assessment
+
+    Patient Information:
+    Encounter Type: {encounter_class}
+    Reason for Visit: {reason_description}
+    Patient History (recent): {patient_history}
+
+    Guidance:
+    - Consider MTS categories realistically; do not default to 3.
+    - Use priority 1 ONLY when immediate life-threatening cues are present (e.g., not breathing, no pulse, unresponsive, cardiac arrest, seizure ongoing, severe respiratory distress).
+    - For minor illnesses (e.g., sore throat, cold, runny nose) prefer 4. For administrative issues (e.g., prescription refill, paperwork) prefer 5.
+    - In the explanation, explicitly mention up to 3 concrete factors from the reason/history that justify the chosen priority.
+    - Aim for an explanation length of {explanation_words} words.
+    - Examples:
+      {{"priority":1,"explanation":"<explanation>"}}
+      {{"priority":2,"explanation":"<explanation>"}}
+      {{"priority":3,"explanation":"<explanation>"}}
+      {{"priority":4,"explanation":"<explanation>"}}
+      {{"priority":5,"explanation":"<explanation>"}}
+
+    Respond ONLY with a single compact JSON object on one line using DOUBLE QUOTES for keys and strings and NO extra text, for example:
+    {{"priority":<1-5>,"explanation":"<explanation>"}}
+
+  explanation_words:
+    short: 18
+    medium: 32
+    long: 55
+
+heuristics:
+  short_reason_prefers_p4: true
+  cues:
+    p1:
+      - "not breathing"
+      - "no pulse"
+      - "unresponsive"
+      - "unconscious"
+      - "cardiac arrest"
+      - "seizure ongoing"
+      - "seizing"
+      - "severe respiratory distress"
+    p2:
+      - "severe bleeding"
+      - "arterial bleeding"
+      - "heavy bleeding"
+      - "major laceration"
+      - "open fracture"
+      - "severe pain"
+      - "anaphylaxis"
+      - "severe allergic"
+    p4:
+      - "sore throat"
+      - "minor"
+      - "mild"
+      - "cold"
+      - "cough"
+      - "runny nose"
+      - "stable for days"
+      - "low-grade fever"
+      - "able to swallow"
+    p5:
+      - "prescription refill"
+      - "routine prescription"
+      - "administrative"
+      - "no acute symptoms"
+      - "paperwork only"
+
+telemetry:
+  enabled: true
+  path_env_var: "OLLAMA_TELEMETRY_PATH"
+
+mock:
+  env_var: "OLLAMA_MOCK"

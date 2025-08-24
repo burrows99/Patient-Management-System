@@ -25,19 +25,37 @@ def aggregate_priority_breakdown(events: List[Dict[str, Any]]) -> Dict[int, Dict
         breaches=('breached', 'sum'),
     )
 
-    mts_meta = (
-        pd.DataFrame(
-            {
-                p: {
-                    'color': info.color,
-                    'target_max_wait_min': info.max_wait_min,
-                }
-                for p, info in ManchesterTriageSystem.PRIORITIES.items()
+    # Ensure Manchester config is loaded so PRIORITIES has metadata
+    if not ManchesterTriageSystem.PRIORITIES:
+        try:
+            ManchesterTriageSystem._load_config()
+        except Exception:
+            # If config can't be loaded, we'll derive what we can from events
+            pass
+
+    mts_meta = pd.DataFrame(
+        {
+            p: {
+                'color': info.color,
+                'target_max_wait_min': info.max_wait_min,
             }
-        ).T
-    )
+            for p, info in ManchesterTriageSystem.PRIORITIES.items()
+        }
+    ).T if ManchesterTriageSystem.PRIORITIES else pd.DataFrame(index=stats.index)
 
     merged = stats.join(mts_meta, how='left')
+    # If target is missing from metadata, derive from events per priority
+    if 'target_max_wait_min' not in merged.columns or merged['target_max_wait_min'].isna().any():
+        derived_target = grp['max_wait_min'].max().rename('target_max_wait_min')
+        merged = merged.join(derived_target, how='left', rsuffix='_derived')
+        if 'target_max_wait_min_x' in merged.columns and 'target_max_wait_min_y' in merged.columns:
+            merged['target_max_wait_min'] = merged['target_max_wait_min_x'].fillna(merged['target_max_wait_min_y'])
+            merged = merged.drop(columns=['target_max_wait_min_x', 'target_max_wait_min_y'])
+    # Ensure color present for name formatting
+    if 'color' not in merged.columns:
+        merged['color'] = 'Unknown'
+    else:
+        merged['color'] = merged['color'].fillna('Unknown')
     merged['breach_rate_percent'] = (merged['breaches'] / merged['patients'] * 100).round(1)
     merged['avg_wait_min'] = merged['avg_wait_min'].round(1)
     merged['p95_wait_min'] = merged['p95_wait_min'].round(1)

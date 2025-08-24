@@ -14,7 +14,7 @@ def plot_priority_breakdown(report: Dict, outdir: str | Path) -> list[Path]:
     """Generate plots for per-priority metrics from simulation report.
     Saves PNG files and returns their paths.
     """
-    out = []
+    out: list[Path] = []
     outdir = Path(outdir)
     _ensure_outdir(outdir)
 
@@ -75,6 +75,64 @@ def plot_priority_breakdown(report: Dict, outdir: str | Path) -> list[Path]:
         out.append(path)
 
     return out
+
+
+def save_system_plots(system_report: Dict, outdir: str | Path) -> list[Path]:
+    """Save standard plots for a single system report.
+
+    Generates:
+    - Patients per priority
+    - Breach rate by priority
+    - Wait times by priority (avg vs p95)
+    - Overall metrics (breach %, avg wait, p95 wait)
+    """
+    out_paths: list[Path] = []
+    outdir = Path(outdir)
+    _ensure_outdir(outdir)
+
+    # Per-priority plots
+    out_paths += plot_priority_breakdown(system_report, outdir)
+
+    # Overall metrics expect a 'system_performance' dict
+    overall = {
+        'system_performance': {
+            'overall_breach_rate_percent': system_report.get('overall_breach_rate_percent', 0.0),
+            'overall_avg_wait_min': system_report.get('overall_avg_wait_min', 0.0),
+            'overall_p95_wait_min': system_report.get('overall_p95_wait_min', 0.0),
+        }
+    }
+    out_paths += plot_overall_metrics(overall, outdir)
+
+    return out_paths
+
+
+def plot_overall_comparison(mta_report: Dict, ollama_report: Dict, outdir: str | Path) -> Path:
+    """Save a comparative bar chart for overall metrics (breach %, avg, p95)."""
+    outdir = Path(outdir)
+    _ensure_outdir(outdir)
+
+    comp_df = pd.DataFrame([
+        {'metric': 'breach_%', 'value': mta_report.get('overall_breach_rate_percent', 0.0), 'system': 'mta'},
+        {'metric': 'avg_wait_min', 'value': mta_report.get('overall_avg_wait_min', 0.0), 'system': 'mta'},
+        {'metric': 'p95_wait_min', 'value': mta_report.get('overall_p95_wait_min', 0.0), 'system': 'mta'},
+        {'metric': 'breach_%', 'value': ollama_report.get('overall_breach_rate_percent', 0.0), 'system': 'ollama'},
+        {'metric': 'avg_wait_min', 'value': ollama_report.get('overall_avg_wait_min', 0.0), 'system': 'ollama'},
+        {'metric': 'p95_wait_min', 'value': ollama_report.get('overall_p95_wait_min', 0.0), 'system': 'ollama'},
+    ])
+
+    sns.set_theme(style='whitegrid')
+    fig, ax = plt.subplots(figsize=(8, 4))
+    sns.barplot(data=comp_df, x='metric', y='value', hue='system', ax=ax, palette='Paired')
+    ax.set_title('Overall Metrics Comparison')
+    ax.set_xlabel('Metric')
+    ax.set_ylabel('Value')
+    fig.tight_layout()
+    path = outdir / 'overall_metrics_comparison.png'
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    return path
+
+    
 
 
 def plot_overall_metrics(report: Dict, outdir: str | Path) -> list[Path]:

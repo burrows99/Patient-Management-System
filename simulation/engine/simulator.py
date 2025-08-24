@@ -5,9 +5,9 @@ from simulation.domain.base_triage import TriageSystem
 from simulation.domain.manchester import ManchesterTriageSystem
 
 
-class CompressedMTSSimulation:
-    """MTS simulation with time compression for sparse data.
-    Logs per-patient events; leaves aggregation to caller (pandas).
+class TriageSimulation:
+    """Priority-based triage simulation using SimPy.
+    Logs per-patient events; leaves aggregation/reporting to callers.
     """
 
     def __init__(self, servers: int = 1, triage_system: Optional[TriageSystem] = None):
@@ -33,11 +33,11 @@ class CompressedMTSSimulation:
 
         arrival_timestamp = self.env.now
         
-        # If priority not provided, use the triage system to determine it
-        if priority is None and encounter_data is not None:
-            priority = self.triage_system.assign_priority(encounter_data)
-        elif priority is None:
-            priority = 3  # Default priority if no triage system and no priority provided
+        # Always use the configured triage system to determine priority at runtime
+        # to keep behavior identical across MTA and Ollama flows.
+        if encounter_data is None:
+            encounter_data = {}
+        priority = self.triage_system.assign_priority(encounter_data)
             
         # Get priority info including max wait time
         priority_info = self.triage_system.get_priority_info(priority)
@@ -65,7 +65,7 @@ class CompressedMTSSimulation:
             self.completed += 1
 
     def run_simulation(self, encounters: List[Dict], horizon: float):
-        """Run the compressed simulation
+        """Run the triage simulation
         
         Args:
             encounters: List of encounter dictionaries. Each should contain at least:
