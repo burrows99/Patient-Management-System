@@ -4,6 +4,7 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 from .io_utils import read_csv_or_excel
+from .time_utils import seconds_to_minutes
 
 
 def load_encounters_df(output_dir: Path | str) -> pd.DataFrame:
@@ -23,7 +24,7 @@ def load_encounters_df(output_dir: Path | str) -> pd.DataFrame:
 
     # Service minutes (fallback to 15 if missing/invalid)
     if "START_DT" in df.columns and "STOP_DT" in df.columns:
-        svc = (df["STOP_DT"] - df["START_DT"]).dt.total_seconds() / 60
+        svc = seconds_to_minutes((df["STOP_DT"] - df["START_DT"]).dt.total_seconds())
         df["SERVICE_MIN"] = np.clip(svc.fillna(0), 1, 480)
     elif "SERVICE_MIN" not in df.columns:
         df["SERVICE_MIN"] = 15.0

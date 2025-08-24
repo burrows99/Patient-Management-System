@@ -5,6 +5,12 @@ Compresses long time periods into shorter simulation periods for realistic queue
 
 Usage:
     python simulation/simulation.py --compressTo=8hours --servers=3 --debug
+
+Design notes (SOLID):
+- SRP: This module orchestrates the simulation run only. Aggregation/report building lives in
+  `simulation/utils/sim_reporting.py`. Data loading is delegated to `simulation/services/encounter_loader.py`.
+- DIP: Dependencies like CSV path and loader function are injected via `run_simulation(...)` args.
+- OCP: New triage systems can be introduced via `create_triage_system(...)` factory without changing core logic.
 """
 
 import argparse
@@ -13,19 +19,24 @@ import sys
 import logging
 import random
 from pathlib import Path
-from typing import List, Dict, Optional, Any, Tuple, Union
-import pandas as pd
+from typing import List, Dict, Optional, Any, Tuple, Union, Callable
+
+# Ensure project root is on sys.path when running as a script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from simulation.services.encounter_loader import (
     load_and_prepare_encounters as svc_load_and_prepare_encounters,
 )
 from simulation.engine.simulator import CompressedMTSSimulation
-from simulation.domain.manchester import ManchesterTriageSystem
 from simulation.domain.triage_factory import create_triage_system, TriageSystemType
 from simulation.utils.time_utils import (
     parse_duration_to_hours,
     compute_horizon,
     humanize_minutes,
 )
+from simulation.utils.sim_reporting import build_simulation_report
 
 
 def run_simulation(servers: int = 3,
@@ -35,26 +46,32 @@ def run_simulation(servers: int = 3,
                    debug: bool = False,
                    triage_system: TriageSystemType = "mta",
                    ollama_model: Optional[str] = None,
-                   disable_fallback: bool = False) -> Dict:
-    """Run the time-compressed MTS simulation and return the report dict."""
-    # Configure logging based on debug
-    logging.basicConfig(
-        level=logging.DEBUG if debug else logging.INFO,
-        format='[%(levelname)s] %(message)s',
-        stream=sys.stderr,
-    )
+                   disable_fallback: bool = True,
+                   csv_path: Optional[Union[str, Path]] = None,
+                   loader: Optional[Callable[[str, Optional[str], int, int, bool], List[Dict]]] = None,
+                   seed: Optional[int] = 42) -> Dict:
+    """Run the time-compressed MTS simulation and return the report dict.
+
+    Dependencies are injected via parameters (csv_path, loader) to improve testability and separation of concerns.
+    """
 
     # Parse compression parameter using utils
     compression_hours = parse_duration_to_hours(compress_to, default_hours=8)
 
-    random.seed(42)  # Reproducible results
+    # Seed RNG deterministically unless caller overrides
+    if seed is not None:
+        random.seed(seed)
 
-    # Find CSV
-    script_dir = Path(__file__).parent
-    csv_path = script_dir.parent / 'output' / 'csv' / 'encounters.csv'
+    # Resolve CSV path (injected or default)
+    if csv_path is None:
+        script_dir = Path(__file__).parent
+        csv_path = script_dir.parent / 'output' / 'csv' / 'encounters.csv'
+    else:
+        csv_path = Path(csv_path)
 
     try:
-        encounters = svc_load_and_prepare_encounters(
+        load_fn = loader or svc_load_and_prepare_encounters
+        encounters = load_fn(
             str(csv_path),
             encounter_class or '',
             limit,
@@ -84,7 +101,8 @@ def run_simulation(servers: int = 3,
         if triage_system == "ollama":
             if ollama_model:
                 triage_kwargs["model_name"] = ollama_model
-            triage_kwargs["disable_fallback"] = disable_fallback
+            # Always disable fallback for Ollama per requirement
+            triage_kwargs["disable_fallback"] = True
             
         triage = create_triage_system(triage_system, **triage_kwargs)
         
@@ -92,90 +110,20 @@ def run_simulation(servers: int = 3,
             logging.info(f"Using {triage_system.upper()} triage system")
             if triage_system == "ollama":
                 logging.info(f"Ollama model: {ollama_model}")
-                logging.info(f"Ollama fallback disabled: {disable_fallback}")
+                logging.info(f"Ollama fallback disabled: True")
         
         # Run simulation with the selected triage system
         simulation = CompressedMTSSimulation(servers=servers, triage_system=triage)
         results = simulation.run_simulation(encounters, horizon)
 
-        # Aggregate with pandas
-        events = results.get('events', [])
-        df = pd.DataFrame(events)
-
-        priority_breakdown: Dict[int, Dict] = {}
-        if not df.empty:
-            # Vectorized breach calc per priority
-            breached = (df['wait_min'] > df['max_wait_min']).astype(int)
-            grp = df.assign(breached=breached).groupby('priority', as_index=True)
-
-            stats = grp.agg(
-                patients=('patient_id', 'count'),
-                avg_wait_min=('wait_min', 'mean'),
-                p95_wait_min=('wait_min', lambda x: x.quantile(0.95)),
-                breaches=('breached', 'sum'),
-            )
-
-            # Manchester metadata as DataFrame for merge
-            mts_meta = (
-                pd.DataFrame(
-                    {
-                        p: {
-                            'color': info.color,
-                            'target_max_wait_min': info.max_wait_min,
-                        }
-                        for p, info in ManchesterTriageSystem.PRIORITIES.items()
-                    }
-                )
-                .T
-            )
-
-            merged = stats.join(mts_meta, how='left')
-            merged['breach_rate_percent'] = (merged['breaches'] / merged['patients'] * 100).round(1)
-            merged['avg_wait_min'] = merged['avg_wait_min'].round(1)
-            merged['p95_wait_min'] = merged['p95_wait_min'].round(1)
-            merged['name'] = merged.index.map(lambda p: f"P{int(p)} ({merged.loc[p, 'color']})")
-
-            # Convert to dict-of-dicts keyed by priority
-            priority_breakdown = (
-                merged[
-                    ['name', 'target_max_wait_min', 'patients', 'avg_wait_min', 'p95_wait_min', 'breach_rate_percent', 'breaches']
-                ]
-                .astype({
-                    'patients': 'int64',
-                    'breaches': 'int64',
-                })
-                .to_dict(orient='index')
-            )
-
-            # System metrics via pandas
-            system_metrics = {
-                'total_patients': int(len(df)),
-                'overall_breach_rate_percent': float(((df['wait_min'] > df['max_wait_min']).mean() * 100).round(1)),
-                'overall_avg_wait_min': float(df['wait_min'].mean().round(1)),
-                'overall_p95_wait_min': float(df['wait_min'].quantile(0.95).round(1)),
-            }
-        else:
-            system_metrics = {
-                'total_patients': 0,
-                'overall_breach_rate_percent': 0.0,
-                'overall_avg_wait_min': 0.0,
-                'overall_p95_wait_min': 0.0,
-            }
-
-        # Final report
-        report = {
-            'simulation_type': 'time_compressed_manchester_triage',
-            'parameters': {
-                'original_encounters': len(encounters),
-                'servers': servers,
-                'compression_target': compress_to,
-                'filter': encounter_class or 'all'
-            },
-            'completed': results['completed'],
-            'system_performance': system_metrics,
-            'priority_breakdown': priority_breakdown,
-            'simulation_time_hours': round(horizon / 60, 1)
+        # Build final report via reporting utilities
+        parameters = {
+            'original_encounters': len(encounters),
+            'servers': servers,
+            'compression_target': compress_to,
+            'filter': encounter_class or 'all',
         }
+        report = build_simulation_report(parameters, results, horizon)
 
         return report
     except Exception:
@@ -191,10 +139,17 @@ def main():
     parser.add_argument('--compressTo', default='8hours', help='Compress to duration (e.g., 8hours, 1day)')
     parser.add_argument('--triage', choices=["mta", "ollama"], default="mta", 
                        help='Triage system to use (mta or ollama)')
-    parser.add_argument('--ollama-model', default='mistral:7b-instruct',
-                       help='Ollama model to use (default: mistral:7b-instruct)')
+    parser.add_argument('--ollama-model', default='phi:2.7b',
+                       help='Ollama model to use (default: phi:2.7b)')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
+
+    # Configure logging here (not inside core logic) per SRP
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format='[%(levelname)s] %(message)s',
+        stream=sys.stderr,
+    )
 
     report = run_simulation(
         servers=args.servers,
@@ -203,7 +158,8 @@ def main():
         compress_to=args.compressTo,
         debug=args.debug,
         triage_system=args.triage,
-        ollama_model=args.ollama_model if args.triage == "ollama" else None
+        ollama_model=args.ollama_model if args.triage == "ollama" else None,
+        disable_fallback=True if args.triage == "ollama" else True
     )
 
     if not report:

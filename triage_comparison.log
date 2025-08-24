@@ -429,3 +429,439 @@ Simulation Durations:
 [2025-08-23 12:46:20,281] [INFO]   OLLAMA: 0.11 seconds
 [2025-08-23 12:46:20,281] [INFO] 
 Detailed results saved to the output directory.
+[2025-08-23 22:18:40,457] [INFO] Starting triage system comparison...
+[2025-08-23 22:18:40,458] [INFO] Running simulation with MTA triage system...
+[2025-08-23 22:18:40,526] [INFO] Using MTA triage system
+[2025-08-23 22:18:40,555] [INFO] MTA simulation completed in 0.10 seconds
+[2025-08-23 22:18:40,555] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 22:18:40,612] [INFO] Using OLLAMA triage system
+[2025-08-23 22:18:40,612] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 22:18:40,612] [INFO] Ollama fallback disabled: True
+[2025-08-23 22:18:40,614] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,617] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b14c0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,617] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,617] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,619] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1d90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,620] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67323760>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,621] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,621] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,621] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,621] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,622] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,622] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,623] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67323fd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,623] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,624] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67323dc0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,625] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,625] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,625] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,625] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,626] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673232b0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,627] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b8af0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,628] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1880>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,629] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,629] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,629] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,629] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,630] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,631] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6756c0d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,633] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6756cc40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,633] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,633] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,634] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1a60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,635] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,635] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,637] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b8cd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,640] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6733ffd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,640] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,640] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,642] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673230a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,642] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,643] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,643] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,645] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6756c550>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,645] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,645] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,647] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67323d00>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,648] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673234c0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,648] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,648] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,648] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,649] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff675ada30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,650] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67338af0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,651] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,652] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1850>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,652] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,653] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,653] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,654] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,654] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,654] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,654] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,656] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1400>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,657] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b1f10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,658] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff67338e80>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,658] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,658] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,658] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,659] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,660] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff675ad8e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,660] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,660] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,661] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,661] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,661] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,662] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,662] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,662] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,662] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,662] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,663] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,663] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,663] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,664] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,664] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,665] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6733f8b0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,666] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6756c6a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,666] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,667] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,667] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,669] [ERROR] Error calling Ollama API: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff673b8eb0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:18:40,669] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,670] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,670] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,670] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,671] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,671] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,671] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:18:40,682] [INFO] OLLAMA simulation completed in 0.13 seconds
+[2025-08-23 22:18:40,924] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 22:18:40,924] [INFO] Comparison completed at: 2025-08-23T22:18:40.682532
+[2025-08-23 22:18:40,925] [INFO] 
+Total Patients:
+[2025-08-23 22:18:40,925] [INFO]   MTA: 100.00
+[2025-08-23 22:18:40,926] [INFO]   OLLAMA: 98.00
+[2025-08-23 22:18:40,927] [INFO] 
+Avg Wait Time:
+[2025-08-23 22:18:40,927] [INFO]   MTA: 1076.50
+[2025-08-23 22:18:40,927] [INFO]   OLLAMA: 740.50
+[2025-08-23 22:18:40,928] [INFO] 
+Breach Rate:
+[2025-08-23 22:18:40,928] [INFO]   MTA: 0.88
+[2025-08-23 22:18:40,929] [INFO]   OLLAMA: 0.86
+[2025-08-23 22:18:40,929] [INFO] 
+Simulation Durations:
+[2025-08-23 22:18:40,930] [INFO]   MTA: 0.10 seconds
+[2025-08-23 22:18:40,931] [INFO]   OLLAMA: 0.13 seconds
+[2025-08-23 22:18:40,931] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 22:44:03,923] [INFO] Starting triage system comparison...
+[2025-08-23 22:44:03,924] [INFO] Running simulation with MTA triage system...
+[2025-08-23 22:44:03,990] [INFO] Using MTA triage system
+[2025-08-23 22:44:04,023] [INFO] MTA simulation completed in 0.10 seconds
+[2025-08-23 22:44:04,024] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 22:44:04,077] [INFO] Using OLLAMA triage system
+[2025-08-23 22:44:04,078] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 22:44:04,078] [INFO] Ollama fallback disabled: True
+[2025-08-23 22:44:04,079] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:04,079] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:04,080] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:04,080] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:04,085] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6d4c0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:05,116] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6df10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:07,134] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8f8b0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:11,149] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:11,151] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:11,158] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659842e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:12,167] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8f790>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:14,183] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a72eb0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:18,195] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,195] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,196] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,196] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,196] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,197] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,197] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,197] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,198] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:18,201] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6df70>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:19,213] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6d430>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:21,227] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598b160>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:25,237] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:25,239] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:25,240] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:25,241] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:25,253] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598ba60>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:26,261] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6d9d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:28,274] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659e4070>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:32,284] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:32,286] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:32,286] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:32,286] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:32,298] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65984ac0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:33,304] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8f970>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:35,494] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659ac340>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:39,513] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,516] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,516] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,517] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,517] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,518] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,518] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:39,529] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8f970>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:40,535] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65984790>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:42,776] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598bf40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:46,809] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,811] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,811] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,811] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,811] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,811] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:46,820] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6d8b0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:47,836] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659ac190>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:49,855] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659b6370>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:53,832] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:53,833] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:53,834] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:53,842] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:53,843] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:44:53,858] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65984af0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:54,868] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598b1f0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:44:56,911] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659dda90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:00,933] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:00,938] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:00,940] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:00,967] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8f910>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:01,988] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659b6a00>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:04,290] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659dde50>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:08,337] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,348] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,353] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,365] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,369] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,386] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,390] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,402] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,407] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,408] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,415] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,431] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,454] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,455] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,488] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,507] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,519] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,520] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,521] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,522] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,522] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,523] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,525] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:08,571] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659ace20>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:09,577] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598bf40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:11,597] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598bac0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:15,606] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:15,646] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a6dee0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:16,681] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598b9a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:18,723] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff6598b040>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:22,768] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,773] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,773] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,774] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,774] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,774] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,774] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,774] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,775] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,775] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,780] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:22,795] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a72df0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:23,822] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659acc70>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:25,846] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65984040>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:29,874] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a8fbe0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:30,892] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff659acee0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:32,928] [ERROR] Error calling Ollama API (attempt 3/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff65a72f70>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 22:45:36,956] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,959] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,960] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,960] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,961] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,961] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,962] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:36,963] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 22:45:37,989] [INFO] OLLAMA simulation completed in 93.96 seconds
+[2025-08-23 22:45:40,772] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 22:45:40,774] [INFO] Comparison completed at: 2025-08-23T22:45:37.996354
+[2025-08-23 22:45:40,774] [INFO] 
+Total Patients:
+[2025-08-23 22:45:40,774] [INFO]   MTA: 100.00
+[2025-08-23 22:45:40,775] [INFO]   OLLAMA: 100.00
+[2025-08-23 22:45:40,775] [INFO] 
+Avg Wait Time:
+[2025-08-23 22:45:40,775] [INFO]   MTA: 155.80
+[2025-08-23 22:45:40,775] [INFO]   OLLAMA: 138.00
+[2025-08-23 22:45:40,775] [INFO] 
+Breach Rate:
+[2025-08-23 22:45:40,776] [INFO]   MTA: 0.51
+[2025-08-23 22:45:40,776] [INFO]   OLLAMA: 0.64
+[2025-08-23 22:45:40,776] [INFO] 
+Simulation Durations:
+[2025-08-23 22:45:40,776] [INFO]   MTA: 0.10 seconds
+[2025-08-23 22:45:40,776] [INFO]   OLLAMA: 93.96 seconds
+[2025-08-23 22:45:40,777] [INFO] 
+Detailed results saved to the output directory.
+[2025-08-23 23:02:48,948] [INFO] Starting triage system comparison...
+[2025-08-23 23:02:48,949] [INFO] Running simulation with MTA triage system...
+[2025-08-23 23:02:49,112] [INFO] Using MTA triage system
+[2025-08-23 23:02:49,189] [INFO] MTA simulation completed in 0.24 seconds
+[2025-08-23 23:02:49,189] [INFO] Running simulation with OLLAMA triage system...
+[2025-08-23 23:02:49,272] [INFO] Using OLLAMA triage system
+[2025-08-23 23:02:49,272] [INFO] Ollama model: mistral:7b-instruct
+[2025-08-23 23:02:49,273] [INFO] Ollama fallback disabled: True
+[2025-08-23 23:02:49,278] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b850>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:50,292] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d782e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:52,299] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:02:52,311] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d78c40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:53,271] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c670>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:55,308] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d789d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:56,317] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71dac880>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:58,345] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b1f0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:02:59,351] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c640>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:01,360] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:01,377] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:01,394] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6cf40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:02,408] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b790>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:04,413] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:04,416] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:04,416] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:04,417] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:04,424] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71dacdc0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:05,434] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c850>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:07,451] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6ad90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:08,463] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6f7f0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:10,465] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,474] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,490] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,491] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,498] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,502] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,521] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,525] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,529] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,530] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,531] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,532] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,533] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:10,548] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6af40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:12,084] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c8e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:14,094] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:14,097] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:14,104] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b72250>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:15,115] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b160>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:17,125] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:17,132] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:17,134] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:17,156] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6f0d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:18,162] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71c5b6a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:20,171] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:20,174] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:20,175] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:20,199] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71dacc10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:21,217] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b406a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:23,282] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,310] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,311] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,313] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,314] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,315] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,316] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:23,419] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b72070>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:24,426] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6ac40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:26,435] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,439] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,439] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,439] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,440] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,440] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,442] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,442] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,443] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,443] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,443] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:26,552] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71c5ba90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:27,560] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6f7c0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:29,566] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:29,567] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:29,568] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:29,571] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6ca30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:30,587] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6cd00>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:32,595] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,597] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,598] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,598] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,599] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,599] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,599] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:32,609] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6acd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:33,626] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b430>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:35,630] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,630] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,631] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:35,634] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6a730>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:36,654] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6ce80>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:38,661] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,673] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,674] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,675] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,676] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,677] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:38,687] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c7c0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:39,691] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5bf10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:41,698] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:41,699] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:41,708] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b0a0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:42,726] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6f580>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:44,728] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:44,749] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6c250>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:45,765] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b5b2b0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:47,767] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:47,768] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:47,771] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:47,773] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:47,789] [ERROR] Error calling Ollama API (attempt 1/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71d6a8e0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:48,796] [ERROR] Error calling Ollama API (attempt 2/3): HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff71b72070>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2025-08-23 23:03:50,798] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:50,806] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:50,809] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:50,812] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:50,813] [WARNING] Ollama disabled fallback and reason too short; defaulting to priority 3
+[2025-08-23 23:03:51,031] [INFO] OLLAMA simulation completed in 61.84 seconds
+[2025-08-23 23:03:52,145] [INFO] 
+===== COMPARISON SUMMARY =====
+[2025-08-23 23:03:52,145] [INFO] Comparison completed at: 2025-08-23T23:03:51.032573
+[2025-08-23 23:03:52,146] [INFO] 
+Total Patients:
+[2025-08-23 23:03:52,146] [INFO]   MTA: 99.00
+[2025-08-23 23:03:52,146] [INFO]   OLLAMA: 100.00
+[2025-08-23 23:03:52,156] [INFO] 
+Avg Wait Time:
+[2025-08-23 23:03:52,161] [INFO]   MTA: 380.20
+[2025-08-23 23:03:52,162] [INFO]   OLLAMA: 362.90
+[2025-08-23 23:03:52,162] [INFO] 
+Breach Rate:
+[2025-08-23 23:03:52,162] [INFO]   MTA: 0.84
+[2025-08-23 23:03:52,162] [INFO]   OLLAMA: 0.81
+[2025-08-23 23:03:52,162] [INFO] 
+Simulation Durations:
+[2025-08-23 23:03:52,162] [INFO]   MTA: 0.24 seconds
+[2025-08-23 23:03:52,163] [INFO]   OLLAMA: 61.84 seconds
+[2025-08-23 23:03:52,163] [INFO] 
+Detailed results saved to the output directory.

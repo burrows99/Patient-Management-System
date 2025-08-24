@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Dict, Any
 import pandas as pd
 import numpy as np
+from .time_utils import seconds_to_hours
 
 
 def temporal_patterns(df: pd.DataFrame) -> Dict[str, Any]:
@@ -112,7 +113,7 @@ def simulation_optimization(df: pd.DataFrame) -> Dict[str, Any]:
 
     if optimal_date is not None:
         day_encounters = df[df['DATE'] == optimal_date]
-        time_span = (day_encounters['START_DT'].max() - day_encounters['START_DT'].min()).total_seconds() / 3600
+        time_span = seconds_to_hours((day_encounters['START_DT'].max() - day_encounters['START_DT'].min()).total_seconds())
         result['optimal_count'] = int(len(day_encounters))
         result['time_span_hours'] = float(time_span)
         result['type_distribution'] = day_encounters['ENCOUNTERCLASS'].value_counts().to_dict()

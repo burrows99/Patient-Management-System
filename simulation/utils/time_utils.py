@@ -25,6 +25,18 @@ def minutes_to_hours(mins: float) -> float:
     return mins / 60.0
 
 
+def hours_to_minutes(hours: float) -> float:
+    return hours * 60.0
+
+
+def seconds_to_minutes(seconds: float) -> float:
+    return seconds / 60.0
+
+
+def seconds_to_hours(seconds: float) -> float:
+    return seconds / 3600.0
+
+
 def humanize_minutes(mins: float) -> str:
     return f"{mins:.1f} minutes ({minutes_to_hours(mins):.1f} hours)"
 

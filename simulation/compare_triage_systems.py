@@ -5,18 +5,21 @@ Compare MTA and Ollama-based triage systems.
 This script runs the simulation with both triage systems and compares their results.
 """
 
-import os
 import json
 import time
 import logging
-import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict
+import sys
+
+# Ensure project root is on sys.path when running as a script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from simulation.simulation import run_simulation
-from simulation.domain.triage_factory import create_triage_system
 
 # Configure logging
 logging.basicConfig(
