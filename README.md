@@ -5,10 +5,9 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 ## What’s Included
 
 - __[data generation]__ Dockerized Synthea run to produce FHIR and CSV under `output/`
-- __[queue simulation]__ Discrete-event simulations using `simpy` over real encounter timelines: `utils/queue_simulation.py`
-- __[TriageSimulation runs the Manchester Triage based simulation.]__ TriageSimulation runs the Manchester Triage based simulation.
-- __[analytics dashboard]__ Comprehensive analysis and recommendations for capacity planning: `simulation/dashboard.py`
-- __[unified CLI]__ Single entry point to run MTA, Ollama, or both, with optional summary analytics: `python3 simulate.py`
+- __[priority queue simulation]__ Discrete-event simulation using SimPy `PriorityResource` with Manchester Triage priorities: `simulation/engine/simulator.py`
+- __[simulation orchestrator]__ Unified runner that loads encounters, configures triage (MTA or Ollama), runs the SimPy engine, and builds a JSON report: `simulation/simulation.py`
+- __[unified CLI]__ Single entry point to run MTA, Ollama, or both, with optional summaries and diagnostic CSV dumps: `python3 simulate.py`
 
 ## Prerequisites
 - Docker installed and running
@@ -17,14 +16,13 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 
 ## Project Structure
 - `docker-compose.yml` — defines the `synthea` service for dataset generation
-- `output/` — generated data will appear here
+- `output/` — generated data will appear here (ignored by git)
   - `output/fhir/` — FHIR JSON
   - `output/csv/` — CSV exports
-- `utils/queue_simulation.py` — basic SimPy queue model over encounters
-- `simulation/simulation.py` — TriageSimulation runs the Manchester Triage based simulation.
-- `simulation/main.py` — unified entrypoint: analytics → `analytics_summary.json` → simulation
-- `simulation/dataAnalysis.py` — dataset exploration helpers
-- `simulation/dashboard.py` — end-to-end analytics and recommendations
+- `simulation/engine/simulator.py` — SimPy priority-based engine (`TriageSimulation`)
+- `simulation/simulation.py` — Orchestrates data loading, triage system creation, engine run, and reporting
+- `simulation/analytics/` — plotting and comparison helpers used by the CLI
+- (legacy) `utils/queue_simulation.py`, `simulation/dashboard.py`, `simulation/main.py` — kept for reference; prefer the unified CLI
 
 ## Generate Dataset with Synthea (Docker Compose)
 From the project root (`NHS-MOA-Triage-System/`). The compose file is configured to generate 5 patients and export both FHIR and CSV into `output/`.
@@ -61,23 +59,21 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-- __[Queue simulation]__ using encounter arrival times and service durations:
-  ```bash
-  python utils/queue_simulation.py --servers=3 --class=emergency --limit=500 --defaultServiceMin=15
-  ```
-  Outputs JSON with `avg_wait_min`, `avg_time_in_system_min`, `utilization`, etc. See `utils/queue_simulation.py`.
-
-- __[Unified CLI — simulate.py]__ Recommended single entry point.
+- __Unified CLI — simulate.py__ (recommended)
   ```bash
   # MTA only
   python3 simulate.py --system mta --servers 3 --limit 100 --analyze
 
-  # Ollama only (ensure local Ollama running). Env vars optional:
+  # Ollama only (ensure local Ollama at http://localhost:11434)
   OLLAMA_EXPLANATION_DETAIL=long OLLAMA_TELEMETRY_PATH=ollama_telemetry.jsonl \
   python3 simulate.py --system ollama --ollama-model phi:2.7b --servers 3 --limit 100 --analyze
 
   # Run both and compare (prints compact diff and per-system summaries)
   python3 simulate.py --system both --servers 3 --limit 100
+
+  # Optional: Poisson arrivals and diagnostic CSV dumps for side-by-side comparison
+  python3 simulate.py --system both --servers 1 --limit 10 \
+    --poisson --poisson-rate 1.0 --poisson-seed 123 --dump-events --debug
   ```
   Flags:
   - `--system`: `mta`, `ollama`, or `both`
@@ -86,12 +82,15 @@ pip install -r requirements.txt
   - `--limit`: max encounters to simulate (default 100)
   - `--ollama-model`: model name when using Ollama (default `phi:2.7b`)
   - `--analyze`: print compact summary instead of full JSON report
+  - `--poisson`, `--poisson-rate`, `--poisson-seed`, `--poisson-start`: queue-theory arrival generation
+  - `--outDir`: base output directory (timestamped subfolder created)
+  - `--dump-events`: write `mta_events.csv`, `ollama_events.csv`, and `events_comparison.csv`
 
-- __[TriageSimulation (direct)]__ You can still run the simulator directly if needed:
+- __Direct engine run (advanced)__
   ```bash
   python3 simulation/simulation.py --servers=3 --limit=100 --debug
   ```
-  See `simulation/simulation.py` (`TriageSimulation`).
+  See `simulation/engine/simulator.py` for the SimPy engine and `simulation/simulation.py` for orchestration.
 
 ## Literature Review
 
@@ -163,18 +162,14 @@ pip install -r requirements.txt
 
 ### Plots and Visual Reports
 
-Use the `--plots` flag with the unified entrypoint to generate PNG charts summarizing key metrics. Files are saved to `output/plots/` by default (customize with `--plotsDir`):
-  - `patients_per_priority.png` — bar chart of patients by MTS priority
-  - `breach_rate_by_priority.png` — breach percentage by priority (if available)
-  - `wait_times_by_priority.png` — average and P95 wait times by priority
-  - `overall_metrics.png` — overall breach %, average wait, and P95 wait
+The CLI saves charts automatically under a timestamped folder, e.g. `output/simulation/jsonfiles/<ts>/plots/`:
+  - `patients_per_priority.png` — bar chart of patients by priority
+  - `breach_rate_by_priority.png` — breach % by priority
+  - `wait_times_by_priority.png` — average and P95 wait by priority
+  - `overall_metrics.png` — overall breach %, average wait, P95 wait
+  - `overall_comparison.png` — side-by-side MTA vs Ollama overall metrics
 
-- Example:
-  ```bash
-  # (Deprecated) legacy dashboard runner
-  python3 -m simulation.main --servers=4 --compressTo=8hours --plots --plotsDir=output/plots
-  ```
-  Plots are produced by `simulation/analytics/viz/plotting.py` using seaborn/matplotlib.
+Plots are produced by `simulation/analytics/viz/plotting.py`.
 
 ## References
 
@@ -233,31 +228,30 @@ Use the `--plots` flag with the unified entrypoint to generate PNG charts summar
 
 ## References (selected)
 
-- __SimPy documentation__ — Discrete‑event simulation framework with process interaction and resources: https://simpy.readthedocs.io/en/latest/ 
-- __Manchester Triage System (MTS)__ — Peer‑reviewed discussions of waiting times and urgency levels: 
-  - BMJ Emergency Medicine Journal: https://emj.bmj.com/content/31/1/13 
-  - BMC Emergency Medicine (performance in older patients): https://bmcemergmed.biomedcentral.com/articles/10.1186/s12873-018-0217-y 
-- __M/M/c queue (queueing theory)__ — Background on multi‑server queues used for staffing/utilization reasoning: https://en.wikipedia.org/wiki/M/M/c_queue 
-- __Synthea__ — Synthetic patient generator used for data: https://github.com/synthetichealth/synthea 
+- __SimPy PriorityResource__ — Shared resources and priority scheduling: https://simpy.readthedocs.io/en/latest/topical_guides/resources.html
+- __SimPy API (resources)__ — Priority and request sorting (lower value = higher priority): https://simpy.readthedocs.io/en/latest/api_reference/simpy.resources.html
+- __NHS England initial assessment guidance__ — Definitions and models for ED initial assessment, streaming, triage, and RAT: https://www.england.nhs.uk/guidance-for-emergency-departments-initial-assessment/
+- __Manchester Triage literature (systematic reviews)__ — Open-access overview of MTS validity: https://pmc.ncbi.nlm.nih.gov/articles/PMC5289484/
+- __EMJ study on MTS implementation__ — Before/after analysis: https://emj.bmj.com/content/31/1/13
+- __Queueing theory M/M/c__ — Background for staffing/utilization: https://en.wikipedia.org/wiki/M/M/c_queue
+- __Synthea__ — Synthetic patient generator used for data: https://github.com/synthetichealth/synthea
+- __Ollama docs__ — Local LLM server and model management: https://github.com/ollama/ollama
 
 ## Simulation Details and Rationale
 
 ### Model overview
 - __Queueing paradigm__: We simulate a service system where encounters arrive over time with service durations extracted from `START`/`STOP` in `output/csv/encounters.csv`.
-- __Engines__: `utils/queue_simulation.py` uses `simpy.Resource` (FIFO) and `simulation/simulation.py` uses `simpy.PriorityResource` for non‑preemptive priorities. See SimPy docs: https://simpy.readthedocs.io/en/latest/
+- __Engines__: The unified path uses `simulation/engine/simulator.py` with `simpy.PriorityResource` for non‑preemptive priorities. See SimPy docs: https://simpy.readthedocs.io/en/latest/
 - __Servers__: Parallel capacity `c = --servers`.
 
-### Time compression (for sparse timelines)
-Real datasets may span days/months with low density. `simulation/simulation.py` compresses timestamps to a target window (e.g., 8 hours) while preserving ordering and relative gaps. This creates realistic queueing pressure for experimentation without altering the event sequence. The approach maintains causality and relative inter‑arrival structure, which is essential for queue dynamics.
+### Time horizon
+`simulation/simulation.py` computes a conservative horizon from arrivals and total service to ensure the queue drains even with large service estimates and few servers. This avoids premature termination when some systems estimate longer services.
 
 ### Manchester Triage System (MTS) priorities
 - __Priority classes__: P1–P5 with target maximum waits (e.g., Immediate/Red, Very Urgent/Orange, etc.). In `ManchesterTriageSystem.PRIORITIES` we encode names, color codes, and target waits; assignment uses encounter class plus clinical keywords from `REASONDESCRIPTION`.
 - __Rule choice__: We bias toward higher priority (P1/P2) when critical terms are present (e.g., “cardiac arrest”, “stroke”, “chest pain”), moderate (P2/P3) for acute terms (e.g., “pain”, “infection”), and otherwise sample from encounter‑class distributions. This mirrors MTS’s discriminator‑based urgency determination while remaining data‑driven and lightweight for synthetic data.
-- __Queue discipline__: Non‑preemptive priority queue via `PriorityResource.request(priority=p)`. Lower numeric priority (P1) is served first when a server frees; service is not interrupted mid‑treatment, aligning with ED practice. Breaches are measured against the target max wait per MTS level.
-- __Why MTS__: MTS is widely used across UK EDs and Europe and supported by NHS guidance noting several validated triage systems (MTS, CTAS, ESI) in use in England.
-  - NHS England initial assessment guidance: https://www.england.nhs.uk/guidance-for-emergency-departments-initial-assessment/
-  - Systematic review on MTS validity: https://pmc.ncbi.nlm.nih.gov/articles/PMC5289484/
-  - EMJ before/after MTS study: https://emj.bmj.com/content/31/1/13
+- __Queue discipline__: Non‑preemptive priority queue via `PriorityResource.request(priority=p)`. Lower numeric priority (P1) is served first when a server frees; service is not interrupted mid‑treatment. Breaches are measured against the target max wait per MTS level. See SimPy resources: https://simpy.readthedocs.io/en/latest/topical_guides/resources.html
+- __Why MTS__: MTS is widely used across UK EDs and Europe and supported by NHS guidance noting validated models for initial assessment and triage in England. NHS guidance: https://www.england.nhs.uk/guidance-for-emergency-departments-initial-assessment/
 
 ### Queueing theory background (staffing intuition)
 While results are generated empirically by simulation, capacity recommendations in `simulation/dashboard.py` are informed by classic M/M/c intuition:
@@ -286,20 +280,17 @@ W_q = P(wait) / (c*mu - lambda)
 
 - Expected time in system: `W = W_q + 1/μ`. These formulas are used for rough staffing guidance and validation of simulated behavior (see also Little’s Law `L = λ W`).
 
-References:
-- Queueing theory M/M/c summary: https://en.wikipedia.org/wiki/Queueing_theory#M/M/c
-- Erlang C formula: https://en.wikipedia.org/wiki/Erlang_(unit)#Erlang_C_formula
-- Priority queueing background: https://en.wikipedia.org/wiki/Priority_queueing
+## Simulation Architecture
 
-## Simulation Architecture (Diagram)
-
+The simulation architecture is depicted in the following diagram:
 ```mermaid
 flowchart TD
     A[Synthea Synthetic Data] -->|generate| B[output/csv/encounters.csv]
     B --> C[dataAnalysis.py]
+    C --> D[dashboard.py]
     C -->|stats & patterns| D[dashboard.py]
     B --> E[simulation/simulation.py]
-    E -->|priority mapping + time compression| F[SimPy Engine - PriorityResource - c servers]
+    E -->|triage mapping + engine orchestration| F[SimPy Engine (simulation/engine/simulator.py) - PriorityResource - c servers]
     F --> G[Simulation Results]
     D --> H[analytics_summary.json]
     G --> H
@@ -436,18 +427,19 @@ This repo includes a side‑by‑side comparison harness to evaluate a rules/key
   - Emits priorities P1–P5 with target max waits, used by the SimPy priority queue.
 
 - __Ollama (`simulation/domain/ollama_agent.py`)__
-  - Calls a local Ollama server (default model `mistral:7b-instruct`).
+  - Calls a local Ollama server (default model configured via `--ollama-model`, e.g., `phi:2.7b`).
   - Prompt asks for a JSON `{ "priority": <1..5>, "explanation": "..." }`.
   - Safety: when `disable_fallback=True`, the agent will NOT silently fall back to MTA; on invalid/short/no‑response it returns priority 3.
+  - Docs: https://github.com/ollama/ollama
 
 ### Methodology
 - Both systems run over the same compressed encounter timeline using `simulation/engine/simulator.py`.
 - For the Ollama run we remove any pre‑assigned priorities to ensure the agent is actually invoked.
 - Run comparison via the unified CLI:
   ```bash
-  python3 simulate.py --system both --servers 3 --limit 100 --compressTo 8hours --analyze
+  python3 simulate.py --system both --servers 3 --limit 100 --analyze
   ```
-  - `mta_results_<ts>.json`, `ollama_results_<ts>.json`, `comparison_<ts>.json`, and a `comparison_<ts>.png` chart.
+  The run saves `mta_results.json`, `ollama_results.json`, `comparison.json`, and plots in a timestamped folder under `output/simulation/jsonfiles/`.
 
 ### How to run
 - Docker (recommended; brings up Ollama and runs the comparison container):
@@ -459,21 +451,24 @@ This repo includes a side‑by‑side comparison harness to evaluate a rules/key
 
 - Requirements: `pip install -r requirements.txt` and a running local Ollama at http://localhost:11434 for the Ollama path.
 
-### Latest sample results (limit=100, servers=3)
-- Files: `output/comparison/*_20250823_124620.*`
-- __MTA__ (`mta_results_20250823_124620.json`)
-  - Completed: 73 patients
-  - Overall breach: 79.5%
-  - Avg wait: 686.2 min; P95 wait: 1294.1 min
-  - Priority mix: P2=8, P3=15, P4=48, P5=2
+### Diagnostics: explaining higher waits with Ollama
 
-- __Ollama__ (`ollama_results_20250823_124620.json`)
-  - Completed: 81 patients
-  - Overall breach: 81.5%
-  - Avg wait: 577.0 min; P95 wait: 1281.8 min
-  - Priority mix: P3=81 (current prompt/parse trends to P3 default in errors/short reasons)
+Use the CLI with `--dump-events` to export per-patient events and a side-by-side table to verify causes:
+```bash
+python3 simulate.py --system both --servers 1 --limit 10 \
+  --poisson --poisson-rate 1.0 --poisson-seed 123 --dump-events --debug
+```
+It will write in `output/simulation/jsonfiles/<ts>/`:
+- `mta_events.csv`
+- `ollama_events.csv`
+- `events_comparison.csv` (columns: `arrival_min`, `service_min`, `priority_mta`, `wait_min_mta`, `priority_ollama`, `wait_min_ollama`)
 
-- PNG chart: `comparison_20250823_124620.png`
+Interpretation pattern we observed:
+- Arrivals and baseline `service_min` derive from encounters and match across systems.
+- Ollama often assigns higher acuity (more P2), and its per-priority service estimates skew longer (more 60-minute services).
+- In a single-server, non-preemptive priority queue, this increases leapfrogging and total workload, raising average/p95 waits.
+
+This behavior follows SimPy `PriorityResource` ordering (lower number = higher priority) [SimPy docs](https://simpy.readthedocs.io/en/latest/topical_guides/resources.html) and aligns with NHS concepts of initial assessment and triage prioritization [NHS England](https://www.england.nhs.uk/guidance-for-emergency-departments-initial-assessment/).
 
 ### Interpretation
 - MTA yields a broader acuity distribution (P2–P5) reflecting rules and keywords; Ollama currently concentrates on P3, leading to different queue dynamics and slightly different waits/breach rates.
