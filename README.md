@@ -8,7 +8,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 - __[queue simulation]__ Discrete-event simulations using `simpy` over real encounter timelines: `utils/queue_simulation.py`
 - __[time-compressed MTS sim]__ Manchester Triage System-based priority queue with time compression for sparse data: `simulation/simulation.py`
 - __[analytics dashboard]__ Comprehensive analysis and recommendations for capacity planning: `simulation/dashboard.py`
-- __[unified entrypoint]__ One command to run analytics then simulation: `python3 -m simulation.main`
+- __[unified CLI]__ Single entry point to run MTA, Ollama, or both, with optional summary analytics: `python3 simulate.py`
 
 ## Prerequisites
 - Docker installed and running
@@ -67,20 +67,26 @@ pip install -r requirements.txt
   ```
   Outputs JSON with `avg_wait_min`, `avg_time_in_system_min`, `utilization`, etc. See `utils/queue_simulation.py`.
 
-- __[Unified entrypoint]__ Recommended: runs the analytics dashboard, writes `analytics_summary.json`, then runs the simulation using the recommended servers unless overridden.
+- __[Unified CLI — simulate.py]__ Recommended single entry point.
   ```bash
-  # Run analytics then simulation (module form ensures package imports work)
-  python3 -m simulation.main
+  # MTA only
+  python3 simulate.py --system mta --servers 3 --limit 100 --compressTo 8hours --analyze
 
-  # Examples
-  python3 -m simulation.main --servers=4                 # override server count
-  python3 -m simulation.main --compressTo=12hours        # gentler compression
-  python3 -m simulation.main --class=emergency           # filter by encounter class
-  python3 -m simulation.main --limit=200 --debug         # larger sample + debug logs
-  python3 -m simulation.main --plots                     # also save charts to output/plots/
-  python3 -m simulation.main --plots --plotsDir=reports/plots  # custom output folder
+  # Ollama only (ensure local Ollama running). Env vars optional:
+  OLLAMA_EXPLANATION_DETAIL=long OLLAMA_TELEMETRY_PATH=ollama_telemetry.jsonl \
+  python3 simulate.py --system ollama --ollama-model phi:2.7b --servers 3 --limit 100 --compressTo 8hours --analyze
+
+  # Run both and compare (prints compact diff and per-system summaries)
+  python3 simulate.py --system both --servers 3 --limit 100 --compressTo 8hours
   ```
-  This reads `output/csv/encounters.csv`, prints a comprehensive analytics report, saves a summary to `analytics_summary.json`, and then runs the simulation with the selected parameters.
+  Flags:
+  - `--system`: `mta`, `ollama`, or `both`
+  - `--servers`: parallel capacity (default 3)
+  - `--class`: optional encounter class filter (e.g., `emergency`, `wellness`)
+  - `--limit`: max encounters to simulate (default 100)
+  - `--compressTo`: time-compression target (e.g., `8hours`, `1day`)
+  - `--ollama-model`: model name when using Ollama (default `phi:2.7b`)
+  - `--analyze`: print compact summary instead of full JSON report
 
 - __[Time-compressed MTS simulation (direct)]__ You can still run the simulator directly if needed:
   ```bash
@@ -166,6 +172,7 @@ Use the `--plots` flag with the unified entrypoint to generate PNG charts summar
 
 - Example:
   ```bash
+  # (Deprecated) legacy dashboard runner
   python3 -m simulation.main --servers=4 --compressTo=8hours --plots --plotsDir=output/plots
   ```
   Plots are produced by `simulation/utils/plotting.py` using seaborn/matplotlib.
@@ -215,11 +222,11 @@ Use the `--plots` flag with the unified entrypoint to generate PNG charts summar
 - Docker cannot find image: ensure you’re online; Docker will pull `intersystemsdc/irisdemo-base-synthea:version-1.3.4` automatically.
 
 - Module imports error: `ModuleNotFoundError: No module named 'simulation'`
-  - Always run the unified entrypoint as a module from the repo root:
+  - Prefer the unified CLI from the repo root:
     ```bash
-    python3 -m simulation.main
+    python3 simulate.py --system mta --limit 100
     ```
-  - Running `python simulation/main.py` may not treat `simulation/` as a package in some environments.
+  - The older module entrypoint `python3 -m simulation.main` is deprecated.
 
 - Data not found error for `encounters.csv`
   - Ensure data exists at `output/csv/encounters.csv`.
