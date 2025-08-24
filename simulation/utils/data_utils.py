@@ -7,8 +7,8 @@ from .io_utils import read_csv_or_excel
 from .time_utils import seconds_to_minutes
 
 
-def load_encounters_df(output_dir: Path | str) -> pd.DataFrame:
-    """Load encounters and add standard time/service features.
+def load_encounters_df(output_dir: Path | str, process_all: bool = True) -> pd.DataFrame:
+    """Load encounters and optionally add standard time/service features.
 
     Returns a DataFrame with parsed times and helper columns:
     - START_DT, STOP_DT, SERVICE_MIN (clipped to [1,480])
@@ -16,20 +16,83 @@ def load_encounters_df(output_dir: Path | str) -> pd.DataFrame:
     """
     df = read_csv_or_excel(output_dir, "encounters.csv", "Encounters")
 
-    # Parse times if present
-    if "START" in df.columns:
-        df["START_DT"] = pd.to_datetime(df["START"], errors="coerce")
-    if "STOP" in df.columns:
-        df["STOP_DT"] = pd.to_datetime(df["STOP"], errors="coerce")
+    if not process_all:
+        return df
 
-    # Service minutes (fallback to 15 if missing/invalid)
+    # Parse and compute features for entire frame (default behavior)
+    df = assign_start_dt(df)
+    df = assign_stop_dt(df)
+    df = compute_service_min(df)
+    df = assign_time_features(df)
+
+    return df
+
+
+def assign_start_dt(
+    df: pd.DataFrame,
+    source_col: str = "START",
+    *,
+    use_poisson: bool = False,
+    rate_per_min: float | None = None,
+    seed: int | None = None,
+    start_at: pd.Timestamp | None = None,
+) -> pd.DataFrame:
+    """Assign standardized start datetime column START_DT.
+
+    Two modes:
+    1) Default: parse from source_col (legacy behavior).
+    2) Poisson arrivals: if use_poisson and rate_per_min are provided, generate
+       START_DT by drawing exponential inter-arrival times with rate λ (per minute)
+       and cumulatively summing. First arrival is at t=0.
+
+    Args:
+      source_col: Column to parse when not using Poisson generation.
+      use_poisson: When True, ignore source_col and synthesize arrival times.
+      rate_per_min: λ (arrivals per minute). Required when use_poisson=True.
+      seed: Optional RNG seed for reproducibility.
+      start_at: Base timestamp for first arrival (defaults to current UTC minute).
+    """
+    if use_poisson:
+        if not rate_per_min or rate_per_min <= 0:
+            raise ValueError("rate_per_min must be > 0 when use_poisson=True")
+        n = len(df)
+        if n == 0:
+            df["START_DT"] = pd.to_datetime([])
+            return df
+        rng = np.random.default_rng(seed)
+        inter = rng.exponential(1.0 / float(rate_per_min), size=n)  # minutes
+        arrival_min = np.cumsum(inter)
+        # Shift so the first arrival is at t=0 for consistency with previous logic
+        arrival_min = arrival_min - arrival_min[0]
+        base = start_at if start_at is not None else pd.Timestamp.utcnow().floor("min")
+        df["START_DT"] = base + pd.to_timedelta(arrival_min, unit="m")
+        return df
+
+    # Legacy parsing path
+    if source_col in df.columns:
+        df["START_DT"] = pd.to_datetime(df[source_col], errors="coerce")
+    return df
+
+
+def assign_stop_dt(df: pd.DataFrame, source_col: str = "STOP") -> pd.DataFrame:
+    """Assign standardized stop datetime column STOP_DT from a source column."""
+    if source_col in df.columns:
+        df["STOP_DT"] = pd.to_datetime(df[source_col], errors="coerce")
+    return df
+
+
+def compute_service_min(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute SERVICE_MIN from START_DT/STOP_DT when available, else default to 15 if missing."""
     if "START_DT" in df.columns and "STOP_DT" in df.columns:
         svc = seconds_to_minutes((df["STOP_DT"] - df["START_DT"]).dt.total_seconds())
         df["SERVICE_MIN"] = np.clip(svc.fillna(0), 1, 480)
     elif "SERVICE_MIN" not in df.columns:
         df["SERVICE_MIN"] = 15.0
+    return df
 
-    # Time features (safe defaults if START_DT missing)
+
+def assign_time_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Assign helper time features from START_DT or safe defaults if missing."""
     if "START_DT" in df.columns:
         df["HOUR"] = df["START_DT"].dt.hour
         df["DAY_OF_WEEK"] = df["START_DT"].dt.day_name()
@@ -40,7 +103,6 @@ def load_encounters_df(output_dir: Path | str) -> pd.DataFrame:
         df["DAY_OF_WEEK"] = "Monday"
         df["MONTH"] = 1
         df["YEAR"] = 1970
-
     return df
 
 

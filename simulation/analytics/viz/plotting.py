@@ -77,6 +77,28 @@ def plot_priority_breakdown(report: Dict, outdir: str | Path) -> list[Path]:
     return out
 
 
+def _extract_overall_metrics(report: Dict) -> Dict[str, float]:
+    """Return a dict with overall metrics regardless of schema shape.
+
+    Supports either:
+    - flat keys on the report
+    - nested under report['system_performance']
+    """
+    sp = report.get('system_performance') or {}
+    if sp:
+        return {
+            'overall_breach_rate_percent': float(sp.get('overall_breach_rate_percent', 0.0) or 0.0),
+            'overall_avg_wait_min': float(sp.get('overall_avg_wait_min', 0.0) or 0.0),
+            'overall_p95_wait_min': float(sp.get('overall_p95_wait_min', 0.0) or 0.0),
+        }
+    # Fallback to flat keys
+    return {
+        'overall_breach_rate_percent': float(report.get('overall_breach_rate_percent', 0.0) or 0.0),
+        'overall_avg_wait_min': float(report.get('overall_avg_wait_min', 0.0) or 0.0),
+        'overall_p95_wait_min': float(report.get('overall_p95_wait_min', 0.0) or 0.0),
+    }
+
+
 def save_system_plots(system_report: Dict, outdir: str | Path) -> list[Path]:
     """Save standard plots for a single system report.
 
@@ -93,13 +115,9 @@ def save_system_plots(system_report: Dict, outdir: str | Path) -> list[Path]:
     # Per-priority plots
     out_paths += plot_priority_breakdown(system_report, outdir)
 
-    # Overall metrics expect a 'system_performance' dict
+    # Build overall metrics dict using extractor
     overall = {
-        'system_performance': {
-            'overall_breach_rate_percent': system_report.get('overall_breach_rate_percent', 0.0),
-            'overall_avg_wait_min': system_report.get('overall_avg_wait_min', 0.0),
-            'overall_p95_wait_min': system_report.get('overall_p95_wait_min', 0.0),
-        }
+        'system_performance': _extract_overall_metrics(system_report)
     }
     out_paths += plot_overall_metrics(overall, outdir)
 
@@ -111,13 +129,16 @@ def plot_overall_comparison(mta_report: Dict, ollama_report: Dict, outdir: str |
     outdir = Path(outdir)
     _ensure_outdir(outdir)
 
+    mta_overall = _extract_overall_metrics(mta_report)
+    oll_overall = _extract_overall_metrics(ollama_report)
+
     comp_df = pd.DataFrame([
-        {'metric': 'breach_%', 'value': mta_report.get('overall_breach_rate_percent', 0.0), 'system': 'mta'},
-        {'metric': 'avg_wait_min', 'value': mta_report.get('overall_avg_wait_min', 0.0), 'system': 'mta'},
-        {'metric': 'p95_wait_min', 'value': mta_report.get('overall_p95_wait_min', 0.0), 'system': 'mta'},
-        {'metric': 'breach_%', 'value': ollama_report.get('overall_breach_rate_percent', 0.0), 'system': 'ollama'},
-        {'metric': 'avg_wait_min', 'value': ollama_report.get('overall_avg_wait_min', 0.0), 'system': 'ollama'},
-        {'metric': 'p95_wait_min', 'value': ollama_report.get('overall_p95_wait_min', 0.0), 'system': 'ollama'},
+        {'metric': 'breach_%', 'value': mta_overall['overall_breach_rate_percent'], 'system': 'mta'},
+        {'metric': 'avg_wait_min', 'value': mta_overall['overall_avg_wait_min'], 'system': 'mta'},
+        {'metric': 'p95_wait_min', 'value': mta_overall['overall_p95_wait_min'], 'system': 'mta'},
+        {'metric': 'breach_%', 'value': oll_overall['overall_breach_rate_percent'], 'system': 'ollama'},
+        {'metric': 'avg_wait_min', 'value': oll_overall['overall_avg_wait_min'], 'system': 'ollama'},
+        {'metric': 'p95_wait_min', 'value': oll_overall['overall_p95_wait_min'], 'system': 'ollama'},
     ])
 
     sns.set_theme(style='whitegrid')

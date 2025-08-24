@@ -54,6 +54,7 @@ class OllamaTriageAgent(TriageSystem):
         self.req_retries = int(req_cfg.get('retries', 3))
         self.req_options = (req_cfg.get('options') or {"temperature": 0.3, "top_p": 0.9, "num_predict": 120})
         # No heuristics: the model fully decides priority
+        self._last_service_min: float | None = None
         
     def _build_prompt(self, encounter_data: Dict[str, Any]) -> tuple[str, str, str]:
         """Build the model prompt from encounter data.
@@ -63,7 +64,7 @@ class OllamaTriageAgent(TriageSystem):
         reason = encounter_data.get('reason_description', '')
         enc_class = encounter_data.get('encounter_class', '')
         if not reason or len(reason.strip()) < 5:
-            logger.warning("Reason too short; proceeding with heuristics/LLM and logging telemetry")
+            logger.warning("Reason too short; proceeding with LLM and logging telemetry")
         history = encounter_data.get('patient_history', '') or ''
         target_words = int(self.expl_words_cfg.get(self.expl_detail, 32))
         prompt = self.prompt_template.format(
@@ -105,6 +106,24 @@ class OllamaTriageAgent(TriageSystem):
         # Already parsed JSON from model
         self._last_call_meta = {"http_ms": http_ms, "parse": "pre-parsed", "raw_len": len(str(result))}
         logger.debug(f"Ollama call ok model={self.model_name} http_ms={http_ms} parse=pre-parsed size={len(str(result))}")
+        return None
+
+    def _extract_service_min_value(self, response: Dict[str, Any]) -> float | None:
+        """Extract a service time in minutes from model response if present.
+        Accept keys like 'service_min', 'service_time_min', or 'service_minutes'.
+        """
+        if not isinstance(response, dict):
+            return None
+        for k in ("service_min", "service_time_min", "service_minutes"):
+            if k in response:
+                try:
+                    v = response[k]
+                    # Allow numeric or numeric string
+                    num = float(str(v).strip().strip('"').strip("'"))
+                    if num > 0:
+                        return num
+                except Exception:
+                    continue
         return None
 
     def _extract_priority_value(self, response: Dict[str, Any]) -> int | None:
@@ -244,6 +263,8 @@ class OllamaTriageAgent(TriageSystem):
             
             # Validate and return priority (with heuristics if needed)
             priority = self._extract_priority_value(response)
+            # Capture optional service_min estimate from model for follow-up use
+            self._last_service_min = self._extract_service_min_value(response)
 
             # If invalid priority, treat as a failure and fall back to MTS
             if not isinstance(priority, int) or not (1 <= priority <= 5):
@@ -269,6 +290,8 @@ class OllamaTriageAgent(TriageSystem):
             logger.error(f"Error in Ollama triage: {e}")
             # Always fall back to Manchester Triage on any failure
             final_priority = self.mts.assign_priority(encounter_data)
+            # Reset last service estimate on failure path
+            self._last_service_min = None
             # Write error-path telemetry as well
             total_ms = int((time.time() - overall_t0) * 1000)
             self._write_telemetry(
@@ -285,6 +308,16 @@ class OllamaTriageAgent(TriageSystem):
     def get_priority_info(self, priority: int) -> Dict[str, Any]:
         """Delegate to base class implementation backed by shared config."""
         return super().get_priority_info(priority)
+
+    def estimate_service_min(self, encounter_data: Dict[str, Any], priority: int) -> float | None:
+        """Return model-provided service time if available; otherwise fall back to MTS defaults."""
+        if self._last_service_min is not None:
+            return self._last_service_min
+        # Fallback to Manchester Triage System standards
+        try:
+            return ManchesterTriageSystem().estimate_service_min(encounter_data, priority)
+        except Exception:
+            return None
 
     def _load_config(self) -> Dict[str, Any]:
         """Load Ollama configuration from root config/ollama_config.yaml with fallback defaults."""
@@ -332,6 +365,7 @@ class OllamaTriageAgent(TriageSystem):
                 "reason": reason,
                 "priority_model": (response.get('priority') if isinstance(response, dict) else None),
                 "priority_final": priority_final,
+                "service_min_model": (response.get('service_min') if isinstance(response, dict) else None),
                 "http_ms": meta.get('http_ms'),
                 "total_ms": total_ms,
                 "parse": meta.get('parse'),

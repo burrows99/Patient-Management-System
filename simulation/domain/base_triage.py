@@ -61,3 +61,8 @@ class TriageSystem(ABC):
         if priority not in priorities:
             raise ValueError(f"Invalid priority level: {priority}")
         return priorities[priority]
+
+    # Optional hook: estimate service minutes for an encounter at a given priority.
+    # Return None to indicate no suggestion, so callers can fall back to defaults.
+    def estimate_service_min(self, encounter_data: Dict[str, Any], priority: int) -> float | None:
+        return None

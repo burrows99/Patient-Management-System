@@ -12,6 +12,9 @@ from simulation.utils.data_utils import (
     resolve_encounter_patient_column,
     get_default_related_frames,
     build_structured_encounter,
+    assign_start_dt,
+    assign_stop_dt,
+    compute_service_min,
 )
 
 def get_distinct_patient_ids(df: pd.DataFrame) -> List[Any]:
@@ -43,13 +46,25 @@ def latest_encounters_by_patient(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty:
         return df
     pid_col = resolve_encounter_patient_column(df)
-    if not pid_col or pid_col not in df.columns or 'START_DT' not in df.columns:
+    if not pid_col or pid_col not in df.columns:
         return df
-    # Sort by START_DT ascending, then keep the last per patient id
-    sdf = df.sort_values('START_DT', kind='mergesort')
+    # Ensure we have a sortable datetime column; prefer existing START_DT, else parse temporary
+    has_start_dt = 'START_DT' in df.columns
+    if not has_start_dt and 'START' in df.columns:
+        sdf = df.copy()
+        sdf['_TMP_START_DT'] = pd.to_datetime(sdf['START'], errors='coerce')
+        sort_col = '_TMP_START_DT'
+    else:
+        sdf = df
+        sort_col = 'START_DT'
+    # Sort by start ascending, then keep the last per patient id
+    sdf = sdf.sort_values(sort_col, kind='mergesort')
     latest = sdf.drop_duplicates(subset=[pid_col], keep='last')
     # Preserve a consistent ordering (newest first) for downstream limiting if needed
-    latest = latest.sort_values('START_DT', ascending=False, kind='mergesort')
+    latest = latest.sort_values(sort_col, ascending=False, kind='mergesort')
+    # Drop temp column if created
+    if sort_col == '_TMP_START_DT':
+        latest = latest.drop(columns=['_TMP_START_DT'])
     return latest
 
 def _assign_priorities(encounters: List[Dict[str, Any]], debug: bool = False) -> None:
@@ -68,6 +83,11 @@ def load_and_prepare_encounters(
     class_filter: Optional[str] = None,
     limit: int = 0,
     debug: bool = False,
+    *,
+    use_poisson: bool = False,
+    poisson_rate_per_min: Optional[float] = None,
+    poisson_seed: Optional[int] = None,
+    poisson_start_at: Optional[str] = None,
 ) -> List[Dict]:
     """Load encounters and prepare for compressed simulation.
 
@@ -80,8 +100,8 @@ def load_and_prepare_encounters(
 
     output_dir = Path(csv_path).parent.parent  # .../output
 
-    # Core encounters dataframe
-    df = load_encounters_df(output_dir)
+    # Core encounters dataframe (lightweight: no time parsing yet)
+    df = load_encounters_df(output_dir, process_all=False)
     if debug:
         print(f"Loaded {len(df)} standardized encounters", file=sys.stderr)
 
@@ -98,9 +118,26 @@ def load_and_prepare_encounters(
     if debug:
         print(f"Reduced to latest encounters per patient: {len(df)} from {total_before}", file=sys.stderr)
 
-    # Sort and limit on the reduced set
-    df = sort_and_limit(df, date_col='START_DT', limit=limit)
+    # Sort and limit on the reduced set (by START if START_DT missing)
+    date_col = 'START_DT' if 'START_DT' in df.columns else ('START' if 'START' in df.columns else None)
+    df = sort_and_limit(df, date_col=date_col or 'START_DT', limit=limit)
 
+    # Now assign time fields only for the final selected encounters
+    if use_poisson and poisson_rate_per_min and poisson_rate_per_min > 0:
+        start_ts = pd.to_datetime(poisson_start_at, errors='coerce') if poisson_start_at else None
+        df = assign_start_dt(
+            df,
+            use_poisson=True,
+            rate_per_min=float(poisson_rate_per_min),
+            seed=poisson_seed,
+            start_at=start_ts,
+        )
+    else:
+        df = assign_start_dt(df)
+    df = assign_stop_dt(df)
+    df = compute_service_min(df)
+
+    # Arrival minutes from START_DT (present after assignment)
     arrival_min_series = compute_arrival_minutes(df, start_col='START_DT')
 
     # Related frames

@@ -97,3 +97,18 @@ class ManchesterTriageSystem(TriageSystem):
     def get_priority_info(self, priority: int) -> Dict[str, Any]:
         """Delegate to base class implementation backed by shared config."""
         return super().get_priority_info(priority)
+
+    def estimate_service_min(self, encounter_data: Dict[str, Any], priority: int) -> float | None:
+        """Return a standard service time in minutes for a given priority.
+
+        Simple deterministic defaults (can be externalized later):
+          P1:90, P2:60, P3:40, P4:20, P5:10
+        """
+        std_map = {
+            1: 90.0,   # P1: resus-level, multi-team, imaging, procedures
+            2: 60.0,   # P2: urgent diagnostics, possible admission
+            3: 40.0,   # P3: fractures, moderate illness
+            4: 20.0,   # P4: minor but needs assessment
+            5: 10.0    # P5: admin / trivial complaints
+        }
+        return std_map.get(int(priority))

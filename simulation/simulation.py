@@ -43,7 +43,12 @@ def run_simulation(servers: int = 3,
                    disable_fallback: bool = True,
                    csv_path: Optional[Union[str, Path]] = None,
                    loader: Optional[Callable[[str, Optional[str], int, bool], List[Dict]]] = None,
-                   seed: Optional[int] = 42) -> Dict:
+                   seed: Optional[int] = 42,
+                   *,
+                   use_poisson: bool = False,
+                   poisson_rate_per_min: Optional[float] = None,
+                   poisson_seed: Optional[int] = None,
+                   poisson_start_at: Optional[str] = None) -> Dict:
     """Run the time-compressed MTS simulation and return the report dict.
 
     Dependencies are injected via parameters (csv_path, loader) to improve testability and separation of concerns.
@@ -67,6 +72,10 @@ def run_simulation(servers: int = 3,
             encounter_class or '',
             limit,
             debug,
+            use_poisson=use_poisson,
+            poisson_rate_per_min=poisson_rate_per_min,
+            poisson_seed=poisson_seed,
+            poisson_start_at=poisson_start_at,
         )
 
         if not encounters:
@@ -79,10 +88,19 @@ def run_simulation(servers: int = 3,
                 if "priority" in enc:
                     del enc["priority"]
 
-        # Set simulation horizon via utils
-        horizon = compute_horizon(encounters)
+        # Set simulation horizon (conservative so queue can drain even with 1 server)
+        # Previous approach (last arrival + 2x max service) could end before any completion
+        # when service estimates are large. Use a safer upper bound here.
+        try:
+            last_arrival = max(e.get("arrival_min", 0.0) for e in encounters)
+            max_service = max(float(e.get("service_min", 0.0) or 0.0) for e in encounters)
+            sum_service = sum(float(e.get("service_min", 0.0) or 0.0) for e in encounters)
+            horizon = float(last_arrival + sum_service + max_service)
+        except Exception:
+            horizon = compute_horizon(encounters)
 
         logging.debug("\nSimulation parameters:")
+        logging.debug(f"  Encounters: {len(encounters)}")
         logging.debug(f"  Horizon: {humanize_minutes(horizon)}")
         logging.debug(f"  Servers: {servers}")
 

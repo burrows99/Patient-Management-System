@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 import simpy
+import math
 
 from simulation.domain.base_triage import TriageSystem
 from simulation.domain.manchester import ManchesterTriageSystem
@@ -43,13 +44,17 @@ class TriageSimulation:
         priority_info = self.triage_system.get_priority_info(priority)
         max_wait = priority_info['max_wait_min']
 
+        # Determine service time: prefer triage system estimate; if None, use encounter-provided
+        service_est = self.triage_system.estimate_service_min(encounter_data, priority)
+        final_service_time = float(service_est) if service_est is not None else float(service_time)
+
         with self.facility.request(priority=priority) as request:
             yield request
 
             service_start = self.env.now
             wait_time = service_start - arrival_timestamp
 
-            yield self.env.timeout(service_time)
+            yield self.env.timeout(final_service_time)
 
             # Log the completed patient event for downstream aggregation
             self.events.append(
@@ -58,7 +63,7 @@ class TriageSimulation:
                     "priority": priority,
                     "arrival_min": arrival_time,
                     "wait_min": wait_time,
-                    "service_min": service_time,
+                    "service_min": final_service_time,
                     "max_wait_min": max_wait,
                 }
             )
@@ -90,6 +95,17 @@ class TriageSimulation:
                 )
             )
 
-        self.env.run(until=horizon)
+        # Compute a conservative horizon to ensure completion even with large service estimates
+        try:
+            last_arrival = max(float(e.get("arrival_min", 0.0) or 0.0) for e in encounters) if encounters else 0.0
+            n = len(encounters)
+            batches = math.ceil(n / max(self.servers, 1))
+            # Cap service per patient at 480 min to build an upper bound; add 60 min slack
+            conservative = last_arrival + batches * 480.0 + 60.0
+            safe_horizon = max(float(horizon or 0.0), conservative)
+        except Exception:
+            safe_horizon = float(horizon or 0.0)
+
+        self.env.run(until=safe_horizon)
 
         return {"completed": self.completed, "events": self.events}

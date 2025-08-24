@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 from datetime import datetime
+import pandas as pd
 
 # Ensure project root on sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -45,6 +46,12 @@ def main():
     parser.add_argument('--limit', type=int, default=100, help='Max number of encounters')
     parser.add_argument('--ollama-model', default='phi:2.7b', help='Ollama model, when system=ollama/both')
     parser.add_argument('--analyze', action='store_true', help='Print compact analysis summary to stdout')
+    parser.add_argument('--dump-events', action='store_true', help='When running both, dump per-patient events CSVs and comparison table')
+    # Queue-theory arrivals (Poisson/exponential inter-arrival)
+    parser.add_argument('--poisson', action='store_true', help='Use Poisson arrivals (exponential inter-arrival times)')
+    parser.add_argument('--poisson-rate', type=float, default=None, help='Arrival rate λ in arrivals per minute (required with --poisson)')
+    parser.add_argument('--poisson-seed', type=int, default=None, help='Random seed for Poisson arrivals')
+    parser.add_argument('--poisson-start', type=str, default=None, help='Base timestamp for first arrival (e.g., 2025-08-24T09:00:00Z)')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging in underlying simulation')
     parser.add_argument('--outDir', default='output/simulation/jsonfiles', help='Directory to save simulation JSON outputs')
     args = parser.parse_args()
@@ -73,6 +80,10 @@ def main():
             debug=args.debug,
             triage_system='mta',
             disable_fallback=True,
+            use_poisson=args.poisson,
+            poisson_rate_per_min=args.poisson_rate,
+            poisson_seed=args.poisson_seed,
+            poisson_start_at=args.poisson_start,
         )
         if not mta_report:
             sys.exit(1)
@@ -108,6 +119,10 @@ def main():
             triage_system='ollama',
             ollama_model=args.ollama_model,
             disable_fallback=True,
+            use_poisson=args.poisson,
+            poisson_rate_per_min=args.poisson_rate,
+            poisson_seed=args.poisson_seed,
+            poisson_start_at=args.poisson_start,
         )
         if not ollama_report:
             sys.exit(1)
@@ -142,6 +157,10 @@ def main():
         debug=args.debug,
         triage_system='mta',
         disable_fallback=True,
+        use_poisson=args.poisson,
+        poisson_rate_per_min=args.poisson_rate,
+        poisson_seed=args.poisson_seed,
+        poisson_start_at=args.poisson_start,
     )
     if not mta_report:
         sys.exit(1)
@@ -154,6 +173,10 @@ def main():
         triage_system='ollama',
         ollama_model=args.ollama_model,
         disable_fallback=True,
+        use_poisson=args.poisson,
+        poisson_rate_per_min=args.poisson_rate,
+        poisson_seed=args.poisson_seed,
+        poisson_start_at=args.poisson_start,
     )
     if not ollama_report:
         sys.exit(1)
@@ -194,6 +217,35 @@ def main():
     # Comparative overall metrics plot
     comp_plots_dir = run_outdir / 'plots'
     plot_overall_comparison(mta_report, ollama_report, comp_plots_dir)
+
+    # Optional: dump detailed events for diagnostics
+    if args.dump_events:
+        ev_mta = pd.DataFrame(mta_report.get('events', []))
+        ev_oll = pd.DataFrame(ollama_report.get('events', []))
+        ev_mta_path = run_outdir / 'mta_events.csv'
+        ev_oll_path = run_outdir / 'ollama_events.csv'
+        ev_mta.to_csv(ev_mta_path, index=False)
+        ev_oll.to_csv(ev_oll_path, index=False)
+
+        # Build a side-by-side comparison by arrival_time ordering index
+        def with_idx(df: 'pd.DataFrame', label: str) -> 'pd.DataFrame':
+            if df.empty:
+                return df
+            d = df.copy()
+            d = d.sort_values(['arrival_min', 'service_min']).reset_index(drop=True)
+            d['sim_index'] = d.index
+            cols = ['sim_index', 'arrival_min', 'service_min', 'priority', 'wait_min']
+            return d[cols].rename(columns={
+                'priority': f'priority_{label}',
+                'wait_min': f'wait_min_{label}',
+            })
+
+        left = with_idx(ev_mta, 'mta')
+        right = with_idx(ev_oll, 'ollama')
+        comp = pd.merge(left, right, on=['sim_index', 'arrival_min', 'service_min'], how='outer', suffixes=('_mta', '_ollama'))
+        comp_path = run_outdir / 'events_comparison.csv'
+        comp.to_csv(comp_path, index=False)
+
     print(json.dumps(comparison, indent=2))
     print(f"\nSaved: {mta_path}\nSaved: {ollama_path}\nSaved: {comparison_path}")
 

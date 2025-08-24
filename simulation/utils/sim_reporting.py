@@ -103,5 +103,7 @@ def build_simulation_report(
         'completed': results.get('completed', 0),
         'system_performance': system_metrics,
         'priority_breakdown': priority_breakdown,
+        # Include raw events for downstream diagnostics (e.g., comparing systems)
+        'events': events,
         'simulation_time_hours': round(minutes_to_hours(horizon_minutes), 1),
     }
