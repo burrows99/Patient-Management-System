@@ -75,6 +75,7 @@ def main():
 
     # MTA only
     if args.system == 'mta':
+        mta_start = datetime.utcnow()
         mta_report = run_simulation(
             servers=args.servers,
             encounter_class=args.encounter_class,
@@ -89,6 +90,7 @@ def main():
         )
         if not mta_report:
             sys.exit(1)
+        mta_end = datetime.utcnow()
         # Persist results
         meta = {
             'system': 'mta',
@@ -98,6 +100,9 @@ def main():
                 'filter': args.encounter_class or 'all',
             },
             'timestamp': ts,
+            'started_at': mta_start.isoformat() + 'Z',
+            'ended_at': mta_end.isoformat() + 'Z',
+            'duration_seconds': (mta_end - mta_start).total_seconds(),
         }
         _dump(meta, 'parameters.json')
         mta_path = _dump(mta_report, 'mta_results.json')
@@ -113,6 +118,7 @@ def main():
 
     # Ollama only
     if args.system == 'ollama':
+        ollama_start = datetime.utcnow()
         ollama_report = run_simulation(
             servers=args.servers,
             encounter_class=args.encounter_class,
@@ -128,6 +134,7 @@ def main():
         )
         if not ollama_report:
             sys.exit(1)
+        ollama_end = datetime.utcnow()
         # Persist results
         meta = {
             'system': 'ollama',
@@ -138,6 +145,9 @@ def main():
                 'ollama_model': args.ollama_model,
             },
             'timestamp': ts,
+            'started_at': ollama_start.isoformat() + 'Z',
+            'ended_at': ollama_end.isoformat() + 'Z',
+            'duration_seconds': (ollama_end - ollama_start).total_seconds(),
         }
         _dump(meta, 'parameters.json')
         ollama_path = _dump(ollama_report, 'ollama_results.json')
@@ -152,6 +162,8 @@ def main():
         return
 
     # Both: run MTA then Ollama and provide a comparison wrapper
+    overall_start = datetime.utcnow()
+    mta_start = datetime.utcnow()
     mta_report = run_simulation(
         servers=args.servers,
         encounter_class=args.encounter_class,
@@ -166,7 +178,9 @@ def main():
     )
     if not mta_report:
         sys.exit(1)
+    mta_end = datetime.utcnow()
 
+    ollama_start = datetime.utcnow()
     ollama_report = run_simulation(
         servers=args.servers,
         encounter_class=args.encounter_class,
@@ -182,6 +196,7 @@ def main():
     )
     if not ollama_report:
         sys.exit(1)
+    overall_end = datetime.utcnow()
 
     comparison = {
         'mta': summarize_report('mta', mta_report),
@@ -204,6 +219,21 @@ def main():
             'ollama_model': args.ollama_model,
         },
         'timestamp': ts,
+        'started_at': overall_start.isoformat() + 'Z',
+        'ended_at': overall_end.isoformat() + 'Z',
+        'duration_seconds': (overall_end - overall_start).total_seconds(),
+        'runs': {
+            'mta': {
+                'started_at': mta_start.isoformat() + 'Z',
+                'ended_at': mta_end.isoformat() + 'Z',
+                'duration_seconds': (mta_end - mta_start).total_seconds(),
+            },
+            'ollama': {
+                'started_at': ollama_start.isoformat() + 'Z',
+                'ended_at': overall_end.isoformat() + 'Z',
+                'duration_seconds': (overall_end - ollama_start).total_seconds(),
+            },
+        },
     }
     _dump(meta, 'parameters.json')
     mta_path = _dump(mta_report, 'mta_results.json')
