@@ -1,13 +1,13 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union, Tuple
 import pandas as pd
 import numpy as np
 from .io_utils import read_csv_or_excel
 from .time_utils import seconds_to_minutes
 
 
-def load_encounters_df(output_dir: Path | str, process_all: bool = True) -> pd.DataFrame:
+def load_encounters_df(output_dir: Union[Path, str], process_all: bool = True) -> pd.DataFrame:
     """Load encounters and optionally add standard time/service features.
 
     Returns a DataFrame with parsed times and helper columns:
@@ -33,9 +33,9 @@ def assign_start_dt(
     source_col: str = "START",
     *,
     use_poisson: bool = False,
-    rate_per_min: float | None = None,
-    seed: int | None = None,
-    start_at: pd.Timestamp | None = None,
+    rate_per_min: Optional[float] = None,
+    seed: Optional[int] = None,
+    start_at: Optional[pd.Timestamp] = None,
 ) -> pd.DataFrame:
     """Assign standardized start datetime column START_DT.
 
@@ -106,7 +106,7 @@ def assign_time_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def load_entity_df(output_dir: Path | str, name: str, sheet: str) -> pd.DataFrame:
+def load_entity_df(output_dir: Union[Path, str], name: str, sheet: str) -> pd.DataFrame:
     """Generic entity loader using the CSV/Excel fallback."""
     return read_csv_or_excel(output_dir, f"{name}.csv", sheet)
 
@@ -133,7 +133,7 @@ def compute_arrival_minutes(df: pd.DataFrame, start_col: str = "START_DT") -> pd
     return seconds_to_minutes((df[start_col] - first_time).dt.total_seconds())
 
 
-def safe_load_entity(output_dir: Path | str, name: str, sheet: str) -> Optional[pd.DataFrame]:
+def safe_load_entity(output_dir: Union[Path, str], name: str, sheet: str) -> Optional[pd.DataFrame]:
     """Load an entity file, returning None on any error."""
     try:
         return load_entity_df(output_dir, name, sheet)
@@ -141,7 +141,7 @@ def safe_load_entity(output_dir: Path | str, name: str, sheet: str) -> Optional[
         return None
 
 
-def load_frames(output_dir: Path | str, specs: dict[str, dict]) -> dict[str, Optional[pd.DataFrame]]:
+def load_frames(output_dir: Union[Path, str], specs: Dict[str, dict]) -> Dict[str, Optional[pd.DataFrame]]:
     """Load multiple frames by spec.
 
     specs example:
@@ -150,7 +150,7 @@ def load_frames(output_dir: Path | str, specs: dict[str, dict]) -> dict[str, Opt
       'prescriptions': { 'primary': ('medications','Medications'), 'fallbacks': [('prescriptions','Prescriptions')] },
     }
     """
-    loaded: dict[str, Optional[pd.DataFrame]] = {}
+    loaded: Dict[str, Optional[pd.DataFrame]] = {}
     for key, conf in specs.items():
         name, sheet = conf.get('primary', (None, None))
         df = safe_load_entity(output_dir, name, sheet) if name else None
@@ -191,7 +191,7 @@ def row_by_value(df: Optional[pd.DataFrame], value: str, *id_col_candidates: str
     return subset.iloc[0]
 
 
-def select_fields(row: Optional[pd.Series], field_candidates: dict[str, tuple[str, ...]]) -> dict:
+def select_fields(row: Optional[pd.Series], field_candidates: Dict[str, Tuple[str, ...]]) -> dict:
     """From a row, build dict for keys using first available candidate column per key."""
     if row is None:
         return {}
@@ -207,12 +207,12 @@ def select_fields(row: Optional[pd.Series], field_candidates: dict[str, tuple[st
 def recent_records(
     df: Optional[pd.DataFrame],
     pid_value: str,
-    pid_col_candidates: tuple[str, ...],
-    date_col_candidates: tuple[str, ...],
+    pid_col_candidates: Tuple[str, ...],
+    date_col_candidates: Tuple[str, ...],
     before_dt,
     limit: int,
-    field_candidates: dict[str, tuple[str, ...]],
-) -> list[dict]:
+    field_candidates: Dict[str, Tuple[str, ...]],
+) -> List[dict]:
     """Return last N records for a patient before a datetime, projecting fields.
 
     field_candidates maps output field -> tuple of candidate column names.
@@ -264,7 +264,7 @@ def demographics_for(patients_df: Optional[pd.DataFrame], patient_id: str) -> di
     })
 
 
-def recent_encounters_for(df: pd.DataFrame, enc_pid_col: str, patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_encounters_for(df: pd.DataFrame, enc_pid_col: str, patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -281,7 +281,7 @@ def recent_encounters_for(df: pd.DataFrame, enc_pid_col: str, patient_id: str, b
     )
 
 
-def get_default_related_frames(output_dir: Path | str) -> dict[str, Optional[pd.DataFrame]]:
+def get_default_related_frames(output_dir: Union[Path, str]) -> Dict[str, Optional[pd.DataFrame]]:
     """Load default related frames used during encounter enrichment."""
     return load_frames(output_dir, {
         'patients': {'primary': ('patients', 'Patients')},
@@ -305,7 +305,7 @@ def build_structured_encounter(
     df: pd.DataFrame,
     enc_pid_col: str,
     arrival_min_series: pd.Series,
-    frames: dict[str, Optional[pd.DataFrame]],
+    frames: Dict[str, Optional[pd.DataFrame]],
     history_limit: int = 5,
 ) -> Dict[str, Any]:
     """Assemble a single structured encounter dict from inputs."""
@@ -366,7 +366,7 @@ def build_structured_encounter(
     }
 
 
-def recent_conditions_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_conditions_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -383,7 +383,7 @@ def recent_conditions_for(df: Optional[pd.DataFrame], patient_id: str, before_dt
     )
 
 
-def recent_procedures_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_procedures_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -400,7 +400,7 @@ def recent_procedures_for(df: Optional[pd.DataFrame], patient_id: str, before_dt
     )
 
 
-def recent_immunizations_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_immunizations_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -417,7 +417,7 @@ def recent_immunizations_for(df: Optional[pd.DataFrame], patient_id: str, before
     )
 
 
-def recent_allergies_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_allergies_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -434,7 +434,7 @@ def recent_allergies_for(df: Optional[pd.DataFrame], patient_id: str, before_dt,
     )
 
 
-def recent_careplans_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_careplans_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -450,7 +450,7 @@ def recent_careplans_for(df: Optional[pd.DataFrame], patient_id: str, before_dt,
     )
 
 
-def recent_imaging_studies_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_imaging_studies_for(df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         df,
         patient_id,
@@ -466,7 +466,7 @@ def recent_imaging_studies_for(df: Optional[pd.DataFrame], patient_id: str, befo
     )
 
 
-def recent_prescriptions_for(rx_df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_prescriptions_for(rx_df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         rx_df,
         patient_id,
@@ -482,7 +482,7 @@ def recent_prescriptions_for(rx_df: Optional[pd.DataFrame], patient_id: str, bef
     )
 
 
-def recent_observations_for(ob_df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> list[dict]:
+def recent_observations_for(ob_df: Optional[pd.DataFrame], patient_id: str, before_dt, limit: int = 5) -> List[dict]:
     return recent_records(
         ob_df,
         patient_id,

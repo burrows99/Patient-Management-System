@@ -26,27 +26,72 @@ services:
     # No healthcheck as per official setup
     # The service will be ready when the API is responsive
 
-  comparison:
+  ollama-downloader:
+    build: .
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - triage-network
+    volumes:
+      - .:/app
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-phi:2.7b}
+    command: >
+      sh -c "
+        set -e;
+        HOST=\${OLLAMA_HOST:-http://ollama:11434};
+        MODEL=\${OLLAMA_MODEL:-phi:2.7b};
+        echo Waiting for Ollama at $$HOST...;
+        until curl -sf $$HOST/api/tags >/dev/null; do echo 'Ollama not ready yet, waiting...'; sleep 3; done;
+        echo Pulling model \"$$MODEL\"...;
+        curl -sS -X POST $$HOST/api/pull -H 'Content-Type: application/json' -d "$(printf '{\"name\":\"%s\"}' \"$$MODEL\")";
+        echo Model pull complete.
+      "
+
+  simulate:
     build: .
     volumes:
       - .:/app
       - ./output:/app/output
     environment:
-      - OLLAMA_HOST=http://ollama:11434
       - PYTHONUNBUFFERED=1
+      # Optional: point to Ollama if analytics requires it
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-phi:2.7b}
+      - OLLAMA_TELEMETRY_PATH=${OLLAMA_TELEMETRY_PATH:-output/telemetry/ollama_telemetry.jsonl}
+      # Simulation parameters (overridable via env or .env)
+      - SIM_SYSTEM=${SIM_SYSTEM:-both}
+      - SIM_SERVERS=${SIM_SERVERS:-2}
+      - SIM_LIMIT=${SIM_LIMIT:-50}
+      - SIM_CLASS=${SIM_CLASS:-}
+      - SIM_DEBUG=${SIM_DEBUG:-false}
+      - SIM_POISSON=${SIM_POISSON:-true}
+      - SIM_RATE=${SIM_RATE:-}
+      - SIM_SEED=${SIM_SEED:-}
+      - SIM_START_AT=${SIM_START_AT:-}
     depends_on:
       synthea:
         condition: service_completed_successfully
-      ollama:
-        condition: service_started
+      ollama-downloader:
+        condition: service_completed_successfully
     networks:
       - triage-network
     command: >
-      sh -c "chmod +x /app/init_ollama.sh && 
-             /app/init_ollama.sh && 
-             python -m pip install -r requirements.txt && 
-             python -m simulation.compare_triage_systems"
-
+      sh -c '
+        python simulate.py \
+          --system ${SIM_SYSTEM:-both} \
+          --servers ${SIM_SERVERS} \
+          --limit ${SIM_LIMIT} \
+          --ollama-model ${OLLAMA_MODEL} \
+          $([ -n "${SIM_CLASS}" ] && [ "${SIM_CLASS}" != "all" ] && echo "--encounter-class ${SIM_CLASS}" ) \
+          $([ "${SIM_DEBUG}" = "true" ] && echo "--debug" ) \
+          $([ "${SIM_POISSON}" = "true" ] && echo "--poisson" ) \
+          $([ -n "${SIM_RATE}" ] && echo "--poisson-rate ${SIM_RATE}" ) \
+          $([ -n "${SIM_SEED}" ] && echo "--poisson-seed ${SIM_SEED}" ) \
+          $([ -n "${SIM_START_AT}" ] && echo "--poisson-start ${SIM_START_AT}" )
+      '
 networks:
   triage-network:
     driver: bridge

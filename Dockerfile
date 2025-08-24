@@ -21,4 +21,4 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
 # Default command (can be overridden in docker-compose.yml)
-CMD ["python", "-m", "simulation.simulation"]
+CMD ["python", "simulate.py"]

@@ -27,12 +27,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from simulation.simulation import run_simulation  # type: ignore
-from simulation.analytics.core.compare import summarize_report, compare_reports
-from simulation.analytics.viz.plotting import (
-    save_system_plots,
-    plot_overall_comparison,
-)
+from simulation.triage_simulator import run_simulation  # type: ignore
+from simulation.utils.env_utils import get_sim_defaults, get_ollama_settings
+from simulation.common.analytics import summarize_report, compare_reports, save_system_plots, plot_overall_comparison
 
 
 # Compare helpers now imported from simulation.analytics.core.compare
@@ -40,18 +37,22 @@ from simulation.analytics.viz.plotting import (
 
 def main():
     parser = argparse.ArgumentParser(description='Unified triage simulation CLI')
+    env_defaults = get_sim_defaults()
     parser.add_argument('--system', choices=['mta', 'ollama', 'both'], default='mta', help='Which triage system to run')
-    parser.add_argument('--servers', type=int, default=3, help='Number of servers')
-    parser.add_argument('--class', dest='encounter_class', default='', help='Filter by encounter class')
-    parser.add_argument('--limit', type=int, default=100, help='Max number of encounters')
-    parser.add_argument('--ollama-model', default='phi:2.7b', help='Ollama model, when system=ollama/both')
+    parser.add_argument('--servers', type=int, default=env_defaults.get('servers', 3), help='Number of servers')
+    # Support both --class and --encounter-class (compose uses the latter)
+    parser.add_argument('--class', dest='encounter_class', default=env_defaults.get('encounter_class', ''), help='Filter by encounter class')
+    parser.add_argument('--encounter-class', dest='encounter_class', help=argparse.SUPPRESS)
+    parser.add_argument('--limit', type=int, default=env_defaults.get('limit', 100), help='Max number of encounters')
+    ollama_env = get_ollama_settings()
+    parser.add_argument('--ollama-model', default=ollama_env.get('model', 'phi:2.7b'), help='Ollama model, when system=ollama/both')
     parser.add_argument('--analyze', action='store_true', help='Print compact analysis summary to stdout')
     parser.add_argument('--dump-events', action='store_true', help='When running both, dump per-patient events CSVs and comparison table')
     # Queue-theory arrivals (Poisson/exponential inter-arrival)
-    parser.add_argument('--poisson', action='store_true', help='Use Poisson arrivals (exponential inter-arrival times)')
-    parser.add_argument('--poisson-rate', type=float, default=None, help='Arrival rate λ in arrivals per minute (required with --poisson)')
-    parser.add_argument('--poisson-seed', type=int, default=None, help='Random seed for Poisson arrivals')
-    parser.add_argument('--poisson-start', type=str, default=None, help='Base timestamp for first arrival (e.g., 2025-08-24T09:00:00Z)')
+    parser.add_argument('--poisson', action='store_true', default=env_defaults.get('poisson', False), help='Use Poisson arrivals (exponential inter-arrival times)')
+    parser.add_argument('--poisson-rate', type=float, default=env_defaults.get('poisson_rate', None), help='Arrival rate λ in arrivals per minute (required with --poisson)')
+    parser.add_argument('--poisson-seed', type=int, default=env_defaults.get('poisson_seed', None), help='Random seed for Poisson arrivals')
+    parser.add_argument('--poisson-start', type=str, default=env_defaults.get('poisson_start', None), help='Base timestamp for first arrival (e.g., 2025-08-24T09:00:00Z)')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging in underlying simulation')
     parser.add_argument('--outDir', default='output/simulation/jsonfiles', help='Directory to save simulation JSON outputs')
     args = parser.parse_args()
@@ -67,9 +68,10 @@ def main():
         p.write_text(json.dumps(obj, indent=2))
         return p
 
-    # Always place Ollama telemetry alongside results for ollama runs
+    # Always place Ollama telemetry alongside results for ollama runs, unless pre-set in env
     if args.system in ('ollama', 'both'):
-        os.environ['OLLAMA_TELEMETRY_PATH'] = str(run_outdir / 'ollama_telemetry.jsonl')
+        if not os.getenv('OLLAMA_TELEMETRY_PATH'):
+            os.environ['OLLAMA_TELEMETRY_PATH'] = str(run_outdir / 'ollama_telemetry.jsonl')
 
     # MTA only
     if args.system == 'mta':

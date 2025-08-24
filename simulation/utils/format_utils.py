@@ -1,6 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict
-import pandas as pd
+from typing import Any
 import json
 
 
@@ -14,23 +13,6 @@ def print_section(title: str) -> None:
 def print_kv(key: str, value: Any) -> None:
     print(f"{key}: {value}")
 
-
-def series_to_dict(series: pd.Series) -> Dict[Any, Any]:
-    """Safely convert a pandas Series (possibly with PeriodIndex) to a JSON-serializable dict."""
-    if series is None:
-        return {}
-    # Convert Period objects and other non-JSON types to string
-    out: Dict[Any, Any] = {}
-    for k, v in series.items():
-        key = str(k)
-        try:
-            # Convert numpy/pandas scalars to Python scalars
-            if hasattr(v, 'item'):
-                v = v.item()
-        except Exception:
-            pass
-        out[key] = v
-    return out
 
 
 class NpEncoder(json.JSONEncoder):
@@ -51,8 +33,8 @@ class NpEncoder(json.JSONEncoder):
 def print_sim_commands():
     print(f"\n🚀 READY-TO-USE SIMULATION COMMANDS:")
     print(f"   # Standard simulation")
-    print(f"   python simulation/simulation.py --servers=3 --compressTo=8hours --limit=100")
+    print(f"   python simulate.py --servers=3 --compressTo=8hours --limit=100")
     print(f"   # Emergency-only simulation")
-    print(f"   python simulation/simulation.py --servers=2 --class=emergency --compressTo=4hours")
+    print(f"   python simulate.py --servers=2 --class=emergency --compressTo=4hours")
     print(f"   # High-capacity stress test")
-    print(f"   python simulation/simulation.py --servers=6 --limit=200 --compressTo=12hours")
+    print(f"   python simulate.py --servers=6 --limit=200 --compressTo=12hours")

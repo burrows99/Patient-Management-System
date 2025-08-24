@@ -6,7 +6,7 @@ A lightweight workspace to generate synthetic healthcare datasets (FHIR JSON and
 
 - __[data generation]__ Dockerized Synthea run to produce FHIR and CSV under `output/`
 - __[priority queue simulation]__ Discrete-event simulation using SimPy `PriorityResource` with Manchester Triage priorities: `simulation/engine/simulator.py`
-- __[simulation orchestrator]__ Unified runner that loads encounters, configures triage (MTA or Ollama), runs the SimPy engine, and builds a JSON report: `simulation/simulation.py`
+- __[simulation orchestrator]__ Unified runner that loads encounters, configures triage (MTA or Ollama), runs the SimPy engine, and builds a JSON report: `simulation/triage_simulator.py`
 - __[unified CLI]__ Single entry point to run MTA, Ollama, or both, with optional summaries and diagnostic CSV dumps: `python3 simulate.py`
 
 ## Prerequisites
@@ -86,11 +86,14 @@ pip install -r requirements.txt
   - `--outDir`: base output directory (timestamped subfolder created)
   - `--dump-events`: write `mta_events.csv`, `ollama_events.csv`, and `events_comparison.csv`
 
-- __Direct engine run (advanced)__
-  ```bash
-  python3 simulation/simulation.py --servers=3 --limit=100 --debug
+- __Advanced (programmatic use)__
+  `simulation/triage_simulator.py` is now a pure module. Import and call `run_simulation()` from your own scripts/tests:
+  ```python
+  from simulation.triage_simulator import run_simulation
+
+  report = run_simulation(servers=3, limit=100, triage_system="mta", debug=True)
   ```
-  See `simulation/engine/simulator.py` for the SimPy engine and `simulation/simulation.py` for orchestration.
+  The only supported CLI is the root `simulate.py`.
 
 ## Literature Review
 
@@ -245,7 +248,7 @@ Plots are produced by `simulation/analytics/viz/plotting.py`.
 - __Servers__: Parallel capacity `c = --servers`.
 
 ### Time horizon
-`simulation/simulation.py` computes a conservative horizon from arrivals and total service to ensure the queue drains even with large service estimates and few servers. This avoids premature termination when some systems estimate longer services.
+`simulation/triage_simulator.py` computes a conservative horizon from arrivals and total service to ensure the queue drains even with large service estimates and few servers. This avoids premature termination when some systems estimate longer services.
 
 ### Manchester Triage System (MTS) priorities
 - __Priority classes__: P1–P5 with target maximum waits (e.g., Immediate/Red, Very Urgent/Orange, etc.). In `ManchesterTriageSystem.PRIORITIES` we encode names, color codes, and target waits; assignment uses encounter class plus clinical keywords from `REASONDESCRIPTION`.
@@ -317,7 +320,7 @@ flowchart TD
 Legend:
 - Data source: `output/csv/encounters.csv`
 - Analysis pipeline: `simulation/dataAnalysis.py` → `simulation/dashboard.py` → `analytics_summary.json`
-- Simulation pipeline: `simulation/simulation.py` → SimPy engine (non‑preemptive priorities, c servers)
+- __Simulation pipeline__: `simulation/triage_simulator.py` → SimPy engine (non‑preemptive priorities, c servers)
 
 ### NHS relevance
 - __Policy context__: NHS EDs use validated triage systems; MTS is widely adopted across the UK and Europe (see NHS England guidance above).
@@ -327,7 +330,7 @@ Legend:
 ## Next Steps
 - Adjust patient count (`-p N`) to scale datasets.
 - Explore additional Synthea flags/modules as needed.
- - Extend priority mapping and calibration in `simulation/simulation.py` using your local clinical policies.
+ - Extend priority mapping and calibration in `simulation/triage_simulator.py` using your local clinical policies.
  - Parameterize staffing rules and utilization targets in `simulation/dashboard.py` for scenario testing.
 
 ---
@@ -395,7 +398,7 @@ flowchart TD
 
 ### How the simulation consumes this
 - __File input__: Save Langflow output to `output/langflow_output.json`.
-- __Simulation hook__: Extend `simulation/simulation.py` to accept `--config output/langflow_output.json`.
+- __Simulation hook__: Extend `simulation/triage_simulator.py` to accept `--config output/langflow_output.json`.
   - Parse `window` to select and compress time slice.
   - Use `priority_mapping` to sample per-encounter priority.
   - Apply `staffing.servers` to set SimPy `PriorityResource` capacity.
@@ -403,13 +406,8 @@ flowchart TD
 
 Minimal CLI example (planned):
 ```
-python simulation/simulation.py --config=output/langflow_output.json --limit=200
+python simulation/triage_simulator.py --config=output/langflow_output.json --limit=200
 ```
-
-### Scaling to hundreds of patients quickly
-- __Batching__: Chunk encounters by day or hour; process each chunk through Langflow in parallel; concatenate JSONs before simulation.
-- __Asynchronous requests__: Use Langflow REST with async workers and a job queue; backoff on rate limits.
-- __Deterministic prompts__: Fix temperature and use few-shot exemplars to minimize retries.
 - __Caching__: Hash inputs (text, encounterclass mix); reuse prior agent outputs for identical or similar chunks.
 - __Lightweight paths__: Only send minimal features (class, key terms, times) to agents; keep bulk data local.
 - __Vector prefilter__: Embed reasons/descriptions once; retrieve nearest exemplars to guide Triage agent without large prompts.
